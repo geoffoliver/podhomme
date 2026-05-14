@@ -10,7 +10,7 @@ A shared podcast player for the browser. Multiple people can open the same URL a
 - **Serial / Episodic** — podcast episode order follows the feed's `<itunes:type>`, overridable per podcast
 - **Favorites** — star episodes; accessible from the sidebar
 - **Download first** — optionally download episode audio to the server and stream it locally rather than relying on remote URLs; configurable limit on how many files to keep per podcast
-- **BeardedSpice** — full MediaStrategy for controlling playback via macOS media keys
+- **BeardedSpice** — MediaStrategy exposes episode and podcast metadata so Airfoil can display Now Playing info for the current episode
 - **Scheduled refresh** — feeds refresh automatically on a configurable schedule
 
 ## Tech Stack
@@ -51,13 +51,14 @@ pm2 start ecosystem.config.js
 
 The web server runs on port 3000. The worker process handles scheduled feed refreshes.
 
-## BeardedSpice Integration
+## BeardedSpice / Airfoil Integration
+
+BeardedSpice is used here not for media key control, but as a bridge to get Now Playing metadata (episode title, podcast name, artwork) from the browser into Airfoil.
 
 1. Download `public/beardedspice.js` from the running app at `http://localhost:3000/beardedspice.js`
 2. In BeardedSpice preferences → Strategies → Add custom strategy
 3. Select the downloaded file
-
-Media keys will then control playback, and Now Playing info will show the current episode.
+4. BeardedSpice will read the current episode metadata from the page and expose it to Airfoil as Now Playing info
 
 ## Settings
 
