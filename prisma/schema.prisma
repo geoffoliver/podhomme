@@ -1,0 +1,75 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Podcast {
+  id               Int       @id @default(autoincrement())
+  title            String
+  description      String?
+  imageUrl         String?
+  feedUrl          String    @unique
+  siteUrl          String?
+  author           String?
+  type             String    @default("episodic")
+  typeOverride     String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  lastRefreshedAt  DateTime?
+  episodes         Episode[]
+}
+
+model Episode {
+  id           Int       @id @default(autoincrement())
+  podcastId    Int
+  podcast      Podcast   @relation(fields: [podcastId], references: [id], onDelete: Cascade)
+  guid         String
+  title        String
+  description  String?
+  audioUrl     String
+  imageUrl     String?
+  duration     Int?
+  pubDate      DateTime
+  played       Boolean   @default(false)
+  playedAt     DateTime?
+  favorited    Boolean   @default(false)
+  favoritedAt  DateTime?
+  downloadPath String?
+  fileSize     Int?
+  createdAt    DateTime  @default(now())
+
+  queueItem    QueueItem?
+  playback     PlaybackState[]
+
+  @@unique([podcastId, guid])
+}
+
+model QueueItem {
+  id        Int     @id @default(autoincrement())
+  episodeId Int     @unique
+  episode   Episode @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+  position  Int
+}
+
+model PlaybackState {
+  id               Int      @id @default(1)
+  episodeId        Int?
+  episode          Episode? @relation(fields: [episodeId], references: [id])
+  position         Float    @default(0)
+  isPlaying        Boolean  @default(false)
+  context          String   @default("all")
+  contextPodcastId Int?
+  updatedAt        DateTime @updatedAt
+}
+
+model Settings {
+  id               Int    @id @default(1)
+  refreshFrequency Int    @default(60)
+  episodesToKeep   String @default("all_unplayed")
+  defaultPlayback  String @default("stream")
+  downloadLocation String @default("./downloads")
+}

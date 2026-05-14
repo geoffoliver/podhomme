@@ -1,0 +1,8 @@
+@reference "tailwindcss";
+
+.splitPane {
+  @apply
+    flex
+    flex-1
+    overflow-hidden;
+}

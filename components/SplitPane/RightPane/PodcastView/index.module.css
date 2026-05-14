@@ -1,0 +1,130 @@
+@reference "tailwindcss";
+
+.view {
+  @apply
+    flex
+    flex-col
+    h-full
+    overflow-hidden;
+}
+
+.header {
+  @apply
+    flex
+    gap-4
+    p-4
+    border-b
+    border-neutral-200
+    bg-white
+    shrink-0;
+}
+
+.artwork {
+  @apply
+    w-24
+    h-24
+    rounded-lg
+    object-cover
+    shrink-0;
+}
+
+.artworkPlaceholder {
+  @apply
+    w-24
+    h-24
+    rounded-lg
+    shrink-0
+    bg-neutral-100
+    flex
+    items-center
+    justify-center
+    text-neutral-300;
+}
+
+.headerInfo {
+  @apply
+    flex
+    flex-col
+    gap-1
+    min-w-0
+    flex-1;
+}
+
+.podcastTitle {
+  @apply
+    text-lg
+    font-semibold
+    text-neutral-900
+    leading-snug;
+}
+
+.podcastAuthor {
+  @apply
+    text-sm
+    text-neutral-600;
+}
+
+.podcastDescription {
+  @apply
+    text-xs
+    text-neutral-500
+    line-clamp-3
+    mt-1;
+}
+
+.headerActions {
+  @apply
+    flex
+    gap-2
+    mt-2;
+}
+
+.typeSelect {
+  @apply
+    text-xs
+    border
+    border-neutral-200
+    rounded
+    px-2
+    py-1
+    text-neutral-700
+    bg-white
+    cursor-pointer;
+}
+
+.toolbar {
+  @apply
+    flex
+    items-center
+    gap-2
+    px-4
+    py-2
+    border-b
+    border-neutral-100
+    bg-white
+    shrink-0;
+}
+
+.toolbarTitle {
+  @apply
+    text-sm
+    font-medium
+    text-neutral-700
+    mr-auto;
+}
+
+.episodeList {
+  @apply
+    flex-1
+    overflow-y-auto;
+}
+
+.empty {
+  @apply
+    flex
+    items-center
+    justify-center
+    h-32
+    text-neutral-400
+    text-sm;
+}

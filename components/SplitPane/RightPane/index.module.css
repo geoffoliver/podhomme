@@ -1,0 +1,9 @@
+@reference "tailwindcss";
+
+.pane {
+  @apply
+    flex-1
+    overflow-hidden
+    flex
+    flex-col;
+}

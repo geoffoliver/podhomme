@@ -1,0 +1,47 @@
+@reference "tailwindcss";
+
+.view {
+  @apply
+    flex
+    flex-col
+    h-full
+    overflow-hidden;
+}
+
+.toolbar {
+  @apply
+    flex
+    items-center
+    gap-2
+    px-4
+    py-2
+    border-b
+    border-neutral-100
+    bg-white
+    shrink-0;
+}
+
+.toolbarTitle {
+  @apply
+    text-sm
+    font-medium
+    text-neutral-700;
+}
+
+.episodeList {
+  @apply
+    flex-1
+    overflow-y-auto;
+}
+
+.empty {
+  @apply
+    flex
+    flex-col
+    items-center
+    justify-center
+    h-full
+    gap-2
+    text-neutral-400
+    text-sm;
+}
