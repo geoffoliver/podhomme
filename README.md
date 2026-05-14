@@ -5,10 +5,11 @@ A shared podcast player for the browser. Multiple people can open the same URL a
 ## Features
 
 - **Shared playback** — all connected browsers stay in sync via Server-Sent Events
-- **Podcast subscriptions** — add feeds by RSS URL or import an OPML file
+- **Podcast subscriptions** — add feeds by RSS URL, search the iTunes catalog, or import an OPML file
 - **Auto-advance** — when an episode ends, the next one plays automatically based on context (All Podcasts queue, individual podcast, or Favorites)
 - **Serial / Episodic** — podcast episode order follows the feed's `<itunes:type>`, overridable per podcast
-- **Favorites** — star episodes; accessible from the sidebar and controllable via media keys
+- **Favorites** — star episodes; accessible from the sidebar
+- **Download first** — optionally download episode audio to the server and stream it locally rather than relying on remote URLs; configurable limit on how many files to keep per podcast
 - **BeardedSpice** — full MediaStrategy for controlling playback via macOS media keys
 - **Scheduled refresh** — feeds refresh automatically on a configurable schedule
 

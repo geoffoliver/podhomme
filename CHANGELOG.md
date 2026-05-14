@@ -15,6 +15,19 @@
 - Added "Tap to hear" button for new visitors when autoplay is blocked by the browser
 
 ### Added
+- Episode audio served through `/api/episodes/[id]/audio`: streams the locally-downloaded file when available (with range-request support for seeking), falls back to a redirect to the remote RSS URL otherwise
+- "Episodes to keep" now manages downloaded files on disk rather than deleting database records; only applies when Default Playback is set to Download First
+- All Podcasts toolbar now shows total playback time of the unplayed queue in `[hh:mm:ss]` format next to the episode count (hidden when total is zero or all durations are unknown)
+- iTunes podcast search: search button in the LeftPane footer opens a modal dialog backed by the iTunes Search API; results show artwork, title, author, and genre with a Subscribe button
+- Pino structured logging throughout the server (`lib/logger.ts`), with pino-pretty output in development
+- Podcast image preserved on refresh: if the remote image download fails during a feed refresh, the existing cached image is kept rather than overwritten with a broken URL
+- 60-day rule: if the newest episode in a newly-imported or refreshed feed is more than 60 days old, all episodes are marked as played on arrival
+- Guard against pruned episodes reappearing as unplayed: episodes older than the most-recent stored pubDate are never marked unplayed on re-import
+- Dynamic page title reflects the currently playing episode (`<Episode> - <Podcast>`) and reverts to "Podhomme" when nothing is loaded
+- Play/pause button in TopBar is disabled when no episode has been loaded
+- BeardedSpice next/previous now skip forward/back 30s/15s (matching the TopBar buttons) rather than advancing tracks
+- iTunes podcast search dialog
+- All `<img>` tags replaced with Next.js `<Image />` for automatic optimisation
 - Initial application scaffold
 - Prisma schema with Podcast, Episode, QueueItem, PlaybackState, and Settings models (SQLite)
 - SSE infrastructure for real-time state sync across all connected browsers
