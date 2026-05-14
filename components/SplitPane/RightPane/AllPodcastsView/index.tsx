@@ -28,6 +28,15 @@ export function AllPodcastsView() {
 
   const displayItems = localItems ?? sorted
 
+  const totalSeconds = queue.reduce((sum, item) => sum + (item.episode.duration ?? 0), 0)
+  const totalTime = (() => {
+    if (totalSeconds === 0) return ''
+    const h = Math.floor(totalSeconds / 3600)
+    const m = Math.floor((totalSeconds % 3600) / 60)
+    const s = totalSeconds % 60
+    return `[${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}]`
+  })()
+
   async function handleDragEnd(result: DropResult) {
     if (!result.destination || result.destination.index === result.source.index) return
 
@@ -49,7 +58,9 @@ export function AllPodcastsView() {
   return (
     <div className={styles.view}>
       <div className={styles.toolbar}>
-        <span className={styles.toolbarTitle}>All Podcasts — Unplayed ({queue.length})</span>
+        <span className={styles.toolbarTitle}>
+          All Podcasts — Unplayed ({queue.length}){totalTime ? ` ${totalTime}` : ''}
+        </span>
         <button
           className={`btn-ghost text-xs ${sortMode === 'asc' ? 'font-semibold' : ''}`}
           onClick={() => setSortMode(m => m === 'asc' ? 'manual' : 'asc')}

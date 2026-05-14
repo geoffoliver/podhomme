@@ -62,7 +62,7 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
         prevEpisodeIdRef.current = data.episodeId
         const audio = audioRef.current
         if (audio && data.episode) {
-          audio.src = data.episode.audioUrl
+          audio.src = `/api/episodes/${data.episodeId}/audio`
           audio.currentTime = data.position
           if (data.isPlaying) {
             audio.play()
@@ -82,7 +82,7 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
     if (data.episodeId !== prevEpisodeIdRef.current) {
       prevEpisodeIdRef.current = data.episodeId
       if (data.episode) {
-        audio.src = data.episode.audioUrl
+        audio.src = `/api/episodes/${data.episodeId}/audio`
         audio.currentTime = 0
         if (data.isPlaying) {
           audio.play()
