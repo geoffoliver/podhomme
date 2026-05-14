@@ -45,3 +45,4 @@ next-env.d.ts
 # SQLite databases
 prisma/*.db
 prisma/*.db-journal
+public/images/podcasts/*
