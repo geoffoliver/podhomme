@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
 import { Podcast, Play, MoreVertical, Star, StarOff, Download, CheckCircle, Circle, GripVertical } from 'lucide-react'
 import type { Episode } from '@/types'
 import { usePlayback } from '@/context/PlaybackContext'
@@ -75,7 +76,7 @@ export function EpisodeRow({ episode, context, contextPodcastId, onDetail, dragH
       )}
 
       {artUrl ? (
-        <img src={artUrl} alt="" className={styles.artwork} />
+        <Image src={artUrl} alt="" width={48} height={48} className={styles.artwork} />
       ) : (
         <div className={styles.artworkPlaceholder}><Podcast size={20} /></div>
       )}

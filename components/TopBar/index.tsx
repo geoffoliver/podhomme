@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
 import {
   Podcast,
   Play,
@@ -83,7 +84,7 @@ export function TopBar({ onSettingsClick }: Props) {
     <header className={styles.topbar}>
       {/* Album art */}
       {artUrl ? (
-        <img src={artUrl} alt="" className={styles.artwork} data-podhomme="artwork" />
+        <Image src={artUrl} alt="" width={40} height={40} className={styles.artwork} data-podhomme="artwork" />
       ) : (
         <div className={styles.artworkPlaceholder}>
           <Podcast size={20} />

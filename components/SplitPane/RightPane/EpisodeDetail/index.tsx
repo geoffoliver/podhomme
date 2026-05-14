@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import Image from 'next/image'
 import { Podcast } from 'lucide-react'
 import type { Episode } from '@/types'
 import styles from './index.module.css'
@@ -53,7 +54,7 @@ export function EpisodeDetail({ episode, onClose }: Props) {
     <dialog ref={dialogRef} className={styles.dialog} onClose={onClose} onClick={handleClick}>
       <div className={styles.header}>
         {artUrl ? (
-          <img src={artUrl} alt="" className={styles.artwork} />
+          <Image src={artUrl} alt="" width={80} height={80} className={styles.artwork} />
         ) : (
           <div className={styles.artworkPlaceholder}><Podcast size={32} /></div>
         )}

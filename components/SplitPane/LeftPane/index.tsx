@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
+import Image from 'next/image'
 import { Podcast, Star, Plus, Search, FileInput, RefreshCw } from 'lucide-react'
 import { usePodcasts } from '@/context/PodcastsContext'
 import { PodcastSearch } from '@/components/PodcastSearch'
@@ -85,7 +86,7 @@ export function LeftPane() {
               aria-selected={selectedView === p.id}
             >
               {p.imageUrl ? (
-                <img src={p.imageUrl} alt="" className={styles.artwork} />
+                <Image src={p.imageUrl!} alt="" width={28} height={28} className={styles.artwork} />
               ) : (
                 <span className={styles.artworkPlaceholder}><Podcast size={14} /></span>
               )}

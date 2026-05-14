@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
 import { Search, X, Podcast } from 'lucide-react'
 import { usePodcasts } from '@/context/PodcastsContext'
 import type { iTunesResult } from '@/types'
@@ -103,7 +104,7 @@ export function PodcastSearch({ open, onClose }: Props) {
             return (
               <div key={result.collectionId} className={styles.result}>
                 {result.artworkUrl100 ? (
-                  <img src={result.artworkUrl100} alt="" className={styles.artwork} />
+                  <Image src={result.artworkUrl100} alt="" width={48} height={48} className={styles.artwork} />
                 ) : (
                   <div className={styles.artworkPlaceholder}><Podcast size={20} /></div>
                 )}

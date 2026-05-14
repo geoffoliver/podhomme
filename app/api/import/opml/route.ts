@@ -2,6 +2,9 @@ import { db } from '@/lib/db'
 import { parseFeed, parseOpml } from '@/lib/feed'
 import { broadcast } from '@/lib/sse'
 import { cachePodcastImage } from '@/lib/imageCache'
+import logger from '@/lib/logger'
+
+const log = logger.child({ module: 'opml' })
 
 export async function POST(request: Request) {
   const formData = await request.formData()
@@ -17,15 +20,18 @@ export async function POST(request: Request) {
   }
 
   const results: { feedUrl: string; status: 'added' | 'exists' | 'error' }[] = []
+  log.info({ total: outlines.length }, 'Starting OPML import')
 
   for (const outline of outlines) {
     const existing = await db.podcast.findUnique({ where: { feedUrl: outline.feedUrl } })
     if (existing) {
+      log.debug({ feedUrl: outline.feedUrl }, 'Feed already subscribed, skipping')
       results.push({ feedUrl: outline.feedUrl, status: 'exists' })
       continue
     }
 
     try {
+      log.info({ feedUrl: outline.feedUrl }, 'Importing feed')
       const feed = await parseFeed(outline.feedUrl)
       const podcast = await db.podcast.create({
         data: {
@@ -45,9 +51,13 @@ export async function POST(request: Request) {
         await db.podcast.update({ where: { id: podcast.id }, data: { imageUrl: cachedImageUrl } })
       }
 
+      const SIXTY_DAYS_MS = 60 * 24 * 60 * 60 * 1000
+      const newestPubDate = feed.episodes.length > 0 ? new Date(feed.episodes[0].pubDate).getTime() : 0
+      const allPlayed = feed.episodes.length > 0 && (Date.now() - newestPubDate) > SIXTY_DAYS_MS
+
       for (let i = 0; i < feed.episodes.length; i++) {
         const ep = feed.episodes[i]
-        const isLatest = i === 0
+        const isLatest = i === 0 && !allPlayed
         const episode = await db.episode.create({
           data: {
             podcastId: podcast.id,
@@ -72,12 +82,18 @@ export async function POST(request: Request) {
       }
 
       broadcast('podcast', podcast)
+      log.info({ feedUrl: outline.feedUrl, title: feed.title, episodes: feed.episodes.length }, 'Feed imported')
       results.push({ feedUrl: outline.feedUrl, status: 'added' })
     } catch (ex: any) {
-      console.error(`Error importing feed ${outline.feedUrl}:`, ex)
+      log.error({ feedUrl: outline.feedUrl, err: ex }, 'Failed to import feed')
       results.push({ feedUrl: outline.feedUrl, status: 'error' })
     }
   }
+
+  const added = results.filter(r => r.status === 'added').length
+  const skipped = results.filter(r => r.status === 'exists').length
+  const failed = results.filter(r => r.status === 'error').length
+  log.info({ added, skipped, failed }, 'OPML import complete')
 
   return Response.json({ results })
 }

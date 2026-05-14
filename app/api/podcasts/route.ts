@@ -47,9 +47,13 @@ export async function POST(request: Request) {
     await db.podcast.update({ where: { id: podcast.id }, data: { imageUrl: cachedImageUrl } })
   }
 
+  const SIXTY_DAYS_MS = 60 * 24 * 60 * 60 * 1000
+  const newestPubDate = feed.episodes.length > 0 ? new Date(feed.episodes[0].pubDate).getTime() : 0
+  const allPlayed = feed.episodes.length > 0 && (Date.now() - newestPubDate) > SIXTY_DAYS_MS
+
   for (let i = 0; i < feed.episodes.length; i++) {
     const ep = feed.episodes[i]
-    const isLatest = i === 0
+    const isLatest = i === 0 && !allPlayed
     const episode = await db.episode.create({
       data: {
         podcastId: podcast.id,

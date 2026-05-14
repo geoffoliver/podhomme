@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import Image from 'next/image'
 import { Virtuoso } from 'react-virtuoso'
 import { Podcast, RefreshCw, Trash2 } from 'lucide-react'
 import { EpisodeRow } from '../EpisodeRow'
@@ -93,7 +94,7 @@ export function PodcastView({ podcastId }: Props) {
     <div className={styles.view}>
       <div className={styles.header}>
         {podcast.imageUrl ? (
-          <img src={podcast.imageUrl} alt="" className={styles.artwork} />
+          <Image src={podcast.imageUrl} alt="" width={96} height={96} className={styles.artwork} />
         ) : (
           <div className={styles.artworkPlaceholder}><Podcast size={32} /></div>
         )}

@@ -4,13 +4,26 @@ import { db } from '@/lib/db'
 import { parseFeed } from '@/lib/feed'
 import { broadcast } from '@/lib/sse'
 import { cachePodcastImage } from '@/lib/imageCache'
+import logger from '@/lib/logger'
+
+const log = logger.child({ module: 'refresh' })
 
 export async function refreshPodcast(podcastId: number) {
   const podcast = await db.podcast.findUniqueOrThrow({ where: { id: podcastId } })
+  log.info({ podcastId, title: podcast.title }, 'Refreshing podcast')
 
   const feed = await parseFeed(podcast.feedUrl)
+  log.debug({ podcastId, title: podcast.title, episodeCount: feed.episodes.length }, 'Feed parsed')
 
-  const imageUrl = await cachePodcastImage(feed.imageUrl, podcastId)
+  const cachedImageUrl = await cachePodcastImage(feed.imageUrl, podcastId)
+  // If caching failed (remote URL returned) and we already have a local image, keep it
+  const imageUrl = (cachedImageUrl && !cachedImageUrl.startsWith('/') && podcast.imageUrl)
+    ? podcast.imageUrl
+    : cachedImageUrl
+
+  if (imageUrl !== cachedImageUrl) {
+    log.info({ podcastId, title: podcast.title }, 'Image download failed; retaining existing cached image')
+  }
 
   await db.podcast.update({
     where: { id: podcastId },
@@ -36,10 +49,24 @@ export async function refreshPodcast(podcastId: number) {
     if (!existing) newEpisodes.push(ep)
   }
 
-  // Only the newest new episode (index 0) is unplayed and queued; the rest come in as played
+  if (newEpisodes.length === 0) {
+    log.info({ podcastId, title: podcast.title }, 'No new episodes')
+  } else {
+    log.info({ podcastId, title: podcast.title, newEpisodes: newEpisodes.length }, 'New episodes found')
+  }
+
+  const SIXTY_DAYS_MS = 60 * 24 * 60 * 60 * 1000
+  const newestPubDate = newEpisodes.length > 0 ? new Date(newEpisodes[0].pubDate).getTime() : 0
+  const allPlayed = newEpisodes.length > 0 && (Date.now() - newestPubDate) > SIXTY_DAYS_MS
+  if (allPlayed) {
+    log.info({ podcastId, title: podcast.title, newestPubDate: newEpisodes[0].pubDate }, 'Newest episode is over 60 days old — marking all new episodes as played')
+  }
+
+  // Only the newest new episode (index 0) is unplayed and queued; the rest come in as played.
+  // Exception: if the newest episode is over 60 days old, everything comes in as played.
   for (let i = 0; i < newEpisodes.length; i++) {
     const ep = newEpisodes[i]
-    const isLatest = i === 0
+    const isLatest = i === 0 && !allPlayed
 
     const episode = await db.episode.create({
       data: {
@@ -56,11 +83,14 @@ export async function refreshPodcast(podcastId: number) {
       },
     })
 
+    log.debug({ podcastId, episodeId: episode.id, title: ep.title, isLatest }, 'Episode created')
+
     if (isLatest) {
       const maxPos = await db.queueItem.aggregate({ _max: { position: true } })
       await db.queueItem.create({
         data: { episodeId: episode.id, position: (maxPos._max.position ?? -1) + 1 },
       })
+      log.info({ podcastId, episodeId: episode.id, title: ep.title }, 'Latest episode added to queue')
       await maybeDownload(episode.id, episode.audioUrl, settings.defaultPlayback, settings.downloadLocation)
     }
   }
@@ -72,10 +102,13 @@ export async function refreshPodcast(podcastId: number) {
     include: { episodes: true },
   })
   broadcast('podcast', updated)
+  log.info({ podcastId, title: podcast.title }, 'Podcast refresh complete')
 }
 
 export async function refreshAll(onProgress?: (title: string, current: number, total: number) => void) {
   const podcasts = await db.podcast.findMany()
+  log.info({ total: podcasts.length }, 'Starting full refresh')
+
   for (let i = 0; i < podcasts.length; i++) {
     const p = podcasts[i]
     onProgress?.(p.title, i + 1, podcasts.length)
@@ -83,20 +116,26 @@ export async function refreshAll(onProgress?: (title: string, current: number, t
     try {
       await refreshPodcast(p.id)
     } catch (err) {
-      console.error(`Failed to refresh ${p.title}:`, err)
+      log.error({ podcastId: p.id, title: p.title, err }, 'Failed to refresh podcast')
     }
   }
+
   broadcast('refresh', { done: true })
+  log.info({ total: podcasts.length }, 'Full refresh complete')
 }
 
 async function maybeDownload(episodeId: number, audioUrl: string, defaultPlayback: string, downloadLocation: string) {
   if (defaultPlayback !== 'download') return
 
+  log.info({ episodeId }, 'Downloading episode audio')
   try {
     await mkdir(downloadLocation, { recursive: true })
 
     const res = await fetch(audioUrl)
-    if (!res.ok) return
+    if (!res.ok) {
+      log.warn({ episodeId, status: res.status }, 'Failed to fetch audio for download')
+      return
+    }
 
     const ext = audioUrl.split('.').pop()?.split('?')[0] || 'mp3'
     const filename = `${episodeId}.${ext}`
@@ -109,8 +148,9 @@ async function maybeDownload(episodeId: number, audioUrl: string, defaultPlaybac
       where: { id: episodeId },
       data: { downloadPath: filepath, fileSize: buffer.byteLength },
     })
+    log.info({ episodeId, filepath, bytes: buffer.byteLength }, 'Episode audio downloaded')
   } catch (err) {
-    console.error(`Failed to download episode ${episodeId}:`, err)
+    log.error({ episodeId, err }, 'Failed to download episode audio')
   }
 }
 
@@ -118,10 +158,10 @@ async function pruneEpisodes(podcastId: number, episodesToKeep: string) {
   if (episodesToKeep === 'all') return
 
   if (episodesToKeep === 'all_unplayed') {
-    // Delete played episodes that have no download
-    await db.episode.deleteMany({
+    const { count } = await db.episode.deleteMany({
       where: { podcastId, played: true, downloadPath: null },
     })
+    if (count > 0) log.info({ podcastId, pruned: count }, 'Pruned played episodes')
     return
   }
 
@@ -137,4 +177,5 @@ async function pruneEpisodes(podcastId: number, episodesToKeep: string) {
   for (const ep of toDelete) {
     await db.episode.delete({ where: { id: ep.id } })
   }
+  if (toDelete.length > 0) log.info({ podcastId, pruned: toDelete.length }, 'Pruned old episodes')
 }
