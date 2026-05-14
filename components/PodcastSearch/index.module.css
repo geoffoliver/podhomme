@@ -1,0 +1,140 @@
+@reference "tailwindcss";
+
+.dialog {
+  @apply
+    m-auto
+    p-0
+    rounded-xl
+    shadow-2xl
+    border
+    border-neutral-200
+    w-full
+    max-w-2xl
+    overflow-hidden;
+  max-height: 80vh;
+}
+
+.dialog::backdrop {
+  background: rgb(0 0 0 / 0.4);
+}
+
+.panel {
+  @apply
+    flex
+    flex-col
+    overflow-hidden;
+  max-height: 80vh;
+}
+
+.header {
+  @apply
+    flex
+    items-center
+    justify-between
+    px-5
+    py-4
+    border-b
+    border-neutral-200
+    shrink-0;
+}
+
+.title {
+  @apply
+    text-base
+    font-semibold
+    text-neutral-900;
+}
+
+.searchForm {
+  @apply
+    flex
+    items-center
+    gap-2
+    px-5
+    py-3
+    border-b
+    border-neutral-100
+    shrink-0;
+}
+
+.results {
+  @apply
+    flex-1
+    overflow-y-auto;
+}
+
+.result {
+  @apply
+    flex
+    items-center
+    gap-3
+    px-5
+    py-3
+    border-b
+    border-neutral-100
+    last:border-b-0;
+}
+
+.artwork {
+  @apply
+    w-12
+    h-12
+    rounded
+    object-cover
+    shrink-0
+    bg-neutral-100;
+}
+
+.artworkPlaceholder {
+  @apply
+    w-12
+    h-12
+    rounded
+    shrink-0
+    bg-neutral-100
+    flex
+    items-center
+    justify-center
+    text-neutral-400;
+}
+
+.info {
+  @apply
+    flex-1
+    min-w-0
+    flex
+    flex-col
+    gap-0.5;
+}
+
+.name {
+  @apply
+    text-sm
+    font-medium
+    text-neutral-900
+    truncate;
+}
+
+.author {
+  @apply
+    text-xs
+    text-neutral-500
+    truncate;
+}
+
+.genre {
+  @apply
+    text-xs
+    text-neutral-400
+    truncate;
+}
+
+.empty {
+  @apply
+    flex
+    items-center
+    justify-center
+    py-12
+    text-sm
+    text-neutral-400;
+}

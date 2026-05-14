@@ -1,14 +1,16 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { Podcast, Star, Plus, FileInput, RefreshCw } from 'lucide-react'
+import { Podcast, Star, Plus, Search, FileInput, RefreshCw } from 'lucide-react'
 import { usePodcasts } from '@/context/PodcastsContext'
+import { PodcastSearch } from '@/components/PodcastSearch'
 import type { SelectedView } from '@/types'
 import styles from './index.module.css'
 
 export function LeftPane() {
   const { podcasts, selectedView, setSelectedView, refreshStatus, refreshPodcasts } = usePodcasts()
   const [adding, setAdding] = useState(false)
+  const [searching, setSearching] = useState(false)
   const [feedUrl, setFeedUrl] = useState('')
   const [addError, setAddError] = useState<string | null>(null)
   const [refreshing, setRefreshing] = useState(false)
@@ -126,14 +128,19 @@ export function LeftPane() {
       <div className={styles.buttonBar}>
         <button
           className="btn-ghost text-xs gap-1"
-          onClick={() => {
-            setAdding(v => !v);
-            setAddError(null);
-           }}
-          title="Add podcast"
-          aria-label="Add podcast"
+          onClick={() => { setAdding(v => !v); setAddError(null) }}
+          title="Add podcast by URL"
+          aria-label="Add podcast by URL"
         >
           <Plus size={14} />
+        </button>
+        <button
+          className="btn-ghost text-xs gap-1"
+          onClick={() => setSearching(true)}
+          title="Search for podcasts"
+          aria-label="Search for podcasts"
+        >
+          <Search size={14} />
         </button>
         <button
           className="btn-ghost text-xs gap-1"
@@ -156,6 +163,8 @@ export function LeftPane() {
         </button>
         <input ref={opmlRef} type="file" accept=".opml,application/xml,text/xml" className="hidden" onChange={handleOpml} />
       </div>
+
+      <PodcastSearch open={searching} onClose={() => setSearching(false)} />
     </nav>
   )
 }

@@ -112,6 +112,7 @@ export function TopBar({ onSettingsClick }: Props) {
           className="btn-primary rounded-full w-9 h-9 p-0"
           onClick={state.isPlaying ? pause : play}
           aria-label={state.isPlaying ? 'Pause' : 'Play'}
+          disabled={!state.episodeId}
         >
           {state.isPlaying ? <Pause size={16} /> : <Play size={16} />}
         </button>

@@ -24,11 +24,11 @@ BSStrategy = {
   },
 
   previous: function () {
-    window.podhomme && window.podhomme.previous();
+    window.podhomme && window.podhomme.skipBack();
   },
 
   next: function () {
-    window.podhomme && window.podhomme.next();
+    window.podhomme && window.podhomme.skipForward();
   },
 
   pause: function () {

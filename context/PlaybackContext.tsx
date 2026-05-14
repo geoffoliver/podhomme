@@ -187,14 +187,24 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
     return state.position + (Date.now() - new Date(state.updatedAt).getTime()) / 1000
   }, [state])
 
+  // Dynamic page title
+  useEffect(() => {
+    if (state.episode) {
+      document.title = `${state.episode.title} - ${state.episode.podcast.title}`
+    } else {
+      document.title = 'Podhomme'
+    }
+  }, [state.episode])
+
   // Expose window.podhomme for BeardedSpice
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(window as any).podhomme = {
       isPlaying: () => state.isPlaying,
       toggle: () => (state.isPlaying ? pause() : play()),
       pause,
-      previous: prev,
-      next,
+      skipBack: () => seek(Math.max(0, (audioRef.current?.currentTime ?? state.position) - 15)),
+      skipForward: () => seek((audioRef.current?.currentTime ?? state.position) + 30),
       favorite: toggleFavorite,
       trackInfo: () => {
         const rawImage = state.episode?.imageUrl ?? state.episode?.podcast.imageUrl ?? ''
