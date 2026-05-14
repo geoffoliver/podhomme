@@ -46,3 +46,5 @@ next-env.d.ts
 prisma/*.db
 prisma/*.db-journal
 public/images/podcasts/*
+
+dev.db
