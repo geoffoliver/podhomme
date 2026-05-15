@@ -1,0 +1,40 @@
+@reference "tailwindcss";
+
+.nav {
+  @apply
+    flex
+    border-t
+    border-neutral-200
+    bg-white;
+  padding-bottom: env(safe-area-inset-bottom);
+  flex-shrink: 0;
+  touch-action: none;
+}
+
+.tab {
+  @apply
+    flex-1
+    flex
+    flex-col
+    items-center
+    justify-center
+    gap-0.5
+    py-2
+    text-neutral-400
+    transition-colors
+    cursor-pointer;
+  min-height: 3.25rem;
+  touch-action: manipulation;
+}
+
+.tab:active {
+  @apply bg-neutral-50;
+}
+
+.tabActive {
+  @apply text-neutral-900;
+}
+
+.label {
+  @apply text-xs font-medium;
+}

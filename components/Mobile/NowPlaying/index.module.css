@@ -1,0 +1,219 @@
+@reference "tailwindcss";
+
+.overlay {
+  @apply
+    fixed
+    inset-0
+    z-50
+    flex
+    flex-col
+    bg-white;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.topBar {
+  @apply
+    flex
+    items-center
+    px-2
+    pt-3
+    pb-1;
+}
+
+.closeBtn {
+  @apply
+    w-11
+    h-11
+    flex
+    items-center
+    justify-center
+    text-neutral-500
+    cursor-pointer;
+  touch-action: manipulation;
+}
+
+.heading {
+  @apply
+    flex-1
+    text-center
+    text-sm
+    font-semibold
+    text-neutral-500
+    uppercase
+    tracking-wider;
+}
+
+.topBarSpacer {
+  @apply w-11;
+}
+
+.artworkWrap {
+  @apply
+    flex
+    justify-center
+    px-10
+    py-4;
+}
+
+.artwork {
+  @apply
+    rounded-xl
+    shadow-lg
+    object-cover
+    w-full
+    max-w-xs
+    aspect-square
+    transition-transform
+    duration-300;
+}
+
+.artworkPlaying {
+  @apply scale-105;
+}
+
+.artworkPlaceholder {
+  @apply
+    w-full
+    max-w-xs
+    aspect-square
+    rounded-xl
+    bg-neutral-100
+    flex
+    items-center
+    justify-center
+    text-neutral-300;
+}
+
+.meta {
+  @apply
+    flex
+    flex-col
+    px-8
+    pb-4
+    gap-1;
+}
+
+.episodeTitle {
+  @apply
+    text-lg
+    font-semibold
+    text-neutral-900
+    leading-snug
+    line-clamp-2;
+}
+
+.podcastTitle {
+  @apply
+    text-sm
+    text-neutral-500;
+}
+
+.seekArea {
+  @apply
+    px-6
+    pb-2;
+}
+
+.seekSlider {
+  @apply
+    w-full
+    accent-neutral-900;
+  height: 2rem;
+  touch-action: none;
+}
+
+.times {
+  @apply
+    flex
+    justify-between
+    text-xs
+    text-neutral-400
+    mt-1;
+}
+
+.transport {
+  @apply
+    flex
+    items-center
+    justify-center
+    gap-2
+    px-6
+    py-4;
+}
+
+.transportBtn {
+  @apply
+    w-14
+    h-14
+    flex
+    items-center
+    justify-center
+    text-neutral-700
+    cursor-pointer;
+  touch-action: manipulation;
+}
+
+.playBtn {
+  @apply
+    w-16
+    h-16
+    flex
+    items-center
+    justify-center
+    bg-neutral-900
+    text-white
+    rounded-full
+    cursor-pointer
+    mx-2;
+  touch-action: manipulation;
+}
+
+.footer {
+  @apply
+    flex
+    items-center
+    justify-between
+    px-8
+    py-3
+    mt-auto
+    border-t
+    border-neutral-100;
+}
+
+.tapToHear {
+  @apply
+    flex
+    items-center
+    gap-1.5
+    text-sm
+    font-medium
+    text-amber-600
+    cursor-pointer;
+  touch-action: manipulation;
+}
+
+.favoriteBtn {
+  @apply
+    w-11
+    h-11
+    flex
+    items-center
+    justify-center
+    text-neutral-400
+    cursor-pointer;
+  touch-action: manipulation;
+}
+
+.favoriteBtnActive {
+  @apply text-amber-500;
+}
+
+.switchLink {
+  @apply
+    flex
+    items-center
+    gap-1.5
+    text-xs
+    text-neutral-400
+    no-underline;
+}

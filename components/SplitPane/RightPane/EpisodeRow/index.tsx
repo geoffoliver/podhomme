@@ -91,7 +91,13 @@ export function EpisodeRow({ episode, context, contextPodcastId, onDetail, dragH
         <div className={styles.meta}>
           <span>{formatDate(episode.pubDate)}</span>
           {episode.duration && <span>·</span>}
-          {episode.duration && <span>{formatDuration(episode.duration)}</span>}
+          {episode.duration && (
+            <span>
+              {episode.resumeAt > 0
+                ? `${formatDuration(Math.max(0, episode.duration - Math.floor(episode.resumeAt)))} remaining`
+                : formatDuration(episode.duration)}
+            </span>
+          )}
           {episode.podcast?.title && <span>·</span>}
           {episode.podcast?.title && <span>{episode.podcast.title}</span>}
         </div>

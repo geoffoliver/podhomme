@@ -1,0 +1,20 @@
+@reference "tailwindcss";
+
+.shell {
+  @apply
+    fixed
+    inset-0
+    flex
+    flex-col
+    bg-white
+    overflow-hidden;
+  overscroll-behavior: none;
+}
+
+.content {
+  @apply
+    flex-1
+    overflow-y-auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}

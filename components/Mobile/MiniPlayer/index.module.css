@@ -1,0 +1,106 @@
+@reference "tailwindcss";
+
+.player {
+  @apply
+    relative
+    flex
+    items-center
+    border-t
+    border-neutral-200
+    bg-white;
+  min-height: 4rem;
+  flex-shrink: 0;
+  touch-action: none;
+}
+
+.infoArea {
+  @apply
+    flex
+    flex-1
+    items-center
+    gap-3
+    px-3
+    py-2
+    text-left
+    min-w-0
+    cursor-pointer;
+  touch-action: manipulation;
+}
+
+.artwork {
+  @apply
+    rounded
+    shrink-0
+    object-cover;
+}
+
+.artworkPlaceholder {
+  @apply
+    w-11
+    h-11
+    rounded
+    bg-neutral-100
+    flex
+    items-center
+    justify-center
+    text-neutral-400
+    shrink-0;
+}
+
+.info {
+  @apply
+    flex
+    flex-col
+    min-w-0;
+}
+
+.title {
+  @apply
+    text-sm
+    font-medium
+    text-neutral-900
+    truncate;
+}
+
+.podcast {
+  @apply
+    text-xs
+    text-neutral-500
+    truncate;
+}
+
+.controls {
+  @apply
+    flex
+    items-center
+    pr-2;
+}
+
+.controlBtn {
+  @apply
+    w-11
+    h-11
+    flex
+    items-center
+    justify-center
+    text-neutral-700
+    cursor-pointer;
+  touch-action: manipulation;
+}
+
+.progressTrack {
+  @apply
+    absolute
+    bottom-0
+    left-0
+    right-0
+    h-0.5
+    bg-neutral-100;
+}
+
+.progressFill {
+  @apply
+    h-full
+    bg-neutral-900
+    transition-none;
+}

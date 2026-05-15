@@ -1,0 +1,274 @@
+@reference "tailwindcss";
+
+.view {
+  @apply flex flex-col min-h-full;
+}
+
+.header {
+  @apply
+    px-4
+    pb-3
+    border-b
+    border-neutral-100;
+  padding-top: max(1rem, env(safe-area-inset-top));
+}
+
+.headerTitle {
+  @apply text-2xl font-bold text-neutral-900;
+}
+
+.headerMeta {
+  @apply text-sm text-neutral-500;
+}
+
+.empty {
+  @apply
+    flex-1
+    flex
+    flex-col
+    items-center
+    justify-center
+    gap-3
+    text-neutral-400
+    py-20;
+}
+
+.list {
+  @apply flex flex-col;
+}
+
+/* Podcast list row */
+.podcastRow {
+  @apply
+    flex
+    items-center
+    gap-3
+    px-4
+    py-3
+    border-b
+    border-neutral-100
+    text-left
+    w-full
+    cursor-pointer;
+  touch-action: manipulation;
+}
+
+.artwork {
+  @apply rounded-lg shrink-0 object-cover;
+}
+
+.artworkPlaceholder {
+  @apply
+    w-13
+    h-13
+    rounded-lg
+    bg-neutral-100
+    flex
+    items-center
+    justify-center
+    text-neutral-400
+    shrink-0;
+}
+
+.podcastInfo {
+  @apply flex flex-col min-w-0 flex-1;
+}
+
+.podcastTitle {
+  @apply text-sm font-medium text-neutral-900 truncate;
+}
+
+.podcastAuthor {
+  @apply text-xs text-neutral-500 truncate;
+}
+
+.badge {
+  @apply
+    text-xs
+    font-semibold
+    bg-neutral-900
+    text-white
+    rounded-full
+    px-1.5
+    py-0.5
+    shrink-0;
+}
+
+.chevron {
+  @apply text-neutral-300 shrink-0;
+}
+
+/* Podcast detail header */
+.podcastHeader {
+  @apply
+    flex
+    items-center
+    gap-2
+    px-2
+    pb-3
+    border-b
+    border-neutral-100;
+  padding-top: max(1rem, env(safe-area-inset-top));
+}
+
+.backBtn {
+  @apply
+    w-11
+    h-11
+    flex
+    items-center
+    justify-center
+    text-neutral-700
+    cursor-pointer
+    shrink-0;
+  touch-action: manipulation;
+}
+
+.headerArtwork {
+  @apply rounded-lg shrink-0 object-cover;
+}
+
+.headerArtworkPlaceholder {
+  @apply
+    w-11
+    h-11
+    rounded-lg
+    bg-neutral-100
+    flex
+    items-center
+    justify-center
+    text-neutral-400
+    shrink-0;
+}
+
+.podcastHeaderTitle {
+  @apply text-base font-semibold text-neutral-900 flex-1 truncate;
+}
+
+.refreshBtn {
+  @apply
+    w-11
+    h-11
+    flex
+    items-center
+    justify-center
+    text-neutral-500
+    cursor-pointer
+    shrink-0
+    disabled:opacity-40;
+  touch-action: manipulation;
+}
+
+/* Episode rows */
+.episodeRow {
+  @apply
+    flex
+    items-center
+    border-b
+    border-neutral-100;
+}
+
+.episodeRowPlayed {
+  @apply opacity-50;
+}
+
+.episodeMain {
+  @apply
+    flex
+    flex-1
+    items-center
+    gap-3
+    px-4
+    py-3
+    text-left
+    min-w-0
+    cursor-pointer;
+  touch-action: manipulation;
+}
+
+.episodeArtwork {
+  @apply rounded-md shrink-0 object-cover;
+}
+
+.episodeArtworkPlaceholder {
+  @apply
+    w-12
+    h-12
+    rounded-md
+    bg-neutral-100
+    flex
+    items-center
+    justify-center
+    text-neutral-400
+    shrink-0;
+}
+
+.episodeInfo {
+  @apply flex flex-col min-w-0 flex-1;
+}
+
+.episodeTitle {
+  @apply text-sm font-medium text-neutral-900 leading-snug line-clamp-2;
+}
+
+.episodeMeta {
+  @apply text-xs text-neutral-500 mt-0.5;
+}
+
+.playIcon {
+  @apply text-neutral-300 shrink-0;
+}
+
+.menuWrap {
+  @apply relative pr-1;
+}
+
+.menuBtn {
+  @apply
+    w-11
+    h-11
+    flex
+    items-center
+    justify-center
+    text-neutral-400
+    cursor-pointer;
+  touch-action: manipulation;
+}
+
+.menuBackdrop {
+  @apply fixed inset-0 z-40;
+}
+
+.menu {
+  @apply
+    absolute
+    right-0
+    top-full
+    z-50
+    bg-white
+    border
+    border-neutral-200
+    rounded-lg
+    shadow-lg
+    min-w-40
+    overflow-hidden;
+}
+
+.menuItem {
+  @apply
+    flex
+    items-center
+    gap-2
+    w-full
+    px-4
+    py-3
+    text-sm
+    text-neutral-700
+    text-left
+    cursor-pointer;
+  touch-action: manipulation;
+}
+
+.menuItem:active {
+  @apply bg-neutral-50;
+}

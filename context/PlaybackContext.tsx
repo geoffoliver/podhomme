@@ -65,9 +65,10 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
           audio.src = `/api/episodes/${data.episodeId}/audio`
           audio.currentTime = data.position
           if (data.isPlaying) {
-            audio.play()
-              .then(() => setAudioDetached(false))
-              .catch(() => setAudioDetached(true))
+            // Muted autoplay is allowed by all browsers; user taps to unmute
+            audio.muted = true
+            audio.play().catch(() => {})
+            setAudioDetached(true)
           }
         }
       })
@@ -83,21 +84,16 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
       prevEpisodeIdRef.current = data.episodeId
       if (data.episode) {
         audio.src = `/api/episodes/${data.episodeId}/audio`
-        audio.currentTime = 0
-        if (data.isPlaying) {
-          audio.play()
-            .then(() => setAudioDetached(false))
-            .catch(() => setAudioDetached(true))
-        }
+        audio.currentTime = data.position
+        // Preserve muted state: if user hasn't joined yet, new episodes stay muted
+        if (data.isPlaying) audio.play().catch(() => {})
       } else {
         audio.pause()
         audio.src = ''
       }
     } else {
       if (data.isPlaying && audio.paused) {
-        audio.play()
-          .then(() => setAudioDetached(false))
-          .catch(() => setAudioDetached(true))
+        audio.play().catch(() => {})
       } else if (!data.isPlaying && !audio.paused) {
         audio.pause()
       }
@@ -179,7 +175,8 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
   const joinAudio = useCallback(() => {
     const audio = audioRef.current
     if (!audio) return
-    audio.play().then(() => setAudioDetached(false)).catch(() => {})
+    audio.muted = false
+    setAudioDetached(false)
   }, [])
 
   const currentPosition = useCallback(() => {
@@ -220,7 +217,7 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
         };
       },
     }
-  }, [state, play, pause, next, prev, toggleFavorite])
+  }, [state, play, pause, next, prev, toggleFavorite, seek])
 
   return (
     <PlaybackContext.Provider value={{ state, audioDetached, joinAudio, currentPosition, play, pause, seek, next, prev, loadEpisode, toggleFavorite }}>

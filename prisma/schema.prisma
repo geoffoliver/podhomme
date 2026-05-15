@@ -40,6 +40,7 @@ model Episode {
   favoritedAt  DateTime?
   downloadPath String?
   fileSize     Int?
+  resumeAt     Float     @default(0)
   createdAt    DateTime  @default(now())
 
   queueItem    QueueItem?

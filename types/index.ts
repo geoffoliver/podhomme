@@ -20,6 +20,7 @@ export type Episode = {
   favoritedAt: string | null
   downloadPath: string | null
   fileSize: number | null
+  resumeAt: number
   createdAt: string
   podcast?: PodcastMeta
 }

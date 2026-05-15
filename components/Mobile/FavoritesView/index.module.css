@@ -1,0 +1,151 @@
+@reference "tailwindcss";
+
+.view {
+  @apply flex flex-col min-h-full;
+}
+
+.header {
+  @apply
+    px-4
+    pb-3
+    border-b
+    border-neutral-100;
+  padding-top: max(1rem, env(safe-area-inset-top));
+}
+
+.headerTitle {
+  @apply text-2xl font-bold text-neutral-900;
+}
+
+.headerMeta {
+  @apply text-sm text-neutral-500;
+}
+
+.empty {
+  @apply
+    flex-1
+    flex
+    flex-col
+    items-center
+    justify-center
+    gap-3
+    text-neutral-400
+    py-20;
+}
+
+.list {
+  @apply flex flex-col;
+}
+
+.row {
+  @apply
+    flex
+    items-center
+    border-b
+    border-neutral-100;
+}
+
+.rowPlayed {
+  @apply opacity-50;
+}
+
+.rowMain {
+  @apply
+    flex
+    flex-1
+    items-center
+    gap-3
+    px-4
+    py-3
+    text-left
+    min-w-0
+    cursor-pointer;
+  touch-action: manipulation;
+}
+
+.artwork {
+  @apply rounded-lg shrink-0 object-cover;
+}
+
+.artworkPlaceholder {
+  @apply
+    w-13
+    h-13
+    rounded-lg
+    bg-neutral-100
+    flex
+    items-center
+    justify-center
+    text-neutral-400
+    shrink-0;
+}
+
+.info {
+  @apply flex flex-col min-w-0 flex-1;
+}
+
+.title {
+  @apply text-sm font-medium text-neutral-900 leading-snug line-clamp-2;
+}
+
+.meta {
+  @apply text-xs text-neutral-500 mt-0.5 truncate;
+}
+
+.playIcon {
+  @apply text-neutral-300 shrink-0;
+}
+
+.menuWrap {
+  @apply relative pr-1;
+}
+
+.menuBtn {
+  @apply
+    w-11
+    h-11
+    flex
+    items-center
+    justify-center
+    text-neutral-400
+    cursor-pointer;
+  touch-action: manipulation;
+}
+
+.menuBackdrop {
+  @apply fixed inset-0 z-40;
+}
+
+.menu {
+  @apply
+    absolute
+    right-0
+    top-full
+    z-50
+    bg-white
+    border
+    border-neutral-200
+    rounded-lg
+    shadow-lg
+    min-w-40
+    overflow-hidden;
+}
+
+.menuItem {
+  @apply
+    flex
+    items-center
+    gap-2
+    w-full
+    px-4
+    py-3
+    text-sm
+    text-neutral-700
+    text-left
+    cursor-pointer;
+  touch-action: manipulation;
+}
+
+.menuItem:active {
+  @apply bg-neutral-50;
+}

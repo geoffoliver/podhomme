@@ -12,6 +12,7 @@ export async function PATCH(request: NextRequest, ctx: RouteContext<'/api/episod
   if ('played' in body) {
     data.played = body.played
     data.playedAt = body.played ? new Date() : null
+    if (body.played) data.resumeAt = 0
 
     if (body.played) {
       // Remove from queue when marked played

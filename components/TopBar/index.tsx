@@ -12,6 +12,7 @@ import {
   ChevronLast,
   Headphones,
   Settings,
+  Smartphone,
 } from 'lucide-react'
 import { usePlayback } from '@/context/PlaybackContext'
 import styles from './index.module.css'
@@ -114,6 +115,9 @@ export function TopBar({ onSettingsClick }: Props) {
           onClick={state.isPlaying ? pause : play}
           aria-label={state.isPlaying ? 'Pause' : 'Play'}
           disabled={!state.episodeId}
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-expect-error
+          autoComplete="off"
         >
           {state.isPlaying ? <Pause size={16} /> : <Play size={16} />}
         </button>
@@ -154,6 +158,11 @@ export function TopBar({ onSettingsClick }: Props) {
           Tap to hear
         </button>
       )}
+
+      {/* Switch to mobile view */}
+      <a href="/api/view?mode=mobile" className="btn-icon" title="Switch to mobile view" aria-label="Switch to mobile view">
+        <Smartphone size={18} />
+      </a>
 
       {/* Settings */}
       <button className="btn-icon" onClick={onSettingsClick} title="Settings" aria-label="Settings">

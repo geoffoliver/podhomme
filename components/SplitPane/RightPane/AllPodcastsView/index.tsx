@@ -28,7 +28,10 @@ export function AllPodcastsView() {
 
   const displayItems = localItems ?? sorted
 
-  const totalSeconds = queue.reduce((sum, item) => sum + (item.episode.duration ?? 0), 0)
+  const totalSeconds = queue.reduce((sum, item) => {
+    const remaining = (item.episode.duration ?? 0) - Math.floor(item.episode.resumeAt ?? 0)
+    return sum + Math.max(0, remaining)
+  }, 0)
   const totalTime = (() => {
     if (totalSeconds === 0) return ''
     const h = Math.floor(totalSeconds / 3600)
