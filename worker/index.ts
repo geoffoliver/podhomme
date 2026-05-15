@@ -19,7 +19,12 @@ const WEB_URL = process.env.WEB_URL ?? 'http://localhost:3000'
 async function triggerRefresh() {
   log.info({ url: `${WEB_URL}/api/podcasts/refresh` }, 'Triggering scheduled refresh')
   try {
-    await fetch(`${WEB_URL}/api/podcasts/refresh`, { method: 'POST' })
+    await fetch(`${WEB_URL}/api/podcasts/refresh`, {
+      method: 'POST',
+      headers: process.env.WORKER_SECRET
+        ? { 'x-worker-secret': process.env.WORKER_SECRET }
+        : {},
+    })
     log.info('Refresh triggered successfully')
   } catch (err) {
     log.error({ err }, 'Failed to trigger refresh')

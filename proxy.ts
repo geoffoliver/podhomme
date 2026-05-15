@@ -12,10 +12,15 @@ function isPublic(pathname: string): boolean {
   )
 }
 
+function hasWorkerSecret(request: NextRequest): boolean {
+  const secret = process.env.WORKER_SECRET
+  return !!secret && request.headers.get('x-worker-secret') === secret
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  if (!isPublic(pathname)) {
+  if (!isPublic(pathname) && !hasWorkerSecret(request)) {
     const appPassword = process.env.APP_PASSWORD
     if (appPassword) {
       const expected = await computeAuthToken(appPassword)

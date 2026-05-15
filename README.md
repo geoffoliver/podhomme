@@ -61,11 +61,14 @@ Podhomme has no user accounts, but you can restrict access with a single shared 
 ```bash
 # .env
 APP_PASSWORD=your-password-here
+WORKER_SECRET=some-long-random-string
 ```
 
-When set, every page and API route requires a valid session cookie. The login page at `/login` is the only public path. If `APP_PASSWORD` is not set, the app is open to anyone who can reach it (useful for local development).
+When `APP_PASSWORD` is set, every page and API route requires a valid session cookie. The login page at `/login` is the only public path. If `APP_PASSWORD` is not set, the app is open to anyone who can reach it (useful for local development).
 
 Changing the password invalidates all existing sessions — users will be prompted to log in again.
+
+`WORKER_SECRET` allows the background refresh worker to call the app's API without a session cookie. It should be a long random string, separate from `APP_PASSWORD`. Both variables should be set together whenever auth is enabled.
 
 ## BeardedSpice / Airfoil Integration
 
