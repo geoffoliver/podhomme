@@ -12,6 +12,15 @@
   padding-bottom: env(safe-area-inset-bottom);
 }
 
+.overlayClosed {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.overlayVideo {
+  @apply bg-black dark:bg-black;
+}
+
 .topBar {
   @apply
     flex
@@ -48,6 +57,37 @@
 
 .topBarSpacer {
   @apply w-11;
+}
+
+.fullscreenBtn {
+  @apply
+    w-11
+    h-11
+    flex
+    items-center
+    justify-center
+    text-neutral-400
+    cursor-pointer;
+  touch-action: manipulation;
+}
+
+.videoWrap {
+  @apply flex justify-center px-0;
+}
+
+.videoWrapHidden {
+  /* Keep element in DOM (so video stays registered) but take no space */
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.video {
+  @apply w-full block;
+  max-height: 45vh;
+  object-fit: contain;
+  background: black;
 }
 
 .artworkWrap {
@@ -108,11 +148,19 @@
     dark:text-neutral-100;
 }
 
+.overlayVideo .episodeTitle {
+  @apply text-neutral-100;
+}
+
 .podcastTitle {
   @apply
     text-sm
     text-neutral-500
     dark:text-neutral-400;
+}
+
+.overlayVideo .podcastTitle {
+  @apply text-neutral-400;
 }
 
 .seekArea {

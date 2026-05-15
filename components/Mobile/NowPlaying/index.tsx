@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import {
   ChevronDown,
+  Maximize2,
   Podcast,
   Play,
   Pause,
@@ -28,16 +29,25 @@ function formatTime(seconds: number): string {
 }
 
 type Props = {
+  open: boolean
   onClose: () => void
 }
 
-export function NowPlaying({ onClose }: Props) {
-  const { state, audioDetached, joinAudio, play, pause, seek, next, prev, currentPosition, toggleFavorite } = usePlayback()
+export function NowPlaying({ open, onClose }: Props) {
+  const { state, isVideo, registerVideoElement, audioDetached, joinAudio, play, pause, seek, next, prev, currentPosition, toggleFavorite } = usePlayback()
   const { episode } = state
   const [displayPos, setDisplayPos] = useState(0)
   const [seeking, setSeeking] = useState(false)
   const [seekValue, setSeekValue] = useState(0)
   const rafRef = useRef<number | null>(null)
+  const videoElRef = useRef<HTMLVideoElement | null>(null)
+
+  const videoRefCallback = useCallback((el: HTMLVideoElement | null) => {
+    videoElRef.current = el
+    registerVideoElement(el)
+  }, [registerVideoElement])
+
+  const handleFullscreen = () => videoElRef.current?.requestFullscreen()
 
   useEffect(() => {
     function tick() {
@@ -48,42 +58,57 @@ export function NowPlaying({ onClose }: Props) {
     return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current) }
   }, [currentPosition, seeking])
 
-  if (!episode) {
-    onClose()
-    return null
-  }
+  // Close overlay if episode disappears while open
+  useEffect(() => {
+    if (open && !episode) onClose()
+  }, [open, episode, onClose])
 
-  const duration = episode.duration ?? 0
-  const artUrl = episode.imageUrl ?? episode.podcast?.imageUrl ?? null
+  const duration = episode?.duration ?? 0
+  const artUrl = episode?.imageUrl ?? episode?.podcast?.imageUrl ?? null
   const sliderValue = seeking ? seekValue : displayPos
 
   return (
-    <div className={styles.overlay}>
+    // Always mounted — visibility:hidden keeps the video element alive when closed
+    <div className={`${styles.overlay} ${!open ? styles.overlayClosed : ''} ${isVideo ? styles.overlayVideo : ''}`}>
       <div className={styles.topBar}>
         <button className={styles.closeBtn} onClick={onClose} aria-label="Close now playing">
           <ChevronDown size={26} />
         </button>
         <span className={styles.heading}>Now Playing</span>
-        <div className={styles.topBarSpacer} />
-      </div>
-
-      <div className={styles.artworkWrap}>
-        {artUrl ? (
-          <Image
-            src={artUrl}
-            alt=""
-            width={300}
-            height={300}
-            className={`${styles.artwork} ${state.isPlaying ? styles.artworkPlaying : ''}`}
-          />
+        {isVideo ? (
+          <button className={styles.fullscreenBtn} onClick={handleFullscreen} aria-label="Fullscreen">
+            <Maximize2 size={20} />
+          </button>
         ) : (
-          <div className={styles.artworkPlaceholder}><Podcast size={80} /></div>
+          <div className={styles.topBarSpacer} />
         )}
       </div>
 
+      {/* Video element — always mounted so PlaybackContext can control it */}
+      <div className={`${styles.videoWrap} ${!isVideo ? styles.videoWrapHidden : ''}`}>
+        <video ref={videoRefCallback} className={styles.video} />
+      </div>
+
+      {/* Artwork — shown only for audio episodes */}
+      {!isVideo && (
+        <div className={styles.artworkWrap}>
+          {artUrl ? (
+            <Image
+              src={artUrl}
+              alt=""
+              width={300}
+              height={300}
+              className={`${styles.artwork} ${state.isPlaying ? styles.artworkPlaying : ''}`}
+            />
+          ) : (
+            <div className={styles.artworkPlaceholder}><Podcast size={80} /></div>
+          )}
+        </div>
+      )}
+
       <div className={styles.meta}>
-        <span className={styles.episodeTitle}>{episode.title}</span>
-        <span className={styles.podcastTitle}>{episode.podcast?.title ?? ''}</span>
+        <span className={styles.episodeTitle}>{episode?.title ?? ''}</span>
+        <span className={styles.podcastTitle}>{episode?.podcast?.title ?? ''}</span>
       </div>
 
       <div className={styles.seekArea}>
@@ -130,11 +155,11 @@ export function NowPlaying({ onClose }: Props) {
           </button>
         )}
         <button
-          className={`${styles.favoriteBtn} ${episode.favorited ? styles.favoriteBtnActive : ''}`}
+          className={`${styles.favoriteBtn} ${episode?.favorited ? styles.favoriteBtnActive : ''}`}
           onClick={toggleFavorite}
-          aria-label={episode.favorited ? 'Unfavorite' : 'Favorite'}
+          aria-label={episode?.favorited ? 'Unfavorite' : 'Favorite'}
         >
-          <Star size={22} fill={episode.favorited ? 'currentColor' : 'none'} />
+          <Star size={22} fill={episode?.favorited ? 'currentColor' : 'none'} />
         </button>
         <a href="/api/view?mode=desktop" className={styles.switchLink}>
           <Monitor size={14} /> Desktop view

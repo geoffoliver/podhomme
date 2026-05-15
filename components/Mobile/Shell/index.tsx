@@ -41,9 +41,7 @@ export function MobileShell() {
 
       <BottomTabs tab={tab} onTab={setTab} />
 
-      {nowPlayingOpen && (
-        <NowPlaying onClose={() => setNowPlayingOpen(false)} />
-      )}
+      <NowPlaying open={nowPlayingOpen} onClose={() => setNowPlayingOpen(false)} />
     </div>
   )
 }
