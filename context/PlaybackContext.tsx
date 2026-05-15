@@ -32,8 +32,10 @@ function reducer(state: PlaybackStateData, action: Action): PlaybackStateData {
 
 type Ctx = {
   state: PlaybackStateData
+  isVideo: boolean
   audioDetached: boolean
   joinAudio: () => void
+  registerVideoElement: (el: HTMLVideoElement | null) => void
   currentPosition: () => number
   play: () => void
   pause: () => void
@@ -50,8 +52,21 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, defaultState)
   const [audioDetached, setAudioDetached] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const videoElementRef = useRef<HTMLVideoElement | null>(null)
+  const isVideoRef = useRef(false)
   const syncRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const prevEpisodeIdRef = useRef<number | null>(null)
+
+  // Derived — kept in a ref so callbacks can read it without stale closures
+  const isVideo = state.episode?.mediaType === 'video'
+  isVideoRef.current = isVideo
+
+  const getMediaEl = (): HTMLMediaElement | null =>
+    isVideoRef.current ? videoElementRef.current : audioRef.current
+
+  const registerVideoElement = useCallback((el: HTMLVideoElement | null) => {
+    videoElementRef.current = el
+  }, [])
 
   // Load initial state
   useEffect(() => {
@@ -60,49 +75,53 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
       .then((data: PlaybackStateData) => {
         dispatch({ type: 'SET', payload: data })
         prevEpisodeIdRef.current = data.episodeId
-        const audio = audioRef.current
-        if (audio && data.episode) {
-          audio.src = `/api/episodes/${data.episodeId}/audio`
-          audio.currentTime = data.position
+        const isVid = data.episode?.mediaType === 'video'
+        const media = isVid ? videoElementRef.current : audioRef.current
+        if (media && data.episode) {
+          media.src = `/api/episodes/${data.episodeId}/audio`
+          media.currentTime = data.position
           if (data.isPlaying) {
             // Muted autoplay is allowed by all browsers; user taps to unmute
-            audio.muted = true
-            audio.play().catch(() => {})
+            media.muted = true
+            media.play().catch(() => {})
             setAudioDetached(true)
           }
         }
       })
   }, [])
 
-  const applyStateToAudio = useCallback((data: PlaybackStateData) => {
-    const audio = audioRef.current
-    if (!audio) return
+  const applyStateToMedia = useCallback((data: PlaybackStateData) => {
+    const isVid = data.episode?.mediaType === 'video'
+    const media: HTMLMediaElement | null = isVid ? videoElementRef.current : audioRef.current
+    if (!media) return
 
     if (!data.isPlaying) setAudioDetached(false)
 
     if (data.episodeId !== prevEpisodeIdRef.current) {
       prevEpisodeIdRef.current = data.episodeId
       if (data.episode) {
-        audio.src = `/api/episodes/${data.episodeId}/audio`
-        audio.currentTime = data.position
-        // Preserve muted state: if user hasn't joined yet, new episodes stay muted
-        if (data.isPlaying) audio.play().catch(() => {})
+        // Clear the other element when switching media type
+        const other: HTMLMediaElement | null = isVid ? audioRef.current : videoElementRef.current
+        if (other) { other.pause(); other.src = '' }
+        media.src = `/api/episodes/${data.episodeId}/audio`
+        media.currentTime = data.position
+        if (data.isPlaying) media.play().catch(() => {})
       } else {
-        audio.pause()
-        audio.src = ''
+        media.pause()
+        media.src = ''
       }
     } else {
-      if (data.isPlaying && audio.paused) {
-        audio.play().catch(() => {})
-      } else if (!data.isPlaying && !audio.paused) {
-        audio.pause()
+      if (data.isPlaying && media.paused) {
+        media.play().catch(() => {})
+      } else if (!data.isPlaying && !media.paused) {
+        media.pause()
       }
       // Correct significant drift (seek from another client)
       const expected = data.isPlaying
         ? data.position + (Date.now() - new Date(data.updatedAt).getTime()) / 1000
         : data.position
-      if (Math.abs(audio.currentTime - expected) > 5) {
-        audio.currentTime = Math.max(0, expected)
+      if (Math.abs(media.currentTime - expected) > 5) {
+        media.currentTime = Math.max(0, expected)
       }
     }
   }, [])
@@ -111,7 +130,7 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
     if (event === 'playback') {
       const payload = data as PlaybackStateData
       dispatch({ type: 'SET', payload })
-      applyStateToAudio(payload)
+      applyStateToMedia(payload)
     }
   })
 
@@ -119,7 +138,7 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (state.isPlaying) {
       syncRef.current = setInterval(() => {
-        const pos = audioRef.current?.currentTime
+        const pos = getMediaEl()?.currentTime
         if (pos !== undefined) {
           fetch('/api/playback', {
             method: 'POST',
@@ -130,7 +149,7 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
       }, 5000)
     }
     return () => { if (syncRef.current) clearInterval(syncRef.current) }
-  }, [state.isPlaying])
+  }, [state.isPlaying]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const post = useCallback((body: object) =>
     fetch('/api/playback', {
@@ -141,20 +160,21 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
       .then(r => r.json())
       .then((data: PlaybackStateData) => {
         dispatch({ type: 'SET', payload: data })
-        applyStateToAudio(data)
+        applyStateToMedia(data)
       }),
-    [applyStateToAudio]
+    [applyStateToMedia]
   )
 
   const play = useCallback(() => post({ action: 'play' }), [post])
   const pause = useCallback(() => {
-    const pos = audioRef.current?.currentTime ?? state.position
+    const pos = getMediaEl()?.currentTime ?? state.position
     return post({ action: 'pause', position: pos })
-  }, [post, state.position])
+  }, [post, state.position]) // eslint-disable-line react-hooks/exhaustive-deps
   const seek = useCallback((pos: number) => {
-    if (audioRef.current) audioRef.current.currentTime = pos
+    const media = getMediaEl()
+    if (media) media.currentTime = pos
     return post({ action: 'seek', position: pos })
-  }, [post])
+  }, [post]) // eslint-disable-line react-hooks/exhaustive-deps
   const next = useCallback(() => post({ action: 'next' }), [post])
   const prev = useCallback(() => post({ action: 'prev' }), [post])
   const loadEpisode = useCallback(
@@ -173,11 +193,11 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
   }, [state.episodeId, state.episode])
 
   const joinAudio = useCallback(() => {
-    const audio = audioRef.current
-    if (!audio) return
-    audio.muted = false
+    const media = getMediaEl()
+    if (!media) return
+    media.muted = false
     setAudioDetached(false)
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const currentPosition = useCallback(() => {
     if (!state.isPlaying) return state.position
@@ -213,10 +233,10 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
     navigator.mediaSession.setActionHandler('previoustrack', () => prev())
     navigator.mediaSession.setActionHandler('nexttrack', () => next())
     navigator.mediaSession.setActionHandler('seekbackward', (d) =>
-      seek(Math.max(0, (audioRef.current?.currentTime ?? state.position) - (d.seekOffset ?? 15)))
+      seek(Math.max(0, (getMediaEl()?.currentTime ?? state.position) - (d.seekOffset ?? 15)))
     )
     navigator.mediaSession.setActionHandler('seekforward', (d) =>
-      seek((audioRef.current?.currentTime ?? state.position) + (d.seekOffset ?? 30))
+      seek((getMediaEl()?.currentTime ?? state.position) + (d.seekOffset ?? 30))
     )
     navigator.mediaSession.setActionHandler('seekto', (d) => {
       if (d.seekTime != null) seek(d.seekTime)
@@ -239,8 +259,8 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
       isPlaying: () => state.isPlaying,
       toggle: () => (state.isPlaying ? pause() : play()),
       pause,
-      skipBack: () => seek(Math.max(0, (audioRef.current?.currentTime ?? state.position) - 15)),
-      skipForward: () => seek((audioRef.current?.currentTime ?? state.position) + 30),
+      skipBack: () => seek(Math.max(0, (getMediaEl()?.currentTime ?? state.position) - 15)),
+      skipForward: () => seek((getMediaEl()?.currentTime ?? state.position) + 30),
       favorite: toggleFavorite,
       trackInfo: () => {
         const rawImage = state.episode?.imageUrl ?? state.episode?.podcast.imageUrl ?? ''
@@ -258,10 +278,12 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
     }
   }, [state, play, pause, next, prev, toggleFavorite, seek])
 
+  const onEnded = useCallback(() => post({ action: 'next' }), [post])
+
   return (
-    <PlaybackContext.Provider value={{ state, audioDetached, joinAudio, currentPosition, play, pause, seek, next, prev, loadEpisode, toggleFavorite }}>
-      {/* Hidden audio element owned by this context */}
-      <audio ref={audioRef} onEnded={() => post({ action: 'next' })} />
+    <PlaybackContext.Provider value={{ state, isVideo, audioDetached, joinAudio, registerVideoElement, currentPosition, play, pause, seek, next, prev, loadEpisode, toggleFavorite }}>
+      {/* Hidden audio element — always in DOM */}
+      <audio ref={audioRef} onEnded={onEnded} />
       {children}
     </PlaybackContext.Provider>
   )

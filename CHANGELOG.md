@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- **Video podcast support** — episodes with `video/*` enclosure MIME types play in a collapsible video panel below the top bar; panel has minimize and fullscreen controls; all existing transport controls (play/pause, seek, skip, next/prev) work the same way
 - **Podcast links** — podcast detail header now shows a Website link (from the feed's `<link>`) and an RSS Feed link; both open in a new tab
 - **Dark mode** — all desktop and mobile UI surfaces respond to `prefers-color-scheme: dark`; buttons, inputs, dialogs, toolbars, progress bars, now-playing overlay, and menus all invert correctly
 - **Password authentication** — set `APP_PASSWORD` in `.env` to require a password before accessing the app; skipped entirely if the variable is not set. Cookie is valid for one year; changing the password invalidates all existing sessions automatically

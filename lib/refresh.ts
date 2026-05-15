@@ -78,6 +78,7 @@ export async function refreshPodcast(podcastId: number) {
         title: ep.title,
         description: ep.description,
         audioUrl: ep.audioUrl,
+        mediaType: ep.mediaType,
         imageUrl: null,
         duration: ep.duration,
         pubDate: ep.pubDate,

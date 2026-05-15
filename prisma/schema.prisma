@@ -31,6 +31,7 @@ model Episode {
   title        String
   description  String?
   audioUrl     String
+  mediaType    String    @default("audio")
   imageUrl     String?
   duration     Int?
   pubDate      DateTime

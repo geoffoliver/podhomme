@@ -11,6 +11,7 @@ A shared podcast player for the browser. Multiple people can open the same URL a
 - **Favorites** — star episodes; accessible from the sidebar
 - **Download first** — optionally download episode audio to the server and stream it locally rather than relying on remote URLs; configurable limit on how many files to keep per podcast
 - **Mobile UI** — dedicated mobile layout served automatically based on user agent, installable as a PWA with a native headphones icon
+- **Video podcast support** — video enclosures play in a collapsible panel below the top bar with minimize and fullscreen controls
 - **Dark mode** — full dark theme on desktop and mobile, driven by `prefers-color-scheme`
 - **Podcast links** — website and RSS feed links in the podcast detail header
 - **Now Playing integration** — Media Session API exposes episode metadata, artwork, and transport controls to the macOS menu bar, iOS Control Center, and lock screen

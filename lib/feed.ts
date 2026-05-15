@@ -6,6 +6,7 @@ type FeedEpisode = {
   title: string
   description: string | null
   audioUrl: string
+  mediaType: string
   imageUrl: string | null
   duration: number | null
   pubDate: Date
@@ -55,10 +56,11 @@ function parseDuration(raw: string | number | null | undefined): number | null {
   return Math.floor(Number(raw)) || null
 }
 
-function extractEnclosureUrl(item: Parser.Item): string | null {
+function extractEnclosureUrl(item: Parser.Item): { url: string; mediaType: string } | null {
   const enc = item.enclosure
-  if (enc?.url) return enc.url
-  return null
+  if (!enc?.url) return null
+  const mediaType = enc.type?.startsWith('video/') ? 'video' : 'audio'
+  return { url: enc.url, mediaType }
 }
 
 export async function parseFeed(url: string): Promise<FeedData> {
@@ -74,8 +76,8 @@ export async function parseFeed(url: string): Promise<FeedData> {
 
   const episodes: FeedEpisode[] = (feed.items ?? [])
     .map((item) => {
-      const audioUrl = extractEnclosureUrl(item)
-      if (!audioUrl) return null
+      const enclosure = extractEnclosureUrl(item)
+      if (!enclosure) return null
 
       const it = item as any
       const itemImage = extractImage(it['itunes:image'])
@@ -84,7 +86,8 @@ export async function parseFeed(url: string): Promise<FeedData> {
         guid: item.guid || item.link || item.title || String(Date.now()),
         title: item.title || 'Untitled',
         description: item.content || item.contentSnippet || it['itunes:summary'] || null,
-        audioUrl,
+        audioUrl: enclosure.url,
+        mediaType: enclosure.mediaType,
         imageUrl: itemImage,
         duration: parseDuration(it['itunes:duration']),
         pubDate: item.pubDate ? new Date(item.pubDate) : new Date(),

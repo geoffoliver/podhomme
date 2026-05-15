@@ -1,0 +1,54 @@
+@reference "tailwindcss";
+
+.panel {
+  @apply
+    flex
+    flex-col
+    shrink-0
+    border-b
+    border-neutral-200
+    bg-black
+    dark:border-neutral-800;
+}
+
+.hidden {
+  display: none;
+}
+
+.toolbar {
+  @apply
+    flex
+    items-center
+    gap-1
+    px-2
+    py-1
+    bg-neutral-900
+    dark:bg-neutral-950;
+}
+
+.label {
+  @apply
+    flex-1
+    text-xs
+    font-medium
+    text-neutral-400
+    uppercase
+    tracking-wider;
+}
+
+.videoWrap {
+  overflow: hidden;
+  max-height: 40vh;
+  transition: max-height 0.2s ease;
+}
+
+.videoWrapMinimized {
+  max-height: 0;
+}
+
+.video {
+  @apply w-full block;
+  max-height: 40vh;
+  object-fit: contain;
+  background: black;
+}

@@ -11,6 +11,7 @@ export type Episode = {
   title: string
   description: string | null
   audioUrl: string
+  mediaType: string
   imageUrl: string | null
   duration: number | null
   pubDate: string
