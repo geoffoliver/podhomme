@@ -184,6 +184,45 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
     return state.position + (Date.now() - new Date(state.updatedAt).getTime()) / 1000
   }, [state])
 
+  // Media Session API — feeds macOS Now Playing, iOS Control Center, lock screen
+  useEffect(() => {
+    if (!('mediaSession' in navigator)) return
+
+    if (!state.episode) {
+      navigator.mediaSession.metadata = null
+      navigator.mediaSession.playbackState = 'none'
+      return
+    }
+
+    const rawArt = state.episode.imageUrl ?? state.episode.podcast.imageUrl ?? ''
+    const artSrc = rawArt
+      ? (rawArt.startsWith('/') ? `${window.location.origin}${rawArt}` : rawArt)
+      : null
+
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: state.episode.title,
+      artist: state.episode.podcast.author ?? state.episode.podcast.title,
+      album: state.episode.podcast.title,
+      artwork: artSrc ? [{ src: artSrc }] : [],
+    })
+
+    navigator.mediaSession.playbackState = state.isPlaying ? 'playing' : 'paused'
+
+    navigator.mediaSession.setActionHandler('play', () => play())
+    navigator.mediaSession.setActionHandler('pause', () => pause())
+    navigator.mediaSession.setActionHandler('previoustrack', () => prev())
+    navigator.mediaSession.setActionHandler('nexttrack', () => next())
+    navigator.mediaSession.setActionHandler('seekbackward', (d) =>
+      seek(Math.max(0, (audioRef.current?.currentTime ?? state.position) - (d.seekOffset ?? 15)))
+    )
+    navigator.mediaSession.setActionHandler('seekforward', (d) =>
+      seek((audioRef.current?.currentTime ?? state.position) + (d.seekOffset ?? 30))
+    )
+    navigator.mediaSession.setActionHandler('seekto', (d) => {
+      if (d.seekTime != null) seek(d.seekTime)
+    })
+  }, [state.episode, state.isPlaying, play, pause, prev, next, seek, state.position])
+
   // Dynamic page title
   useEffect(() => {
     if (state.episode) {

@@ -1,7 +1,6 @@
 import { db } from '@/lib/db'
 import { parseFeed, parseOpml } from '@/lib/feed'
 import { broadcast } from '@/lib/sse'
-import { cachePodcastImage } from '@/lib/imageCache'
 import logger from '@/lib/logger'
 
 const log = logger.child({ module: 'opml' })
@@ -45,11 +44,6 @@ export async function POST(request: Request) {
           lastRefreshedAt: new Date(),
         },
       })
-
-      const cachedImageUrl = await cachePodcastImage(feed.imageUrl, podcast.id)
-      if (cachedImageUrl !== feed.imageUrl) {
-        await db.podcast.update({ where: { id: podcast.id }, data: { imageUrl: cachedImageUrl } })
-      }
 
       const SIXTY_DAYS_MS = 60 * 24 * 60 * 60 * 1000
       const newestPubDate = feed.episodes.length > 0 ? new Date(feed.episodes[0].pubDate).getTime() : 0

@@ -10,6 +10,9 @@ A shared podcast player for the browser. Multiple people can open the same URL a
 - **Serial / Episodic** — podcast episode order follows the feed's `<itunes:type>`, overridable per podcast
 - **Favorites** — star episodes; accessible from the sidebar
 - **Download first** — optionally download episode audio to the server and stream it locally rather than relying on remote URLs; configurable limit on how many files to keep per podcast
+- **Mobile UI** — dedicated mobile layout served automatically based on user agent, installable as a PWA with a native headphones icon
+- **Now Playing integration** — Media Session API exposes episode metadata, artwork, and transport controls to the macOS menu bar, iOS Control Center, and lock screen
+- **Password protection** — optional single-password auth gating the entire app, configured via environment variable
 - **BeardedSpice** — MediaStrategy exposes episode and podcast metadata so Airfoil can display Now Playing info for the current episode
 - **Scheduled refresh** — feeds refresh automatically on a configurable schedule
 
@@ -50,6 +53,19 @@ pm2 start ecosystem.config.js
 ```
 
 The web server runs on port 3000. The worker process handles scheduled feed refreshes.
+
+## Authentication
+
+Podhomme has no user accounts, but you can restrict access with a single shared password:
+
+```bash
+# .env
+APP_PASSWORD=your-password-here
+```
+
+When set, every page and API route requires a valid session cookie. The login page at `/login` is the only public path. If `APP_PASSWORD` is not set, the app is open to anyone who can reach it (useful for local development).
+
+Changing the password invalidates all existing sessions — users will be prompted to log in again.
 
 ## BeardedSpice / Airfoil Integration
 

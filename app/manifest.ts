@@ -5,18 +5,22 @@ export default function manifest(): MetadataRoute.Manifest {
     name: 'Podhomme',
     short_name: 'Podhomme',
     description: 'Shared podcast player',
-    start_url: '/',
+    start_url: process.env.WEB_URL ?? 'http://localhost:3000',
     display: 'standalone',
     orientation: 'portrait',
-    background_color: '#000000',
-    theme_color: '#ffffff',
-    icons: [
-      {
-        src: '/apple-touch-icon.png',
-        sizes: 'any',
-        type: 'image/png',
-        purpose: 'any',
-      },
-    ],
+    background_color: '#000',
+    theme_color: '#000',
+    // icons: [
+    //   {
+    //     src: '/favicon.ico',
+    //     sizes: 'any',
+    //     type: 'image/x-icon',
+    //   },
+    //   {
+    //     src: '/apple-touch-icon.png',
+    //     sizes: 'any',
+    //     type: 'image/png',
+    //   },
+    // ],
   }
-}
+};

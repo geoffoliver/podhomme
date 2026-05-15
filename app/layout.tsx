@@ -9,19 +9,15 @@ const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin']
 export const metadata: Metadata = {
   title: 'Podhomme',
   description: 'Shared podcast player',
-  appleWebApp: {
-    capable: true,
-    title: 'Podhomme',
-    statusBarStyle: 'black-translucent',
-  },
-  icons: { apple: '/icon.svg' },
 }
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
+  maximumScale: 1,
+  minimumScale: 1,
+  userScalable: true,
   viewportFit: 'cover',
-  themeColor: '#171717',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BottomTabs } from '../BottomTabs'
 import { MiniPlayer } from '../MiniPlayer'
 import { NowPlaying } from '../NowPlaying'
@@ -16,6 +16,16 @@ export function MobileShell() {
   const [tab, setTab] = useState<MobileTab>('queue')
   const [nowPlayingOpen, setNowPlayingOpen] = useState(false)
   const { state } = usePlayback()
+
+  useEffect(() => {
+    const prev = document.documentElement.style.overflow
+    document.documentElement.style.overflow = 'hidden'
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.documentElement.style.overflow = prev
+      document.body.style.overflow = ''
+    }
+  }, [])
 
   return (
     <div className={styles.shell}>

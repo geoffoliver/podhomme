@@ -16,8 +16,8 @@
     flex
     items-center
     px-2
-    pt-3
     pb-1;
+  padding-top: max(0.75rem, env(safe-area-inset-top));
 }
 
 .closeBtn {

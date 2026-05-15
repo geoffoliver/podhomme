@@ -2,6 +2,7 @@ import { createReadStream } from 'fs'
 import { stat } from 'fs/promises'
 import path from 'path'
 import { db } from '@/lib/db'
+import { downloadEpisode } from '@/lib/download'
 
 function mimeType(filePath: string): string {
   const ext = path.extname(filePath).slice(1).toLowerCase()
@@ -81,6 +82,12 @@ export async function GET(request: Request, ctx: RouteContext<'/api/episodes/[id
     } catch {
       // File missing or unreadable — fall through to redirect
     }
+  }
+
+  // No local file — if download mode is on, fetch in the background so next play is local
+  const settings = await db.settings.findUnique({ where: { id: 1 } })
+  if (settings?.defaultPlayback === 'download') {
+    downloadEpisode(episodeId, episode.audioUrl, settings.downloadLocation).catch(() => {})
   }
 
   return Response.redirect(episode.audioUrl, 302)

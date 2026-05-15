@@ -2,8 +2,26 @@
 
 ## [Unreleased]
 
+### Added
+- **Password authentication** — set `APP_PASSWORD` in `.env` to require a password before accessing the app; skipped entirely if the variable is not set. Cookie is valid for one year; changing the password invalidates all existing sessions automatically
+- **Mobile PWA icon** — `app/apple-icon.tsx` generates a proper 180×180 PNG via `ImageResponse` so iOS correctly uses the headphones icon when adding to home screen (iOS ignores SVG apple-touch-icons)
+- **macOS / iOS Now Playing integration** — Media Session API wired into `PlaybackContext`; episode title, podcast name, author, and artwork now appear in the macOS menu bar Now Playing widget, iOS Control Center, and lock screen. Play/pause, previous/next, seek forward/back, and scrubber all work from the OS controls
+- **Mobile queue reordering** — "Move up" / "Move down" actions in the ⋯ menu on each queue row
+- **Download-first on-demand** — when an episode without a local file is played under the "Download first" setting, the audio route kicks off a background download immediately so the next play serves the file locally; an in-progress guard prevents duplicate downloads
+
 ### Fixed
-- Dragged episode rows in All Podcasts view now have a solid white background so content doesn't bleed through while dragging
+- Mobile bottom bar (MiniPlayer + BottomTabs) no longer drifts upward — Shell now locks `overflow: hidden` on `<html>` and `<body>` while mounted, preventing iOS Safari from rubber-banding the document layer behind the fixed shell
+- NowPlaying overlay close button was hidden behind the iOS status bar — top bar now uses `padding-top: max(0.75rem, env(safe-area-inset-top))`
+- Mobile header top padding replaced hardcoded `pt-12` with `padding-top: max(1rem, env(safe-area-inset-top))` so it correctly tracks the real safe area after adding `viewportFit: 'cover'`
+- Added `viewport-fit: cover` to viewport metadata so `env(safe-area-inset-bottom)` activates and the tab bar gap above the iPhone home indicator actually renders
+- `MiniPlayer` and `BottomTabs` now have `flex-shrink: 0` and `touch-action: none` to prevent flex shrinking and browser scroll gestures from shifting the bottom bar
+- Mobile login page was being rewritten to `/m` (showing the Queue screen) before the login form could render — `/login` is now excluded from the mobile rewrite in `proxy.ts`
+- After login, providers were already mounted with empty state from the login-page load; replaced `router.push('/')` with `window.location.href = '/'` to force a full reload so all contexts re-fetch with the auth cookie present
+- Podcast artwork in production (`/_next/image` returning "not a valid image") — removed local image caching entirely; podcast images now use the original remote RSS URLs and Next.js image optimisation handles caching in `.next/cache/images/`
+- "Download first" setting was only downloading the single newest episode on refresh, not episodes loaded manually or episodes that existed before the setting was enabled; audio route now triggers a background download for any episode missing a local file when the setting is active
+- Service worker registered in `app/providers.tsx` so the PWA install prompt works correctly
+
+### Dragged episode rows in All Podcasts view now have a solid white background so content doesn't bleed through while dragging
 - Drag-and-drop reorder in All Podcasts view no longer flashes the old order after a drop — list updates optimistically before the server round-trip completes
 - Mark as Played, Favorite, and other episode actions now reflect instantly in the UI; server sync and SSE propagation to other clients happen in the background
 - Episode image caching removed — episodes now inherit the podcast's cached image, avoiding disk bloat and Next.js Image domain-whitelist issues

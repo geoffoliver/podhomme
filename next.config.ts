@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ['chonk.local'],
+  allowedDevOrigins: [
+    'chonk.local',
+    'pods.geoffoliver.me',
+  ],
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: '**' },
