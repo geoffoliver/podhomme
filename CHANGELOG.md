@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- **Dark mode** — all desktop and mobile UI surfaces respond to `prefers-color-scheme: dark`; buttons, inputs, dialogs, toolbars, progress bars, now-playing overlay, and menus all invert correctly
 - **Password authentication** — set `APP_PASSWORD` in `.env` to require a password before accessing the app; skipped entirely if the variable is not set. Cookie is valid for one year; changing the password invalidates all existing sessions automatically
 - **Worker secret** — set `WORKER_SECRET` in `.env`; the background refresh worker sends it as an `x-worker-secret` header so its requests bypass cookie auth without needing a session
 - **Mobile PWA icon** — `app/apple-icon.tsx` generates a proper 180×180 PNG via `ImageResponse` so iOS correctly uses the headphones icon when adding to home screen (iOS ignores SVG apple-touch-icons)

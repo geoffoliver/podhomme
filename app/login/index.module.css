@@ -6,7 +6,8 @@
     flex
     items-center
     justify-center
-    bg-neutral-50;
+    bg-neutral-50
+    dark:bg-neutral-950;
 }
 
 .card {
@@ -22,12 +23,14 @@
     shadow-sm
     px-10
     py-10
-    w-full;
+    w-full
+    dark:bg-neutral-900
+    dark:border-neutral-800;
   max-width: 22rem;
 }
 
 .title {
-  @apply text-2xl font-bold text-neutral-900 tracking-tight;
+  @apply text-2xl font-bold text-neutral-900 tracking-tight dark:text-neutral-100;
 }
 
 .form {
@@ -48,7 +51,13 @@
     outline-none
     focus:border-neutral-500
     focus:ring-2
-    focus:ring-neutral-200;
+    focus:ring-neutral-200
+    dark:border-neutral-600
+    dark:bg-neutral-800
+    dark:text-neutral-100
+    dark:placeholder-neutral-500
+    dark:focus:border-neutral-400
+    dark:focus:ring-neutral-700;
 }
 
 .error {
@@ -66,6 +75,8 @@
     rounded-lg
     cursor-pointer
     disabled:opacity-50
-    disabled:cursor-not-allowed;
+    disabled:cursor-not-allowed
+    dark:bg-white
+    dark:text-neutral-900;
   touch-action: manipulation;
 }

@@ -7,7 +7,8 @@
     flex
     flex-col
     bg-white
-    overflow-hidden;
+    overflow-hidden
+    dark:bg-neutral-950;
   overscroll-behavior: none;
 }
 

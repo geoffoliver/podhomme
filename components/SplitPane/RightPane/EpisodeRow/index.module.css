@@ -11,7 +11,10 @@
     border-neutral-100
     bg-white
     hover:bg-neutral-50
-    transition-colors;
+    transition-colors
+    dark:border-neutral-800
+    dark:bg-neutral-950
+    dark:hover:bg-neutral-900;
 }
 
 .rowPlayed {
@@ -27,7 +30,8 @@
     object-cover
     shrink-0
     bg-neutral-100
-    mt-0.5;
+    mt-0.5
+    dark:bg-neutral-800;
 }
 
 .artworkPlaceholder {
@@ -41,7 +45,9 @@
     items-center
     justify-center
     text-neutral-300
-    mt-0.5;
+    mt-0.5
+    dark:bg-neutral-800
+    dark:text-neutral-600;
 }
 
 .body {
@@ -62,7 +68,8 @@
     text-neutral-900
     hover:underline
     cursor-pointer
-    leading-snug;
+    leading-snug
+    dark:text-neutral-100;
 }
 
 .meta {
@@ -71,7 +78,8 @@
     items-center
     gap-2
     text-xs
-    text-neutral-500;
+    text-neutral-500
+    dark:text-neutral-400;
 }
 
 .description {
@@ -80,7 +88,8 @@
     text-neutral-600
     leading-relaxed
     line-clamp-4
-    mt-0.5;
+    mt-0.5
+    dark:text-neutral-400;
 }
 
 .menu {
@@ -99,7 +108,9 @@
     shadow-lg
     py-1
     min-w-36
-    z-50;
+    z-50
+    dark:bg-neutral-900
+    dark:border-neutral-700;
 }
 
 .menuItem {
@@ -115,7 +126,9 @@
     text-neutral-700
     hover:bg-neutral-50
     cursor-pointer
-    whitespace-nowrap;
+    whitespace-nowrap
+    dark:text-neutral-300
+    dark:hover:bg-neutral-800;
 }
 
 .menuItemDanger {
@@ -132,5 +145,7 @@
     cursor-grab
     self-start
     mt-0.5
-    shrink-0;
+    shrink-0
+    dark:text-neutral-600
+    dark:hover:text-neutral-400;
 }

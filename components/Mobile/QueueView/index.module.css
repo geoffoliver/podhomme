@@ -9,16 +9,17 @@
     px-4
     pb-3
     border-b
-    border-neutral-100;
+    border-neutral-100
+    dark:border-neutral-800;
   padding-top: max(1rem, env(safe-area-inset-top));
 }
 
 .headerTitle {
-  @apply text-2xl font-bold text-neutral-900;
+  @apply text-2xl font-bold text-neutral-900 dark:text-neutral-100;
 }
 
 .headerMeta {
-  @apply text-sm text-neutral-500;
+  @apply text-sm text-neutral-500 dark:text-neutral-400;
 }
 
 .empty {
@@ -30,7 +31,8 @@
     justify-center
     gap-3
     text-neutral-400
-    py-20;
+    py-20
+    dark:text-neutral-500;
 }
 
 .list {
@@ -42,7 +44,8 @@
     flex
     items-center
     border-b
-    border-neutral-100;
+    border-neutral-100
+    dark:border-neutral-800;
 }
 
 .rowMain {
@@ -73,7 +76,9 @@
     items-center
     justify-center
     text-neutral-400
-    shrink-0;
+    shrink-0
+    dark:bg-neutral-800
+    dark:text-neutral-500;
 }
 
 .info {
@@ -86,15 +91,16 @@
     font-medium
     text-neutral-900
     leading-snug
-    line-clamp-2;
+    line-clamp-2
+    dark:text-neutral-100;
 }
 
 .meta {
-  @apply text-xs text-neutral-500 mt-0.5 truncate;
+  @apply text-xs text-neutral-500 mt-0.5 truncate dark:text-neutral-400;
 }
 
 .playIcon {
-  @apply text-neutral-300 shrink-0;
+  @apply text-neutral-300 shrink-0 dark:text-neutral-600;
 }
 
 .menuWrap {
@@ -109,7 +115,8 @@
     items-center
     justify-center
     text-neutral-400
-    cursor-pointer;
+    cursor-pointer
+    dark:text-neutral-500;
   touch-action: manipulation;
 }
 
@@ -129,7 +136,9 @@
     rounded-lg
     shadow-lg
     min-w-36
-    overflow-hidden;
+    overflow-hidden
+    dark:bg-neutral-900
+    dark:border-neutral-700;
 }
 
 .menuItem {
@@ -143,11 +152,12 @@
     text-sm
     text-neutral-700
     text-left
-    cursor-pointer;
+    cursor-pointer
+    dark:text-neutral-300;
 
   touch-action: manipulation;
 }
 
 .menuItem:active {
-  @apply bg-neutral-50;
+  @apply bg-neutral-50 dark:bg-neutral-800;
 }

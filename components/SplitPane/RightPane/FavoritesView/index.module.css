@@ -18,14 +18,17 @@
     border-b
     border-neutral-100
     bg-white
-    shrink-0;
+    shrink-0
+    dark:border-neutral-800
+    dark:bg-neutral-950;
 }
 
 .toolbarTitle {
   @apply
     text-sm
     font-medium
-    text-neutral-700;
+    text-neutral-700
+    dark:text-neutral-300;
 }
 
 .episodeList {
@@ -43,5 +46,6 @@
     h-full
     gap-2
     text-neutral-400
-    text-sm;
+    text-sm
+    dark:text-neutral-500;
 }

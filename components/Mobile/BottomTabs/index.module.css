@@ -5,7 +5,9 @@
     flex
     border-t
     border-neutral-200
-    bg-white;
+    bg-white
+    dark:border-neutral-800
+    dark:bg-neutral-950;
   padding-bottom: env(safe-area-inset-bottom);
   flex-shrink: 0;
   touch-action: none;
@@ -22,17 +24,18 @@
     py-2
     text-neutral-400
     transition-colors
-    cursor-pointer;
+    cursor-pointer
+    dark:text-neutral-500;
   min-height: 3.25rem;
   touch-action: manipulation;
 }
 
 .tab:active {
-  @apply bg-neutral-50;
+  @apply bg-neutral-50 dark:bg-neutral-900;
 }
 
 .tabActive {
-  @apply text-neutral-900;
+  @apply text-neutral-900 dark:text-neutral-100;
 }
 
 .label {

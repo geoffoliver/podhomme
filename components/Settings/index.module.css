@@ -10,14 +10,16 @@
     px-6
     py-4
     border-b
-    border-neutral-200;
+    border-neutral-200
+    dark:border-neutral-700;
 }
 
 .title {
   @apply
     text-base
     font-semibold
-    text-neutral-900;
+    text-neutral-900
+    dark:text-neutral-100;
 }
 
 .body {
@@ -40,7 +42,8 @@
   @apply
     text-sm
     font-medium
-    text-neutral-700;
+    text-neutral-700
+    dark:text-neutral-300;
 }
 
 .footer {
@@ -51,5 +54,6 @@
     px-6
     py-4
     border-t
-    border-neutral-200;
+    border-neutral-200
+    dark:border-neutral-700;
 }

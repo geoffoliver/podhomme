@@ -9,16 +9,17 @@
     px-4
     pb-3
     border-b
-    border-neutral-100;
+    border-neutral-100
+    dark:border-neutral-800;
   padding-top: max(1rem, env(safe-area-inset-top));
 }
 
 .headerTitle {
-  @apply text-2xl font-bold text-neutral-900;
+  @apply text-2xl font-bold text-neutral-900 dark:text-neutral-100;
 }
 
 .headerMeta {
-  @apply text-sm text-neutral-500;
+  @apply text-sm text-neutral-500 dark:text-neutral-400;
 }
 
 .empty {
@@ -30,7 +31,8 @@
     justify-center
     gap-3
     text-neutral-400
-    py-20;
+    py-20
+    dark:text-neutral-500;
 }
 
 .list {
@@ -49,7 +51,8 @@
     border-neutral-100
     text-left
     w-full
-    cursor-pointer;
+    cursor-pointer
+    dark:border-neutral-800;
   touch-action: manipulation;
 }
 
@@ -67,7 +70,9 @@
     items-center
     justify-center
     text-neutral-400
-    shrink-0;
+    shrink-0
+    dark:bg-neutral-800
+    dark:text-neutral-500;
 }
 
 .podcastInfo {
@@ -75,11 +80,11 @@
 }
 
 .podcastTitle {
-  @apply text-sm font-medium text-neutral-900 truncate;
+  @apply text-sm font-medium text-neutral-900 truncate dark:text-neutral-100;
 }
 
 .podcastAuthor {
-  @apply text-xs text-neutral-500 truncate;
+  @apply text-xs text-neutral-500 truncate dark:text-neutral-400;
 }
 
 .badge {
@@ -91,11 +96,13 @@
     rounded-full
     px-1.5
     py-0.5
-    shrink-0;
+    shrink-0
+    dark:bg-white
+    dark:text-neutral-900;
 }
 
 .chevron {
-  @apply text-neutral-300 shrink-0;
+  @apply text-neutral-300 shrink-0 dark:text-neutral-600;
 }
 
 /* Podcast detail header */
@@ -107,7 +114,8 @@
     px-2
     pb-3
     border-b
-    border-neutral-100;
+    border-neutral-100
+    dark:border-neutral-800;
   padding-top: max(1rem, env(safe-area-inset-top));
 }
 
@@ -120,7 +128,8 @@
     justify-center
     text-neutral-700
     cursor-pointer
-    shrink-0;
+    shrink-0
+    dark:text-neutral-300;
   touch-action: manipulation;
 }
 
@@ -138,11 +147,13 @@
     items-center
     justify-center
     text-neutral-400
-    shrink-0;
+    shrink-0
+    dark:bg-neutral-800
+    dark:text-neutral-500;
 }
 
 .podcastHeaderTitle {
-  @apply text-base font-semibold text-neutral-900 flex-1 truncate;
+  @apply text-base font-semibold text-neutral-900 flex-1 truncate dark:text-neutral-100;
 }
 
 .refreshBtn {
@@ -155,7 +166,8 @@
     text-neutral-500
     cursor-pointer
     shrink-0
-    disabled:opacity-40;
+    disabled:opacity-40
+    dark:text-neutral-400;
   touch-action: manipulation;
 }
 
@@ -165,7 +177,8 @@
     flex
     items-center
     border-b
-    border-neutral-100;
+    border-neutral-100
+    dark:border-neutral-800;
 }
 
 .episodeRowPlayed {
@@ -200,7 +213,9 @@
     items-center
     justify-center
     text-neutral-400
-    shrink-0;
+    shrink-0
+    dark:bg-neutral-800
+    dark:text-neutral-500;
 }
 
 .episodeInfo {
@@ -208,15 +223,15 @@
 }
 
 .episodeTitle {
-  @apply text-sm font-medium text-neutral-900 leading-snug line-clamp-2;
+  @apply text-sm font-medium text-neutral-900 leading-snug line-clamp-2 dark:text-neutral-100;
 }
 
 .episodeMeta {
-  @apply text-xs text-neutral-500 mt-0.5;
+  @apply text-xs text-neutral-500 mt-0.5 dark:text-neutral-400;
 }
 
 .playIcon {
-  @apply text-neutral-300 shrink-0;
+  @apply text-neutral-300 shrink-0 dark:text-neutral-600;
 }
 
 .menuWrap {
@@ -231,7 +246,8 @@
     items-center
     justify-center
     text-neutral-400
-    cursor-pointer;
+    cursor-pointer
+    dark:text-neutral-500;
   touch-action: manipulation;
 }
 
@@ -251,7 +267,9 @@
     rounded-lg
     shadow-lg
     min-w-40
-    overflow-hidden;
+    overflow-hidden
+    dark:bg-neutral-900
+    dark:border-neutral-700;
 }
 
 .menuItem {
@@ -265,10 +283,11 @@
     text-sm
     text-neutral-700
     text-left
-    cursor-pointer;
+    cursor-pointer
+    dark:text-neutral-300;
   touch-action: manipulation;
 }
 
 .menuItem:active {
-  @apply bg-neutral-50;
+  @apply bg-neutral-50 dark:bg-neutral-800;
 }

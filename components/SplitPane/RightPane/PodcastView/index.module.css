@@ -16,7 +16,9 @@
     border-b
     border-neutral-200
     bg-white
-    shrink-0;
+    shrink-0
+    dark:border-neutral-800
+    dark:bg-neutral-950;
 }
 
 .artwork {
@@ -38,7 +40,9 @@
     flex
     items-center
     justify-center
-    text-neutral-300;
+    text-neutral-300
+    dark:bg-neutral-800
+    dark:text-neutral-600;
 }
 
 .headerInfo {
@@ -55,13 +59,15 @@
     text-lg
     font-semibold
     text-neutral-900
-    leading-snug;
+    leading-snug
+    dark:text-neutral-100;
 }
 
 .podcastAuthor {
   @apply
     text-sm
-    text-neutral-600;
+    text-neutral-600
+    dark:text-neutral-400;
 }
 
 .podcastDescription {
@@ -69,7 +75,8 @@
     text-xs
     text-neutral-500
     line-clamp-3
-    mt-1;
+    mt-1
+    dark:text-neutral-400;
 }
 
 .headerActions {
@@ -89,7 +96,10 @@
     py-1
     text-neutral-700
     bg-white
-    cursor-pointer;
+    cursor-pointer
+    dark:border-neutral-700
+    dark:text-neutral-300
+    dark:bg-neutral-800;
 }
 
 .toolbar {
@@ -102,7 +112,9 @@
     border-b
     border-neutral-100
     bg-white
-    shrink-0;
+    shrink-0
+    dark:border-neutral-800
+    dark:bg-neutral-950;
 }
 
 .toolbarTitle {
@@ -110,7 +122,8 @@
     text-sm
     font-medium
     text-neutral-700
-    mr-auto;
+    mr-auto
+    dark:text-neutral-300;
 }
 
 .episodeList {

@@ -10,7 +10,9 @@
     border-neutral-200
     w-full
     max-w-2xl
-    overflow-hidden;
+    overflow-hidden
+    dark:border-neutral-700
+    dark:bg-neutral-900;
   max-height: 80vh;
 }
 
@@ -35,14 +37,16 @@
     py-4
     border-b
     border-neutral-200
-    shrink-0;
+    shrink-0
+    dark:border-neutral-700;
 }
 
 .title {
   @apply
     text-base
     font-semibold
-    text-neutral-900;
+    text-neutral-900
+    dark:text-neutral-100;
 }
 
 .searchForm {
@@ -54,7 +58,8 @@
     py-3
     border-b
     border-neutral-100
-    shrink-0;
+    shrink-0
+    dark:border-neutral-800;
 }
 
 .results {
@@ -72,7 +77,8 @@
     py-3
     border-b
     border-neutral-100
-    last:border-b-0;
+    last:border-b-0
+    dark:border-neutral-800;
 }
 
 .artwork {
@@ -82,7 +88,8 @@
     rounded
     object-cover
     shrink-0
-    bg-neutral-100;
+    bg-neutral-100
+    dark:bg-neutral-800;
 }
 
 .artworkPlaceholder {
@@ -95,7 +102,9 @@
     flex
     items-center
     justify-center
-    text-neutral-400;
+    text-neutral-400
+    dark:bg-neutral-800
+    dark:text-neutral-500;
 }
 
 .info {
@@ -112,21 +121,24 @@
     text-sm
     font-medium
     text-neutral-900
-    truncate;
+    truncate
+    dark:text-neutral-100;
 }
 
 .author {
   @apply
     text-xs
     text-neutral-500
-    truncate;
+    truncate
+    dark:text-neutral-400;
 }
 
 .genre {
   @apply
     text-xs
     text-neutral-400
-    truncate;
+    truncate
+    dark:text-neutral-500;
 }
 
 .empty {
@@ -136,5 +148,6 @@
     justify-center
     py-12
     text-sm
-    text-neutral-400;
+    text-neutral-400
+    dark:text-neutral-500;
 }

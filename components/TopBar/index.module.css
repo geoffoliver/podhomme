@@ -11,7 +11,9 @@
     border-neutral-200
     bg-white
     shrink-0
-    z-10;
+    z-10
+    dark:border-neutral-800
+    dark:bg-neutral-950;
 }
 
 .artwork {
@@ -21,7 +23,8 @@
     rounded
     object-cover
     shrink-0
-    bg-neutral-100;
+    bg-neutral-100
+    dark:bg-neutral-800;
 }
 
 .artworkPlaceholder {
@@ -34,7 +37,9 @@
     flex
     items-center
     justify-center
-    text-neutral-400;
+    text-neutral-400
+    dark:bg-neutral-800
+    dark:text-neutral-500;
 }
 
 .nowPlaying {
@@ -51,7 +56,8 @@
     font-medium
     text-neutral-900
     truncate
-    leading-tight;
+    leading-tight
+    dark:text-neutral-100;
 }
 
 .podcastTitle {
@@ -59,7 +65,8 @@
     text-xs
     text-neutral-500
     truncate
-    leading-tight;
+    leading-tight
+    dark:text-neutral-400;
 }
 
 .transport {
@@ -85,7 +92,8 @@
     text-xs
     text-neutral-500
     tabular-nums
-    shrink-0;
+    shrink-0
+    dark:text-neutral-400;
 }
 
 .progressBar {
@@ -95,7 +103,8 @@
     rounded-full
     bg-neutral-200
     relative
-    cursor-pointer;
+    cursor-pointer
+    dark:bg-neutral-700;
 }
 
 .progressFill {
@@ -103,7 +112,8 @@
     h-full
     rounded-full
     bg-neutral-800
-    transition-none;
+    transition-none
+    dark:bg-neutral-200;
 }
 
 .settingsBtn {

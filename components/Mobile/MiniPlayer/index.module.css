@@ -7,7 +7,9 @@
     items-center
     border-t
     border-neutral-200
-    bg-white;
+    bg-white
+    dark:border-neutral-800
+    dark:bg-neutral-950;
   min-height: 4rem;
   flex-shrink: 0;
   touch-action: none;
@@ -44,7 +46,9 @@
     items-center
     justify-center
     text-neutral-400
-    shrink-0;
+    shrink-0
+    dark:bg-neutral-800
+    dark:text-neutral-500;
 }
 
 .info {
@@ -59,14 +63,16 @@
     text-sm
     font-medium
     text-neutral-900
-    truncate;
+    truncate
+    dark:text-neutral-100;
 }
 
 .podcast {
   @apply
     text-xs
     text-neutral-500
-    truncate;
+    truncate
+    dark:text-neutral-400;
 }
 
 .controls {
@@ -84,7 +90,8 @@
     items-center
     justify-center
     text-neutral-700
-    cursor-pointer;
+    cursor-pointer
+    dark:text-neutral-300;
   touch-action: manipulation;
 }
 
@@ -95,12 +102,14 @@
     left-0
     right-0
     h-0.5
-    bg-neutral-100;
+    bg-neutral-100
+    dark:bg-neutral-800;
 }
 
 .progressFill {
   @apply
     h-full
     bg-neutral-900
-    transition-none;
+    transition-none
+    dark:bg-neutral-100;
 }

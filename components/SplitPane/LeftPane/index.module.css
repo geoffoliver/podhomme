@@ -9,7 +9,9 @@
     border-r
     border-neutral-200
     bg-neutral-50
-    overflow-hidden;
+    overflow-hidden
+    dark:border-neutral-800
+    dark:bg-neutral-900;
 }
 
 .list {
@@ -36,14 +38,18 @@
     focus-visible:ring-inset
     focus-visible:ring-neutral-400
     transition-colors
-    cursor-pointer;
+    cursor-pointer
+    dark:text-neutral-300
+    dark:hover:bg-neutral-800;
 }
 
 .itemActive {
   @apply
     bg-neutral-200
     text-neutral-900
-    font-medium;
+    font-medium
+    dark:bg-neutral-700
+    dark:text-neutral-100;
 }
 
 .artwork {
@@ -53,7 +59,8 @@
     rounded
     object-cover
     shrink-0
-    bg-neutral-200;
+    bg-neutral-200
+    dark:bg-neutral-700;
 }
 
 .artworkPlaceholder {
@@ -66,7 +73,9 @@
     flex
     items-center
     justify-center
-    text-neutral-400;
+    text-neutral-400
+    dark:bg-neutral-700
+    dark:text-neutral-500;
 }
 
 .label {
@@ -81,7 +90,8 @@
     shrink-0
     text-xs
     text-neutral-400
-    tabular-nums;
+    tabular-nums
+    dark:text-neutral-500;
 }
 
 .statusBar {
@@ -93,7 +103,10 @@
     bg-neutral-100
     border-t
     border-neutral-200
-    truncate;
+    truncate
+    dark:text-neutral-400
+    dark:bg-neutral-800
+    dark:border-neutral-700;
 }
 
 .buttonBar {
@@ -104,7 +117,8 @@
     px-2
     py-2
     border-t
-    border-neutral-200;
+    border-neutral-200
+    dark:border-neutral-800;
 }
 
 .divider {
@@ -112,5 +126,6 @@
     h-px
     bg-neutral-200
     mx-2
-    my-1;
+    my-1
+    dark:bg-neutral-700;
 }
