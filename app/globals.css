@@ -4,6 +4,14 @@
   --topbar-height: 4rem;
 }
 
+a {
+  @apply
+    text-sky-700
+    hover:text-sky-900
+    dark:text-sky-300
+    dark:hover:text-sky-100;
+}
+
 /* ── Buttons ─────────────────────────────────────────────── */
 
 .btn {
