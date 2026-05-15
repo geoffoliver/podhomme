@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import Image from 'next/image'
 import { Virtuoso } from 'react-virtuoso'
-import { Podcast, RefreshCw, Trash2 } from 'lucide-react'
+import { ExternalLink, Podcast, RefreshCw, Rss, Trash2 } from 'lucide-react'
 import { EpisodeRow } from '../EpisodeRow'
 import { EpisodeDetail } from '../EpisodeDetail'
 import { usePodcasts } from '@/context/PodcastsContext'
@@ -104,6 +104,16 @@ export function PodcastView({ podcastId }: Props) {
           {podcast.description && (
             <p className={styles.podcastDescription} dangerouslySetInnerHTML={{ __html: podcast.description }} />
           )}
+          <div className={styles.podcastLinks}>
+            {podcast.siteUrl && (
+              <a href={podcast.siteUrl} target="_blank" rel="noopener noreferrer" className={styles.podcastLink}>
+                <ExternalLink size={11} /> Website
+              </a>
+            )}
+            <a href={podcast.feedUrl} target="_blank" rel="noopener noreferrer" className={styles.podcastLink}>
+              <Rss size={11} /> RSS Feed
+            </a>
+          </div>
           <div className={styles.headerActions}>
             <button
               className="btn-ghost text-xs"

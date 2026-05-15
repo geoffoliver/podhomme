@@ -12,6 +12,7 @@ A shared podcast player for the browser. Multiple people can open the same URL a
 - **Download first** — optionally download episode audio to the server and stream it locally rather than relying on remote URLs; configurable limit on how many files to keep per podcast
 - **Mobile UI** — dedicated mobile layout served automatically based on user agent, installable as a PWA with a native headphones icon
 - **Dark mode** — full dark theme on desktop and mobile, driven by `prefers-color-scheme`
+- **Podcast links** — website and RSS feed links in the podcast detail header
 - **Now Playing integration** — Media Session API exposes episode metadata, artwork, and transport controls to the macOS menu bar, iOS Control Center, and lock screen
 - **Password protection** — optional single-password auth gating the entire app, configured via environment variable
 - **BeardedSpice** — MediaStrategy exposes episode and podcast metadata so Airfoil can display Now Playing info for the current episode
