@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- **BeardedSpice strategy served dynamically** — `/api/beardedspice` now returns the strategy JS with `WEB_URL` from the environment substituted in; the predicate matches on the tab URL instead of the page title so it keeps working while tracks are playing. Download from `/api/beardedspice` and install as a custom strategy in BeardedSpice
 - **Video podcast support** — episodes with `video/*` enclosure MIME types play in a collapsible video panel below the top bar (desktop) or in the Now Playing overlay (mobile); both surfaces have a fullscreen button; all existing transport controls work the same way
 - **Podcast links** — podcast detail header now shows a Website link (from the feed's `<link>`) and an RSS Feed link; both open in a new tab
 - **Dark mode** — all desktop and mobile UI surfaces respond to `prefers-color-scheme: dark`; buttons, inputs, dialogs, toolbars, progress bars, now-playing overlay, and menus all invert correctly

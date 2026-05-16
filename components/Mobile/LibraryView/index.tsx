@@ -25,8 +25,8 @@ function formatRemaining(duration: number | null, resumeAt: number): string | nu
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString(undefined, {
- year: 'numeric', month: 'short', day: 'numeric',
-});
+    year: 'numeric', month: 'short', day: 'numeric',
+  });
 }
 
 export function LibraryView() {
@@ -110,10 +110,10 @@ export function LibraryView() {
   const effectiveType = podcast?.typeOverride || podcast?.type;
   const episodes = podcast
     ? [...podcast.episodes].sort((a, b) =>
-        effectiveType === 'serial'
-          ? new Date(a.pubDate).getTime() - new Date(b.pubDate).getTime()
-          : new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime(),
-      )
+      effectiveType === 'serial'
+        ? new Date(a.pubDate).getTime() - new Date(b.pubDate).getTime()
+        : new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime(),
+    )
     : [];
 
   return (

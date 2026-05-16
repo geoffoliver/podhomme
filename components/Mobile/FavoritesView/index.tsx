@@ -27,8 +27,8 @@ function formatRemaining(duration: number | null, resumeAt: number): string | nu
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString(undefined, {
- year: 'numeric', month: 'short', day: 'numeric',
-});
+    year: 'numeric', month: 'short', day: 'numeric',
+  });
 }
 
 export function FavoritesView() {

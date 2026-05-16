@@ -1,4 +1,9 @@
-//
+import { NextResponse } from 'next/server';
+
+export async function GET() {
+  const webUrl = (process.env.WEB_URL ?? 'http://localhost:3000').replace(/\/$/, '');
+
+  const js = `//
 //  Podhomme.js
 //  BeardedSpice
 //
@@ -10,8 +15,8 @@ BSStrategy = {
   displayName: 'Podhomme',
   accepts: {
     method: 'predicateOnTab',
-    format: '%K LIKE[c] \'*Podhomme*\'',
-    args: ['title'],
+    format: '%K LIKE[c] \\'${webUrl}*\\'',
+    args: ['URL'],
   },
 
   isPlaying: function () {
@@ -53,3 +58,9 @@ BSStrategy = {
     };
   },
 };
+`;
+
+  return new NextResponse(js, {
+    headers: { 'Content-Type': 'application/javascript; charset=utf-8' },
+  });
+}
