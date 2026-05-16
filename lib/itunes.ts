@@ -1,4 +1,4 @@
-import { iTunesData } from "@/types";
+import { iTunesData } from '@/types';
 
 class iTunes {
   baseUrl = 'https://itunes.apple.com/';

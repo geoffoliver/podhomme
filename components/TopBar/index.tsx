@@ -1,29 +1,32 @@
-'use client'
+'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react'
-import Image from 'next/image'
 import {
-  Podcast,
-  Play,
-  Pause,
-  SkipBack,
-  SkipForward,
   ChevronFirst,
   ChevronLast,
   Headphones,
+  Pause,
+  Play,
+  Podcast,
   Settings,
+  SkipBack,
+  SkipForward,
   Smartphone,
-} from 'lucide-react'
-import { usePlayback } from '@/context/PlaybackContext'
-import styles from './index.module.css'
+} from 'lucide-react';
+import {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
+import Image from 'next/image';
+import { usePlayback } from '@/context/PlaybackContext';
+
+import styles from './index.module.css';
 
 function formatTime(seconds: number): string {
-  const s = Math.max(0, Math.floor(seconds))
-  const h = Math.floor(s / 3600)
-  const m = Math.floor((s % 3600) / 60)
-  const sec = s % 60
-  if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`
-  return `${m}:${String(sec).padStart(2, '0')}`
+  const s = Math.max(0, Math.floor(seconds));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+  return `${m}:${String(sec).padStart(2, '0')}`;
 }
 
 type Props = {
@@ -31,55 +34,57 @@ type Props = {
 }
 
 export function TopBar({ onSettingsClick }: Props) {
-  const { state, audioDetached, joinAudio, play, pause, seek, next, prev, currentPosition } = usePlayback()
-  const { episode } = state
-  const [displayPos, setDisplayPos] = useState(0)
-  const rafRef = useRef<number | null>(null)
-  const seekingRef = useRef(false)
+  const {
+ state, audioDetached, joinAudio, play, pause, seek, next, prev, currentPosition,
+} = usePlayback();
+  const { episode } = state;
+  const [displayPos, setDisplayPos] = useState(0);
+  const rafRef = useRef<number | null>(null);
+  const seekingRef = useRef(false);
 
   // Animate position display
   useEffect(() => {
     function tick() {
-      if (!seekingRef.current) setDisplayPos(currentPosition())
-      rafRef.current = requestAnimationFrame(tick)
+      if (!seekingRef.current) setDisplayPos(currentPosition());
+      rafRef.current = requestAnimationFrame(tick);
     }
-    rafRef.current = requestAnimationFrame(tick)
-    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current) }
-  }, [currentPosition])
+    rafRef.current = requestAnimationFrame(tick);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, [currentPosition]);
 
-  const duration = episode?.duration ?? 0
-  const progress = duration > 0 ? Math.min(displayPos / duration, 1) : 0
+  const duration = episode?.duration ?? 0;
+  const progress = duration > 0 ? Math.min(displayPos / duration, 1) : 0;
 
   const handleBarClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!duration) return
-    const rect = e.currentTarget.getBoundingClientRect()
-    const ratio = (e.clientX - rect.left) / rect.width
-    seek(ratio * duration)
-  }, [duration, seek])
+    if (!duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const ratio = (e.clientX - rect.left) / rect.width;
+    seek(ratio * duration);
+  }, [duration, seek]);
 
   const handleBarMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    seekingRef.current = true
-    const bar = e.currentTarget
-    const duration_ = duration
+    seekingRef.current = true;
+    const bar = e.currentTarget;
+    const duration_ = duration;
 
     function onMove(ev: MouseEvent) {
-      const rect = bar.getBoundingClientRect()
-      const ratio = Math.min(Math.max((ev.clientX - rect.left) / rect.width, 0), 1)
-      setDisplayPos(ratio * duration_)
+      const rect = bar.getBoundingClientRect();
+      const ratio = Math.min(Math.max((ev.clientX - rect.left) / rect.width, 0), 1);
+      setDisplayPos(ratio * duration_);
     }
     function onUp(ev: MouseEvent) {
-      seekingRef.current = false
-      const rect = bar.getBoundingClientRect()
-      const ratio = Math.min(Math.max((ev.clientX - rect.left) / rect.width, 0), 1)
-      seek(ratio * duration_)
-      window.removeEventListener('mousemove', onMove)
-      window.removeEventListener('mouseup', onUp)
+      seekingRef.current = false;
+      const rect = bar.getBoundingClientRect();
+      const ratio = Math.min(Math.max((ev.clientX - rect.left) / rect.width, 0), 1);
+      seek(ratio * duration_);
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
     }
-    window.addEventListener('mousemove', onMove)
-    window.addEventListener('mouseup', onUp)
-  }, [duration, seek])
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  }, [duration, seek]);
 
-  const artUrl = episode?.imageUrl ?? episode?.podcast.imageUrl ?? null
+  const artUrl = episode?.imageUrl ?? episode?.podcast.imageUrl ?? null;
 
   return (
     <header className={styles.topbar}>
@@ -115,7 +120,7 @@ export function TopBar({ onSettingsClick }: Props) {
           onClick={state.isPlaying ? pause : play}
           aria-label={state.isPlaying ? 'Pause' : 'Play'}
           disabled={!state.episodeId}
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+
           // @ts-expect-error
           autoComplete="off"
         >
@@ -169,5 +174,5 @@ export function TopBar({ onSettingsClick }: Props) {
         <Settings size={18} />
       </button>
     </header>
-  )
+  );
 }

@@ -1,8 +1,10 @@
-'use client'
+'use client';
 
-import { useEffect, useRef, useState } from 'react'
-import type { Settings } from '@/types'
-import styles from './index.module.css'
+import {
+ useEffect, useRef, useState, 
+} from 'react';
+import type { Settings } from '@/types';
+import styles from './index.module.css';
 
 type Props = {
   open: boolean
@@ -15,7 +17,7 @@ const REFRESH_OPTIONS = [
   { value: 180, label: '3 hours' },
   { value: 720, label: '12 hours' },
   { value: 1440, label: '1 day' },
-]
+];
 
 const KEEP_OPTIONS = [
   { value: '1', label: '1 episode' },
@@ -24,45 +26,45 @@ const KEEP_OPTIONS = [
   { value: '5', label: '5 episodes' },
   { value: 'all_unplayed', label: 'All unplayed' },
   { value: 'all', label: 'All episodes' },
-]
+];
 
 export function SettingsDialog({ open, onClose }: Props) {
-  const dialogRef = useRef<HTMLDialogElement>(null)
-  const [settings, setSettings] = useState<Settings | null>(null)
-  const [dirty, setDirty] = useState(false)
-  const [saving, setSaving] = useState(false)
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const [settings, setSettings] = useState<Settings | null>(null);
+  const [dirty, setDirty] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    const el = dialogRef.current
-    if (!el) return
+    const el = dialogRef.current;
+    if (!el) return;
     if (open) {
-      el.showModal()
-      fetch('/api/settings').then(r => r.json()).then(setSettings)
+      el.showModal();
+      fetch('/api/settings').then(r => r.json()).then(setSettings);
     } else {
-      el.close()
+      el.close();
     }
-  }, [open])
+  }, [open]);
 
   function update(key: keyof Settings, value: string | number) {
-    setSettings(s => s ? { ...s, [key]: value } : s)
-    setDirty(true)
+    setSettings(s => s ? { ...s, [key]: value } : s);
+    setDirty(true);
   }
 
   async function save() {
-    if (!settings) return
-    setSaving(true)
+    if (!settings) return;
+    setSaving(true);
     await fetch('/api/settings', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(settings),
-    })
-    setSaving(false)
-    setDirty(false)
-    onClose()
+    });
+    setSaving(false);
+    setDirty(false);
+    onClose();
   }
 
   function handleClick(e: React.MouseEvent<HTMLDialogElement>) {
-    if (e.target === dialogRef.current) onClose()
+    if (e.target === dialogRef.current) onClose();
   }
 
   return (
@@ -135,5 +137,5 @@ export function SettingsDialog({ open, onClose }: Props) {
         </button>
       </div>
     </dialog>
-  )
+  );
 }

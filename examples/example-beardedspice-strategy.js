@@ -13,12 +13,12 @@
 
 BSStrategy = {
   version: 1,
-  displayName: "Strategy Name",
+  displayName: 'Strategy Name',
   accepts: {
-    method: "predicateOnTab" /* OR "script" */,
+    method: 'predicateOnTab' /* OR "script" */,
     /* Use these if "predicateOnTab" */
-    format: "%K LIKE[c] '*[YOUR-URL-DOMAIN-OR-TITLE-HERE]*'",
-    args: ["URL" /* OR "title" */]
+    format: '%K LIKE[c] \'*[YOUR-URL-DOMAIN-OR-TITLE-HERE]*\'',
+    args: ['URL' /* OR "title" */],
     /* Use "script" if method is "script" */
     /* [ex] script: "some javascript here that returns a boolean value" */
   },
@@ -43,6 +43,6 @@ BSStrategy = {
         'image': 'http://www.example.com/some/album/artwork.png',
         'favorited': 'true/false if the track has been favorited',
     };
-  }
-}
+  },
+};
 // The file must have an empty line at the end.

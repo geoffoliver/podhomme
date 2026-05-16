@@ -1,67 +1,79 @@
-'use client'
+'use client';
 
-import { useRef, useState } from 'react'
-import Image from 'next/image'
-import { Podcast, Star, Plus, Search, FileInput, RefreshCw } from 'lucide-react'
-import { usePodcasts } from '@/context/PodcastsContext'
-import { PodcastSearch } from '@/components/PodcastSearch'
-import type { SelectedView } from '@/types'
-import styles from './index.module.css'
+import {
+  FileInput, Plus, Podcast, RefreshCw, Search, Star,
+} from 'lucide-react';
+import { useRef, useState } from 'react';
+import Image from 'next/image';
+
+import { PodcastSearch } from '@/components/PodcastSearch';
+import type { SelectedView } from '@/types';
+import { usePodcasts } from '@/context/PodcastsContext';
+
+import styles from './index.module.css';
 
 export function LeftPane() {
-  const { podcasts, selectedView, setSelectedView, refreshStatus, refreshPodcasts } = usePodcasts()
-  const [adding, setAdding] = useState(false)
-  const [searching, setSearching] = useState(false)
-  const [feedUrl, setFeedUrl] = useState('')
-  const [addError, setAddError] = useState<string | null>(null)
-  const [refreshing, setRefreshing] = useState(false)
-  const opmlRef = useRef<HTMLInputElement>(null)
+  const {
+ podcasts, selectedView, setSelectedView, refreshStatus, refreshPodcasts,
+} = usePodcasts();
+  const [adding, setAdding] = useState(false);
+  const [searching, setSearching] = useState(false);
+  const [feedUrl, setFeedUrl] = useState('');
+  const [addError, setAddError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const opmlRef = useRef<HTMLInputElement>(null);
 
   const items: { view: SelectedView; label: string; icon: React.ReactNode; badge?: number }[] = [
-    { view: 'all', label: 'All Podcasts', icon: <Podcast size={14} /> },
-    { view: 'favorites', label: 'Favorites', icon: <Star size={14} /> },
-  ]
+    {
+ view: 'all', label: 'All Podcasts', icon: <Podcast size={14} />,
+},
+    {
+ view: 'favorites', label: 'Favorites', icon: <Star size={14} />,
+},
+  ];
 
   async function handleAdd(e: React.FormEvent) {
-    e.preventDefault()
-    setAddError(null)
-    const url = feedUrl.trim()
-    if (!url) return
+    e.preventDefault();
+    setAddError(null);
+    const url = feedUrl.trim();
+    if (!url) return;
     const res = await fetch('/api/podcasts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ feedUrl: url }),
-    })
+    });
     if (res.ok) {
-      setFeedUrl('')
-      setAdding(false)
-      refreshPodcasts()
+      setFeedUrl('');
+      setAdding(false);
+      refreshPodcasts();
     } else {
-      const body = await res.json()
-      setAddError(body.error ?? 'Failed to add podcast')
+      const body = await res.json();
+      setAddError(body.error ?? 'Failed to add podcast');
     }
   }
 
   async function handleOpml(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const form = new FormData()
-    form.append('file', file)
-    await fetch('/api/import/opml', { method: 'POST', body: form })
-    refreshPodcasts()
-    e.target.value = ''
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const form = new FormData();
+    form.append('file', file);
+    await fetch('/api/import/opml', { method: 'POST', body: form });
+    refreshPodcasts();
+    e.target.value = '';
   }
 
   async function handleRefreshAll() {
-    setRefreshing(true)
-    await fetch('/api/podcasts/refresh', { method: 'POST' })
-    setRefreshing(false)
+    setRefreshing(true);
+    await fetch('/api/podcasts/refresh', { method: 'POST' });
+    setRefreshing(false);
   }
 
   return (
     <nav className={styles.pane}>
       <ul className={styles.list} role="listbox" aria-label="Podcast library">
-        {items.map(({ view, label, icon }) => (
+        {items.map(({
+ view, label, icon,
+}) => (
           <li key={String(view)}>
             <button
               className={`${styles.item} ${selectedView === view ? styles.itemActive : ''}`}
@@ -113,7 +125,7 @@ export function LeftPane() {
           {addError && <p className="text-xs text-red-600">{addError}</p>}
           <div className="flex gap-1">
             <button type="submit" className="btn-primary flex-1 text-xs">Add</button>
-            <button type="button" className="btn-ghost flex-1 text-xs" onClick={() => { setAdding(false); setAddError(null) }}>Cancel</button>
+            <button type="button" className="btn-ghost flex-1 text-xs" onClick={() => { setAdding(false); setAddError(null); }}>Cancel</button>
           </div>
         </form>
       )}
@@ -129,7 +141,7 @@ export function LeftPane() {
       <div className={styles.buttonBar}>
         <button
           className="btn-ghost text-xs gap-1"
-          onClick={() => { setAdding(v => !v); setAddError(null) }}
+          onClick={() => { setAdding(v => !v); setAddError(null); }}
           title="Add podcast by URL"
           aria-label="Add podcast by URL"
         >
@@ -167,5 +179,5 @@ export function LeftPane() {
 
       <PodcastSearch open={searching} onClose={() => setSearching(false)} />
     </nav>
-  )
+  );
 }

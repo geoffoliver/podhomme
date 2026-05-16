@@ -1,25 +1,32 @@
-'use client'
+'use client';
 
-import { useCallback, useRef, useState } from 'react'
-import { ChevronDown, ChevronUp, Maximize2 } from 'lucide-react'
-import { usePlayback } from '@/context/PlaybackContext'
-import styles from './index.module.css'
+import {
+  ChevronDown, ChevronUp, Maximize2,
+} from 'lucide-react';
+import {
+  useCallback, useRef, useState,
+} from 'react';
+import { usePlayback } from '@/context/PlaybackContext';
+
+import styles from './index.module.css';
 
 export function VideoPanel() {
-  const { state, isVideo, registerVideoElement } = usePlayback()
-  const [minimized, setMinimized] = useState(false)
-  const videoElRef = useRef<HTMLVideoElement | null>(null)
+  const {
+ state, isVideo, registerVideoElement,
+} = usePlayback();
+  const [minimized, setMinimized] = useState(false);
+  const videoElRef = useRef<HTMLVideoElement | null>(null);
 
   const videoRefCallback = useCallback((el: HTMLVideoElement | null) => {
-    videoElRef.current = el
-    registerVideoElement(el)
-  }, [registerVideoElement])
+    videoElRef.current = el;
+    registerVideoElement(el);
+  }, [registerVideoElement]);
 
   const handleFullscreen = () => {
-    videoElRef.current?.requestFullscreen()
-  }
+    videoElRef.current?.requestFullscreen();
+  };
 
-  const visible = isVideo && !!state.episode
+  const visible = isVideo && !!state.episode;
 
   return (
     <div className={`${styles.panel} ${!visible ? styles.hidden : ''}`}>
@@ -40,5 +47,5 @@ export function VideoPanel() {
         <video ref={videoRefCallback} className={styles.video} />
       </div>
     </div>
-  )
+  );
 }

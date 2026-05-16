@@ -1,23 +1,24 @@
-'use client'
+'use client';
 
-import { useEffect, useRef } from 'react'
-import Image from 'next/image'
-import { Podcast } from 'lucide-react'
-import type { Episode } from '@/types'
-import styles from './index.module.css'
+import { useEffect, useRef } from 'react';
+import type { Episode } from '@/types';
+import Image from 'next/image';
+import { Podcast } from 'lucide-react';
+
+import styles from './index.module.css';
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString(undefined, {
     year: 'numeric', month: 'long', day: 'numeric',
-  })
+  });
 }
 
 function formatDuration(seconds: number | null) {
-  if (!seconds) return null
-  const h = Math.floor(seconds / 3600)
-  const m = Math.floor((seconds % 3600) / 60)
-  if (h > 0) return `${h}h ${m}m`
-  return `${m}m`
+  if (!seconds) return null;
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m`;
 }
 
 type Props = {
@@ -30,25 +31,25 @@ export function EpisodeDetail({ episode, onClose }: Props) {
   const descriptionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const el = dialogRef.current
-    if (!el) return
+    const el = dialogRef.current;
+    if (!el) return;
     if (episode) {
-      el.showModal()
+      el.showModal();
       // Scroll description to top when opening new episode
-      if (descriptionRef.current) descriptionRef.current.scrollTop = 0
+      if (descriptionRef.current) descriptionRef.current.scrollTop = 0;
     } else {
-      el.close()
+      el.close();
     }
-  }, [episode])
+  }, [episode]);
 
   // Close on backdrop click
   function handleClick(e: React.MouseEvent<HTMLDialogElement>) {
-    if (e.target === dialogRef.current) onClose()
+    if (e.target === dialogRef.current) onClose();
   }
 
-  if (!episode) return <dialog ref={dialogRef} />
+  if (!episode) return <dialog ref={dialogRef} />;
 
-  const artUrl = episode.imageUrl ?? episode.podcast?.imageUrl ?? null
+  const artUrl = episode.imageUrl ?? episode.podcast?.imageUrl ?? null;
 
   return (
     <dialog ref={dialogRef} className={styles.dialog} onClose={onClose} onClick={handleClick}>
@@ -82,5 +83,5 @@ export function EpisodeDetail({ episode, onClose }: Props) {
         <button className="btn-ghost" onClick={onClose}>Close</button>
       </div>
     </dialog>
-  )
+  );
 }

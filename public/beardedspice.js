@@ -7,11 +7,11 @@
 
 BSStrategy = {
   version: 1,
-  displayName: "Podhomme",
+  displayName: 'Podhomme',
   accepts: {
-    method: "predicateOnTab",
-    format: "%K LIKE[c] '*Podhomme*'",
-    args: ["title"]
+    method: 'predicateOnTab',
+    format: '%K LIKE[c] \'*Podhomme*\'',
+    args: ['title'],
   },
 
   isPlaying: function () {
@@ -20,23 +20,23 @@ BSStrategy = {
   },
 
   toggle: function () {
-    window.podhomme && window.podhomme.toggle();
+    if (window.podhomme) window.podhomme.toggle();
   },
 
   previous: function () {
-    window.podhomme && window.podhomme.skipBack();
+    if (window.podhomme) window.podhomme.skipBack();
   },
 
   next: function () {
-    window.podhomme && window.podhomme.skipForward();
+    if (window.podhomme) window.podhomme.skipForward();
   },
 
   pause: function () {
-    window.podhomme && window.podhomme.pause();
+    if (window.podhomme) window.podhomme.pause();
   },
 
   favorite: function () {
-    window.podhomme && window.podhomme.favorite();
+    if (window.podhomme) window.podhomme.favorite();
   },
 
   trackInfo: function () {
@@ -51,5 +51,5 @@ BSStrategy = {
       image:  artworkEl ? artworkEl.src      : '',
       favorited: false,
     };
-  }
-}
+  },
+};

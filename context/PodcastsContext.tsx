@@ -1,4 +1,8 @@
-'use client'
+'use client';
+
+import type {
+  Episode, Podcast, QueueItem, RefreshStatus, SelectedView,
+} from '@/types';
 
 import {
   createContext,
@@ -6,9 +10,8 @@ import {
   useContext,
   useEffect,
   useReducer,
-} from 'react'
-import type { Episode, Podcast, QueueItem, RefreshStatus, SelectedView } from '@/types'
-import { useSse } from './SseContext'
+} from 'react';
+import { useSse } from './SseContext';
 
 type State = {
   podcasts: Podcast[]
@@ -29,38 +32,38 @@ type Action =
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case 'SET_PODCASTS':
-      return { ...state, podcasts: action.payload }
+      return { ...state, podcasts: action.payload };
     case 'SET_QUEUE':
-      return { ...state, queue: action.payload }
+      return { ...state, queue: action.payload };
     case 'UPSERT_PODCAST': {
-      const exists = state.podcasts.some(p => p.id === action.payload.id)
+      const exists = state.podcasts.some(p => p.id === action.payload.id);
       return {
         ...state,
         podcasts: exists
           ? state.podcasts.map(p => p.id === action.payload.id ? action.payload : p)
           : [...state.podcasts, action.payload].sort((a, b) => a.title.localeCompare(b.title)),
-      }
+      };
     }
     case 'DELETE_PODCAST':
       return {
         ...state,
         podcasts: state.podcasts.filter(p => p.id !== action.payload),
         selectedView: state.selectedView === action.payload ? 'all' : state.selectedView,
-      }
+      };
     case 'UPDATE_EPISODE':
       return {
         ...state,
         queue: state.queue.filter(qi => {
-          if (qi.episodeId !== action.payload.id) return true
-          return !action.payload.played
+          if (qi.episodeId !== action.payload.id) return true;
+          return !action.payload.played;
         }),
-      }
+      };
     case 'SET_VIEW':
-      return { ...state, selectedView: action.payload }
+      return { ...state, selectedView: action.payload };
     case 'SET_REFRESH':
-      return { ...state, refreshStatus: action.payload }
+      return { ...state, refreshStatus: action.payload };
     default:
-      return state
+      return state;
   }
 }
 
@@ -74,7 +77,7 @@ type Ctx = {
   refreshPodcasts: () => void
 }
 
-export const PodcastsContext = createContext<Ctx | null>(null)
+export const PodcastsContext = createContext<Ctx | null>(null);
 
 export function PodcastsProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, {
@@ -82,53 +85,53 @@ export function PodcastsProvider({ children }: { children: React.ReactNode }) {
     queue: [],
     selectedView: 'all',
     refreshStatus: null,
-  })
+  });
 
   const fetchPodcasts = useCallback(() =>
     fetch('/api/podcasts')
       .then(r => r.json())
       .then((data: Podcast[]) => dispatch({ type: 'SET_PODCASTS', payload: data })),
-    []
-  )
+    [],
+  );
 
   const fetchQueue = useCallback(() =>
     fetch('/api/queue')
       .then(r => r.json())
       .then((data: QueueItem[]) => dispatch({ type: 'SET_QUEUE', payload: data })),
-    []
-  )
+    [],
+  );
 
   useEffect(() => {
-    fetchPodcasts()
-    fetchQueue()
-  }, [fetchPodcasts, fetchQueue])
+    fetchPodcasts();
+    fetchQueue();
+  }, [fetchPodcasts, fetchQueue]);
 
   useSse((event, data) => {
     if (event === 'podcast') {
-      const p = data as Podcast & { deleted?: boolean }
+      const p = data as Podcast & { deleted?: boolean };
       if (p.deleted) {
-        dispatch({ type: 'DELETE_PODCAST', payload: p.id })
-        fetchQueue()
+        dispatch({ type: 'DELETE_PODCAST', payload: p.id });
+        fetchQueue();
       } else {
-        dispatch({ type: 'UPSERT_PODCAST', payload: p })
-        fetchQueue()
+        dispatch({ type: 'UPSERT_PODCAST', payload: p });
+        fetchQueue();
       }
     }
     if (event === 'episode') {
-      dispatch({ type: 'UPDATE_EPISODE', payload: data as Episode })
+      dispatch({ type: 'UPDATE_EPISODE', payload: data as Episode });
     }
     if (event === 'queue') {
-      fetchQueue()
+      fetchQueue();
     }
     if (event === 'refresh') {
-      const r = data as RefreshStatus
-      dispatch({ type: 'SET_REFRESH', payload: r.done ? null : r })
-      if (r.done) fetchPodcasts()
+      const r = data as RefreshStatus;
+      dispatch({ type: 'SET_REFRESH', payload: r.done ? null : r });
+      if (r.done) fetchPodcasts();
     }
-  })
+  });
 
   const setSelectedView = useCallback((view: SelectedView) =>
-    dispatch({ type: 'SET_VIEW', payload: view }), [])
+    dispatch({ type: 'SET_VIEW', payload: view }), []);
 
   return (
     <PodcastsContext.Provider value={{
@@ -142,11 +145,11 @@ export function PodcastsProvider({ children }: { children: React.ReactNode }) {
     }}>
       {children}
     </PodcastsContext.Provider>
-  )
+  );
 }
 
 export function usePodcasts() {
-  const ctx = useContext(PodcastsContext)
-  if (!ctx) throw new Error('usePodcasts must be used within PodcastsProvider')
-  return ctx
+  const ctx = useContext(PodcastsContext);
+  if (!ctx) throw new Error('usePodcasts must be used within PodcastsProvider');
+  return ctx;
 }

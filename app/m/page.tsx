@@ -1,5 +1,5 @@
-import { MobileShell } from '@/components/Mobile/Shell'
+import { MobileShell } from '@/components/Mobile/Shell';
 
 export default function MobilePage() {
-  return <MobileShell />
+  return <MobileShell />;
 }

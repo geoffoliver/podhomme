@@ -1,11 +1,17 @@
-'use client'
+'use client';
 
-import { useEffect, useRef, useState } from 'react'
-import Image from 'next/image'
-import { Search, X, Podcast } from 'lucide-react'
-import { usePodcasts } from '@/context/PodcastsContext'
-import type { iTunesResult } from '@/types'
-import styles from './index.module.css'
+import {
+  Podcast, Search, X,
+} from 'lucide-react';
+import {
+ useEffect, useRef, useState,
+} from 'react';
+import Image from 'next/image';
+
+import type { iTunesResult } from '@/types';
+import { usePodcasts } from '@/context/PodcastsContext';
+
+import styles from './index.module.css';
 
 type Props = {
   open: boolean
@@ -13,60 +19,65 @@ type Props = {
 }
 
 export function PodcastSearch({ open, onClose }: Props) {
-  const { podcasts, refreshPodcasts } = usePodcasts()
-  const dialogRef = useRef<HTMLDialogElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
-  const [query, setQuery] = useState('')
-  const [results, setResults] = useState<iTunesResult[]>([])
-  const [loading, setLoading] = useState(false)
-  const [subscribing, setSubscribing] = useState<Set<string>>(new Set())
-  const [justSubscribed, setJustSubscribed] = useState<Set<string>>(new Set())
+  const { podcasts, refreshPodcasts } = usePodcasts();
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<iTunesResult[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [subscribing, setSubscribing] = useState<Set<string>>(new Set());
+  const [justSubscribed, setJustSubscribed] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (open) {
-      dialogRef.current?.showModal()
-      setTimeout(() => inputRef.current?.focus(), 0)
+      dialogRef.current?.showModal();
+      setTimeout(() => inputRef.current?.focus(), 0);
     } else {
-      dialogRef.current?.close()
-      setQuery('')
-      setResults([])
-      setJustSubscribed(new Set())
-    }
-  }, [open])
+      dialogRef.current?.close();
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setQuery('');
 
-  const subscribedUrls = new Set(podcasts.map(p => p.feedUrl))
+      setResults([]);
+
+      setJustSubscribed(new Set());
+    }
+  }, [open]);
+
+  const subscribedUrls = new Set(podcasts.map(p => p.feedUrl));
 
   async function handleSearch(e: React.FormEvent) {
-    e.preventDefault()
-    const q = query.trim()
-    if (!q) return
-    setLoading(true)
+    e.preventDefault();
+    const q = query.trim();
+    if (!q) return;
+    setLoading(true);
     try {
-      const res = await fetch(`/api/podcasts/search?q=${encodeURIComponent(q)}`)
-      const data = await res.json()
-      setResults((data.results as iTunesResult[]).filter(r => r.feedUrl))
+      const res = await fetch(`/api/podcasts/search?q=${encodeURIComponent(q)}`);
+      const data = await res.json();
+      setResults((data.results as iTunesResult[]).filter(r => r.feedUrl));
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
   async function handleSubscribe(result: iTunesResult) {
-    setSubscribing(prev => new Set(prev).add(result.feedUrl))
+    setSubscribing(prev => new Set(prev).add(result.feedUrl));
     try {
       await fetch('/api/podcasts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ feedUrl: result.feedUrl }),
-      })
-      setJustSubscribed(prev => new Set(prev).add(result.feedUrl))
-      refreshPodcasts()
+      });
+      setJustSubscribed(prev => new Set(prev).add(result.feedUrl));
+      refreshPodcasts();
     } finally {
-      setSubscribing(prev => { const n = new Set(prev); n.delete(result.feedUrl); return n })
+      setSubscribing(prev => {
+ const n = new Set(prev); n.delete(result.feedUrl); return n;
+});
     }
   }
 
   function handleBackdropClick(e: React.MouseEvent<HTMLDialogElement>) {
-    if (e.target === dialogRef.current) onClose()
+    if (e.target === dialogRef.current) onClose();
   }
 
   return (
@@ -99,8 +110,8 @@ export function PodcastSearch({ open, onClose }: Props) {
             <div className={styles.empty}>No results found</div>
           )}
           {results.map(result => {
-            const isSubscribed = subscribedUrls.has(result.feedUrl) || justSubscribed.has(result.feedUrl)
-            const isSubscribing = subscribing.has(result.feedUrl)
+            const isSubscribed = subscribedUrls.has(result.feedUrl) || justSubscribed.has(result.feedUrl);
+            const isSubscribing = subscribing.has(result.feedUrl);
             return (
               <div key={result.collectionId} className={styles.result}>
                 {result.artworkUrl100 ? (
@@ -121,10 +132,10 @@ export function PodcastSearch({ open, onClose }: Props) {
                   {isSubscribing ? 'Subscribing…' : isSubscribed ? 'Subscribed' : 'Subscribe'}
                 </button>
               </div>
-            )
+            );
           })}
         </div>
       </div>
     </dialog>
-  )
+  );
 }

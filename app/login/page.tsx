@@ -1,31 +1,31 @@
-'use client'
+'use client';
 
-import { useState, useRef } from 'react'
-import styles from './index.module.css'
+import { useRef, useState } from 'react';
+import styles from './index.module.css';
 
 export default function LoginPage() {
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    const password = inputRef.current?.value ?? ''
-    setError('')
-    setLoading(true)
+    e.preventDefault();
+    const password = inputRef.current?.value ?? '';
+    setError('');
+    setLoading(true);
 
     const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password }),
-    })
+    });
 
-    setLoading(false)
+    setLoading(false);
 
     if (res.ok) {
-      window.location.href = '/'
+      window.location.href = '/';
     } else {
-      setError('Wrong password.')
-      inputRef.current?.select()
+      setError('Wrong password.');
+      inputRef.current?.select();
     }
   }
 
@@ -49,5 +49,5 @@ export default function LoginPage() {
         </form>
       </div>
     </div>
-  )
+  );
 }

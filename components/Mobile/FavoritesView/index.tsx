@@ -1,52 +1,60 @@
-'use client'
+'use client';
 
-import { useCallback, useEffect, useState } from 'react'
-import Image from 'next/image'
-import { Star as StarIcon, Play, Podcast, MoreVertical, CheckCircle, StarOff } from 'lucide-react'
-import { usePlayback } from '@/context/PlaybackContext'
-import { useSse } from '@/context/SseContext'
-import { EpisodeDetail } from '@/components/SplitPane/RightPane/EpisodeDetail'
-import type { Episode } from '@/types'
-import styles from './index.module.css'
+import {
+  CheckCircle, MoreVertical, Play, Podcast, Star as StarIcon, StarOff,
+} from 'lucide-react';
+import {
+  useCallback, useEffect, useState,
+} from 'react';
+import Image from 'next/image';
+
+import type { Episode } from '@/types';
+import { EpisodeDetail } from '@/components/SplitPane/RightPane/EpisodeDetail';
+import { usePlayback } from '@/context/PlaybackContext';
+import { useSse } from '@/context/SseContext';
+
+import styles from './index.module.css';
 
 function formatRemaining(duration: number | null, resumeAt: number): string | null {
-  if (!duration) return null
-  const secs = resumeAt > 0 ? Math.max(0, duration - Math.floor(resumeAt)) : duration
-  const h = Math.floor(secs / 3600)
-  const m = Math.floor((secs % 3600) / 60)
-  if (h > 0) return resumeAt > 0 ? `${h}h ${m}m left` : `${h}h ${m}m`
-  if (m > 0) return resumeAt > 0 ? `${m}m left` : `${m}m`
-  return null
+  if (!duration) return null;
+  const secs = resumeAt > 0 ? Math.max(0, duration - Math.floor(resumeAt)) : duration;
+  const h = Math.floor(secs / 3600);
+  const m = Math.floor((secs % 3600) / 60);
+  if (h > 0) return resumeAt > 0 ? `${h}h ${m}m left` : `${h}h ${m}m`;
+  if (m > 0) return resumeAt > 0 ? `${m}m left` : `${m}m`;
+  return null;
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+  return new Date(iso).toLocaleDateString(undefined, {
+ year: 'numeric', month: 'short', day: 'numeric',
+});
 }
 
 export function FavoritesView() {
-  const { loadEpisode } = usePlayback()
-  const [episodes, setEpisodes] = useState<(Episode & { podcast?: { title: string; imageUrl: string | null } })[]>([])
-  const [detailEpisode, setDetailEpisode] = useState<Episode | null>(null)
-  const [menuOpenId, setMenuOpenId] = useState<number | null>(null)
+  const { loadEpisode } = usePlayback();
+  const [episodes, setEpisodes] = useState<(Episode & { podcast?: { title: string; imageUrl: string | null } })[]>([]);
+  const [detailEpisode, setDetailEpisode] = useState<Episode | null>(null);
+  const [menuOpenId, setMenuOpenId] = useState<number | null>(null);
 
   const fetchFavorites = useCallback(() => {
     fetch('/api/episodes?favorited=true')
       .then(r => r.json())
-      .then(setEpisodes)
-  }, [])
+      .then(setEpisodes);
+  }, []);
 
-  useEffect(() => { fetchFavorites() }, [fetchFavorites])
+  useEffect(() => { fetchFavorites(); }, [fetchFavorites]);
 
   useSse((event) => {
-    if (event === 'episode') fetchFavorites()
-  })
+    if (event === 'episode') fetchFavorites();
+  });
 
   function patchEpisode(id: number, data: object) {
     fetch(`/api/episodes/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
-    }).then(fetchFavorites)
+    }).then(fetchFavorites);
   }
 
   return (
@@ -64,9 +72,9 @@ export function FavoritesView() {
       ) : (
         <div className={styles.list}>
           {episodes.map(ep => {
-            const artUrl = ep.imageUrl ?? ep.podcast?.imageUrl ?? null
-            const dur = formatRemaining(ep.duration, ep.resumeAt)
-            const menuOpen = menuOpenId === ep.id
+            const artUrl = ep.imageUrl ?? ep.podcast?.imageUrl ?? null;
+            const dur = formatRemaining(ep.duration, ep.resumeAt);
+            const menuOpen = menuOpenId === ep.id;
             return (
               <div key={ep.id} className={`${styles.row} ${ep.played ? styles.rowPlayed : ''}`}>
                 <button className={styles.rowMain} onClick={() => loadEpisode(ep.id, 'favorites')}>
@@ -93,13 +101,13 @@ export function FavoritesView() {
                     <>
                       <div className={styles.menuBackdrop} onClick={() => setMenuOpenId(null)} />
                       <div className={styles.menu}>
-                        <button className={styles.menuItem} onClick={() => { setDetailEpisode(ep); setMenuOpenId(null) }}>
+                        <button className={styles.menuItem} onClick={() => { setDetailEpisode(ep); setMenuOpenId(null); }}>
                           Episode detail
                         </button>
-                        <button className={styles.menuItem} onClick={() => { patchEpisode(ep.id, { played: !ep.played }); setMenuOpenId(null) }}>
+                        <button className={styles.menuItem} onClick={() => { patchEpisode(ep.id, { played: !ep.played }); setMenuOpenId(null); }}>
                           <CheckCircle size={15} /> Mark as {ep.played ? 'unplayed' : 'played'}
                         </button>
-                        <button className={styles.menuItem} onClick={() => { patchEpisode(ep.id, { favorited: false }); setMenuOpenId(null) }}>
+                        <button className={styles.menuItem} onClick={() => { patchEpisode(ep.id, { favorited: false }); setMenuOpenId(null); }}>
                           <StarOff size={15} /> Unfavorite
                         </button>
                       </div>
@@ -107,12 +115,12 @@ export function FavoritesView() {
                   )}
                 </div>
               </div>
-            )
+            );
           })}
         </div>
       )}
 
       <EpisodeDetail episode={detailEpisode} onClose={() => setDetailEpisode(null)} />
     </div>
-  )
+  );
 }

@@ -1,16 +1,16 @@
-'use client'
+'use client';
 
-import { useEffect } from 'react'
-import { SseProvider } from '@/context/SseContext'
-import { PlaybackProvider } from '@/context/PlaybackContext'
-import { PodcastsProvider } from '@/context/PodcastsContext'
+import { PlaybackProvider } from '@/context/PlaybackContext';
+import { PodcastsProvider } from '@/context/PodcastsContext';
+import { SseProvider } from '@/context/SseContext';
+import { useEffect } from 'react';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {})
+      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {});
     }
-  }, [])
+  }, []);
 
   return (
     <SseProvider>
@@ -20,5 +20,5 @@ export function Providers({ children }: { children: React.ReactNode }) {
         </PodcastsProvider>
       </PlaybackProvider>
     </SseProvider>
-  )
+  );
 }

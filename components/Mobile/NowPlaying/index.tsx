@@ -1,31 +1,35 @@
-'use client'
+'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react'
-import Image from 'next/image'
 import {
   ChevronDown,
-  Maximize2,
-  Podcast,
-  Play,
-  Pause,
-  SkipBack,
-  SkipForward,
   ChevronFirst,
   ChevronLast,
-  Star,
   Headphones,
+  Maximize2,
   Monitor,
-} from 'lucide-react'
-import { usePlayback } from '@/context/PlaybackContext'
-import styles from './index.module.css'
+  Pause,
+  Play,
+  Podcast,
+  SkipBack,
+  SkipForward,
+  Star,
+} from 'lucide-react';
+import {
+  useCallback, useEffect, useRef, useState,
+} from 'react';
+import Image from 'next/image';
+
+import { usePlayback } from '@/context/PlaybackContext';
+
+import styles from './index.module.css';
 
 function formatTime(seconds: number): string {
-  const s = Math.max(0, Math.floor(seconds))
-  const h = Math.floor(s / 3600)
-  const m = Math.floor((s % 3600) / 60)
-  const sec = s % 60
-  if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`
-  return `${m}:${String(sec).padStart(2, '0')}`
+  const s = Math.max(0, Math.floor(seconds));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+  return `${m}:${String(sec).padStart(2, '0')}`;
 }
 
 type Props = {
@@ -34,38 +38,40 @@ type Props = {
 }
 
 export function NowPlaying({ open, onClose }: Props) {
-  const { state, isVideo, registerVideoElement, audioDetached, joinAudio, play, pause, seek, next, prev, currentPosition, toggleFavorite } = usePlayback()
-  const { episode } = state
-  const [displayPos, setDisplayPos] = useState(0)
-  const [seeking, setSeeking] = useState(false)
-  const [seekValue, setSeekValue] = useState(0)
-  const rafRef = useRef<number | null>(null)
-  const videoElRef = useRef<HTMLVideoElement | null>(null)
+  const {
+ state, isVideo, registerVideoElement, audioDetached, joinAudio, play, pause, seek, next, prev, currentPosition, toggleFavorite,
+} = usePlayback();
+  const { episode } = state;
+  const [displayPos, setDisplayPos] = useState(0);
+  const [seeking, setSeeking] = useState(false);
+  const [seekValue, setSeekValue] = useState(0);
+  const rafRef = useRef<number | null>(null);
+  const videoElRef = useRef<HTMLVideoElement | null>(null);
 
   const videoRefCallback = useCallback((el: HTMLVideoElement | null) => {
-    videoElRef.current = el
-    registerVideoElement(el)
-  }, [registerVideoElement])
+    videoElRef.current = el;
+    registerVideoElement(el);
+  }, [registerVideoElement]);
 
-  const handleFullscreen = () => videoElRef.current?.requestFullscreen()
+  const handleFullscreen = () => videoElRef.current?.requestFullscreen();
 
   useEffect(() => {
     function tick() {
-      if (!seeking) setDisplayPos(currentPosition())
-      rafRef.current = requestAnimationFrame(tick)
+      if (!seeking) setDisplayPos(currentPosition());
+      rafRef.current = requestAnimationFrame(tick);
     }
-    rafRef.current = requestAnimationFrame(tick)
-    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current) }
-  }, [currentPosition, seeking])
+    rafRef.current = requestAnimationFrame(tick);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, [currentPosition, seeking]);
 
   // Close overlay if episode disappears while open
   useEffect(() => {
-    if (open && !episode) onClose()
-  }, [open, episode, onClose])
+    if (open && !episode) onClose();
+  }, [open, episode, onClose]);
 
-  const duration = episode?.duration ?? 0
-  const artUrl = episode?.imageUrl ?? episode?.podcast?.imageUrl ?? null
-  const sliderValue = seeking ? seekValue : displayPos
+  const duration = episode?.duration ?? 0;
+  const artUrl = episode?.imageUrl ?? episode?.podcast?.imageUrl ?? null;
+  const sliderValue = seeking ? seekValue : displayPos;
 
   return (
     // Always mounted — visibility:hidden keeps the video element alive when closed
@@ -119,9 +125,9 @@ export function NowPlaying({ open, onClose }: Props) {
           max={Math.max(1, duration)}
           step={1}
           value={sliderValue}
-          onChange={e => { setSeeking(true); setSeekValue(Number(e.target.value)) }}
-          onMouseUp={e => { seek(Number((e.target as HTMLInputElement).value)); setSeeking(false) }}
-          onTouchEnd={e => { seek(Number((e.currentTarget as HTMLInputElement).value)); setSeeking(false) }}
+          onChange={e => { setSeeking(true); setSeekValue(Number(e.target.value)); }}
+          onMouseUp={e => { seek(Number((e.target as HTMLInputElement).value)); setSeeking(false); }}
+          onTouchEnd={e => { seek(Number((e.currentTarget as HTMLInputElement).value)); setSeeking(false); }}
           aria-label="Playback position"
         />
         <div className={styles.times}>
@@ -166,5 +172,5 @@ export function NowPlaying({ open, onClose }: Props) {
         </a>
       </div>
     </div>
-  )
+  );
 }

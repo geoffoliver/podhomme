@@ -1,8 +1,10 @@
-'use client'
+'use client';
 
-import { Inbox, Library, Star } from 'lucide-react'
-import type { MobileTab } from '../Shell'
-import styles from './index.module.css'
+import {
+ Inbox, Library, Star, 
+} from 'lucide-react';
+import type { MobileTab } from '../Shell';
+import styles from './index.module.css';
 
 type Props = {
   tab: MobileTab
@@ -10,10 +12,16 @@ type Props = {
 }
 
 const TABS: { id: MobileTab; label: string; icon: React.ReactNode }[] = [
-  { id: 'queue',     label: 'Queue',     icon: <Inbox size={22} /> },
-  { id: 'library',  label: 'Library',   icon: <Library size={22} /> },
-  { id: 'favorites', label: 'Favorites', icon: <Star size={22} /> },
-]
+  {
+ id: 'queue',     label: 'Queue',     icon: <Inbox size={22} />, 
+},
+  {
+ id: 'library',  label: 'Library',   icon: <Library size={22} />, 
+},
+  {
+ id: 'favorites', label: 'Favorites', icon: <Star size={22} />, 
+},
+];
 
 export function BottomTabs({ tab, onTab }: Props) {
   return (
@@ -30,5 +38,5 @@ export function BottomTabs({ tab, onTab }: Props) {
         </button>
       ))}
     </nav>
-  )
+  );
 }

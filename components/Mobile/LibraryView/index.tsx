@@ -1,51 +1,61 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import Image from 'next/image'
-import { ChevronRight, ChevronLeft, Podcast, Play, RefreshCw, MoreVertical, CheckCircle, Star, StarOff } from 'lucide-react'
-import { usePodcasts } from '@/context/PodcastsContext'
-import { usePlayback } from '@/context/PlaybackContext'
-import { EpisodeDetail } from '@/components/SplitPane/RightPane/EpisodeDetail'
-import type { Episode, Podcast as PodcastType } from '@/types'
-import styles from './index.module.css'
+import {
+  CheckCircle, ChevronLeft, ChevronRight, MoreVertical, Play, Podcast, RefreshCw, Star, StarOff,
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
+
+import type { Episode, Podcast as PodcastType } from '@/types';
+import { EpisodeDetail } from '@/components/SplitPane/RightPane/EpisodeDetail';
+import { usePlayback } from '@/context/PlaybackContext';
+import { usePodcasts } from '@/context/PodcastsContext';
+
+import styles from './index.module.css';
 
 function formatRemaining(duration: number | null, resumeAt: number): string | null {
-  if (!duration) return null
-  const secs = resumeAt > 0 ? Math.max(0, duration - Math.floor(resumeAt)) : duration
-  const h = Math.floor(secs / 3600)
-  const m = Math.floor((secs % 3600) / 60)
-  if (h > 0) return resumeAt > 0 ? `${h}h ${m}m left` : `${h}h ${m}m`
-  if (m > 0) return resumeAt > 0 ? `${m}m left` : `${m}m`
-  return null
+  if (!duration) return null;
+  const secs = resumeAt > 0 ? Math.max(0, duration - Math.floor(resumeAt)) : duration;
+  const h = Math.floor(secs / 3600);
+  const m = Math.floor((secs % 3600) / 60);
+  if (h > 0) return resumeAt > 0 ? `${h}h ${m}m left` : `${h}h ${m}m`;
+  if (m > 0) return resumeAt > 0 ? `${m}m left` : `${m}m`;
+  return null;
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+  return new Date(iso).toLocaleDateString(undefined, {
+ year: 'numeric', month: 'short', day: 'numeric',
+});
 }
 
 export function LibraryView() {
-  const { podcasts } = usePodcasts()
-  const { loadEpisode } = usePlayback()
-  const [selectedId, setSelectedId] = useState<number | null>(null)
-  const [podcast, setPodcast] = useState<(PodcastType & { episodes: Episode[] }) | null>(null)
-  const [refreshing, setRefreshing] = useState(false)
-  const [detailEpisode, setDetailEpisode] = useState<Episode | null>(null)
-  const [menuOpenId, setMenuOpenId] = useState<number | null>(null)
+  const { podcasts } = usePodcasts();
+  const { loadEpisode } = usePlayback();
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [podcast, setPodcast] = useState<(PodcastType & { episodes: Episode[] }) | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [detailEpisode, setDetailEpisode] = useState<Episode | null>(null);
+  const [menuOpenId, setMenuOpenId] = useState<number | null>(null);
 
   useEffect(() => {
-    if (selectedId == null) { setPodcast(null); return }
+    if (selectedId == null) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setPodcast(null);
+      return;
+    }
     fetch(`/api/podcasts/${selectedId}`)
       .then(r => r.json())
-      .then(data => setPodcast(data))
-  }, [selectedId])
+      .then(data => setPodcast(data));
+  }, [selectedId]);
 
   async function handleRefresh() {
-    if (!selectedId) return
-    setRefreshing(true)
-    await fetch(`/api/podcasts/${selectedId}/refresh`, { method: 'POST' })
-    const data = await fetch(`/api/podcasts/${selectedId}`).then(r => r.json())
-    setPodcast(data)
-    setRefreshing(false)
+    if (!selectedId) return;
+    setRefreshing(true);
+    await fetch(`/api/podcasts/${selectedId}/refresh`, { method: 'POST' });
+    const data = await fetch(`/api/podcasts/${selectedId}`).then(r => r.json());
+    setPodcast(data);
+    setRefreshing(false);
   }
 
   function patchEpisode(id: number, data: object) {
@@ -54,8 +64,8 @@ export function LibraryView() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     }).then(() => {
-      if (selectedId) fetch(`/api/podcasts/${selectedId}`).then(r => r.json()).then(setPodcast)
-    })
+      if (selectedId) fetch(`/api/podcasts/${selectedId}`).then(r => r.json()).then(setPodcast);
+    });
   }
 
   // Podcast list
@@ -93,18 +103,18 @@ export function LibraryView() {
           </div>
         )}
       </div>
-    )
+    );
   }
 
   // Podcast episode list
-  const effectiveType = podcast?.typeOverride || podcast?.type
+  const effectiveType = podcast?.typeOverride || podcast?.type;
   const episodes = podcast
     ? [...podcast.episodes].sort((a, b) =>
         effectiveType === 'serial'
           ? new Date(a.pubDate).getTime() - new Date(b.pubDate).getTime()
-          : new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime()
+          : new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime(),
       )
-    : []
+    : [];
 
   return (
     <div className={styles.view}>
@@ -136,9 +146,9 @@ export function LibraryView() {
 
       <div className={styles.list}>
         {episodes.map(ep => {
-          const artUrl = ep.imageUrl ?? podcast?.imageUrl ?? null
-          const dur = formatRemaining(ep.duration, ep.resumeAt)
-          const menuOpen = menuOpenId === ep.id
+          const artUrl = ep.imageUrl ?? podcast?.imageUrl ?? null;
+          const dur = formatRemaining(ep.duration, ep.resumeAt);
+          const menuOpen = menuOpenId === ep.id;
           return (
             <div key={ep.id} className={`${styles.episodeRow} ${ep.played ? styles.episodeRowPlayed : ''}`}>
               <button
@@ -166,13 +176,13 @@ export function LibraryView() {
                   <>
                     <div className={styles.menuBackdrop} onClick={() => setMenuOpenId(null)} />
                     <div className={styles.menu}>
-                      <button className={styles.menuItem} onClick={() => { setDetailEpisode(ep); setMenuOpenId(null) }}>
+                      <button className={styles.menuItem} onClick={() => { setDetailEpisode(ep); setMenuOpenId(null); }}>
                         Episode detail
                       </button>
-                      <button className={styles.menuItem} onClick={() => { patchEpisode(ep.id, { played: !ep.played }); setMenuOpenId(null) }}>
+                      <button className={styles.menuItem} onClick={() => { patchEpisode(ep.id, { played: !ep.played }); setMenuOpenId(null); }}>
                         <CheckCircle size={15} /> Mark as {ep.played ? 'unplayed' : 'played'}
                       </button>
-                      <button className={styles.menuItem} onClick={() => { patchEpisode(ep.id, { favorited: !ep.favorited }); setMenuOpenId(null) }}>
+                      <button className={styles.menuItem} onClick={() => { patchEpisode(ep.id, { favorited: !ep.favorited }); setMenuOpenId(null); }}>
                         {ep.favorited ? <><StarOff size={15} /> Unfavorite</> : <><Star size={15} /> Favorite</>}
                       </button>
                     </div>
@@ -180,11 +190,11 @@ export function LibraryView() {
                 )}
               </div>
             </div>
-          )
+          );
         })}
       </div>
 
       <EpisodeDetail episode={detailEpisode} onClose={() => setDetailEpisode(null)} />
     </div>
-  )
+  );
 }

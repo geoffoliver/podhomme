@@ -1,18 +1,20 @@
-import { rm } from 'fs/promises'
-import { db } from '@/lib/db'
-import { parseFeed } from '@/lib/feed'
-import { broadcast } from '@/lib/sse'
-import { downloadEpisode } from '@/lib/download'
-import logger from '@/lib/logger'
+import { broadcast } from '@/lib/sse';
+import { db } from '@/lib/db';
+import { downloadEpisode } from '@/lib/download';
+import logger from '@/lib/logger';
+import { parseFeed } from '@/lib/feed';
+import { rm } from 'fs/promises';
 
-const log = logger.child({ module: 'refresh' })
+const log = logger.child({ module: 'refresh' });
 
 export async function refreshPodcast(podcastId: number) {
-  const podcast = await db.podcast.findUniqueOrThrow({ where: { id: podcastId } })
-  log.info({ podcastId, title: podcast.title }, 'Refreshing podcast')
+  const podcast = await db.podcast.findUniqueOrThrow({ where: { id: podcastId } });
+  log.info({ podcastId, title: podcast.title }, 'Refreshing podcast');
 
-  const feed = await parseFeed(podcast.feedUrl)
-  log.debug({ podcastId, title: podcast.title, episodeCount: feed.episodes.length }, 'Feed parsed')
+  const feed = await parseFeed(podcast.feedUrl);
+  log.debug({
+ podcastId, title: podcast.title, episodeCount: feed.episodes.length,
+}, 'Feed parsed');
 
   await db.podcast.update({
     where: { id: podcastId },
@@ -25,27 +27,29 @@ export async function refreshPodcast(podcastId: number) {
       type: feed.type,
       lastRefreshedAt: new Date(),
     },
-  })
+  });
 
-  const settings = await db.settings.findUniqueOrThrow({ where: { id: 1 } })
+  const settings = await db.settings.findUniqueOrThrow({ where: { id: 1 } });
 
   // Collect only episodes that don't exist yet (feed is newest-first)
-  const newEpisodes: typeof feed.episodes = []
+  const newEpisodes: typeof feed.episodes = [];
   for (const ep of feed.episodes) {
     const existing = await db.episode.findUnique({
       where: { podcastId_guid: { podcastId, guid: ep.guid } },
-    })
-    if (!existing) newEpisodes.push(ep)
+    });
+    if (!existing) newEpisodes.push(ep);
   }
 
   if (newEpisodes.length === 0) {
-    log.info({ podcastId, title: podcast.title }, 'No new episodes')
+    log.info({ podcastId, title: podcast.title }, 'No new episodes');
   } else {
-    log.info({ podcastId, title: podcast.title, newEpisodes: newEpisodes.length }, 'New episodes found')
+    log.info({
+ podcastId, title: podcast.title, newEpisodes: newEpisodes.length,
+}, 'New episodes found');
   }
 
   // Sort newest-first regardless of feed ordering, so index 0 is always the most recent
-  newEpisodes.sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime())
+  newEpisodes.sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime());
 
   // Find the most recent pubDate already in the DB *before* we start inserting.
   // This catches the case where a pruned episode reappears in the feed: it should
@@ -54,22 +58,24 @@ export async function refreshPodcast(podcastId: number) {
     where: { podcastId },
     orderBy: { pubDate: 'desc' },
     select: { pubDate: true },
-  })
-  const mostRecentPubDate = mostRecentStored?.pubDate ?? new Date(0)
+  });
+  const mostRecentPubDate = mostRecentStored?.pubDate ?? new Date(0);
 
-  const SIXTY_DAYS_MS = 60 * 24 * 60 * 60 * 1000
-  const newestPubDate = newEpisodes.length > 0 ? new Date(newEpisodes[0].pubDate).getTime() : 0
-  const allPlayed = newEpisodes.length > 0 && (Date.now() - newestPubDate) > SIXTY_DAYS_MS
+  const SIXTY_DAYS_MS = 60 * 24 * 60 * 60 * 1000;
+  const newestPubDate = newEpisodes.length > 0 ? new Date(newEpisodes[0].pubDate).getTime() : 0;
+  const allPlayed = newEpisodes.length > 0 && (Date.now() - newestPubDate) > SIXTY_DAYS_MS;
   if (allPlayed) {
-    log.info({ podcastId, title: podcast.title, newestPubDate: newEpisodes[0].pubDate }, 'Newest episode is over 60 days old — marking all new episodes as played')
+    log.info({
+ podcastId, title: podcast.title, newestPubDate: newEpisodes[0].pubDate,
+}, 'Newest episode is over 60 days old — marking all new episodes as played');
   }
 
   // Only the single newest episode is unplayed and queued. It must also be genuinely
   // newer than everything already stored — guards against pruned episodes re-appearing.
   for (let i = 0; i < newEpisodes.length; i++) {
-    const ep = newEpisodes[i]
-    const isGenuinelyNew = new Date(ep.pubDate) > mostRecentPubDate
-    const isLatest = i === 0 && !allPlayed && isGenuinelyNew
+    const ep = newEpisodes[i];
+    const isGenuinelyNew = new Date(ep.pubDate) > mostRecentPubDate;
+    const isLatest = i === 0 && !allPlayed && isGenuinelyNew;
 
     const episode = await db.episode.create({
       data: {
@@ -85,93 +91,107 @@ export async function refreshPodcast(podcastId: number) {
         played: !isLatest,
         playedAt: !isLatest ? new Date() : null,
       },
-    })
+    });
 
-    log.debug({ podcastId, episodeId: episode.id, title: ep.title, isLatest }, 'Episode created')
+    log.debug({
+ podcastId, episodeId: episode.id, title: ep.title, isLatest,
+}, 'Episode created');
 
     if (isLatest) {
-      const maxPos = await db.queueItem.aggregate({ _max: { position: true } })
+      const maxPos = await db.queueItem.aggregate({ _max: { position: true } });
       await db.queueItem.create({
         data: { episodeId: episode.id, position: (maxPos._max.position ?? -1) + 1 },
-      })
-      log.info({ podcastId, episodeId: episode.id, title: ep.title }, 'Latest episode added to queue')
+      });
+      log.info({
+ podcastId, episodeId: episode.id, title: ep.title,
+}, 'Latest episode added to queue');
       if (settings.defaultPlayback === 'download') {
-        await downloadEpisode(episode.id, episode.audioUrl, settings.downloadLocation)
+        await downloadEpisode(episode.id, episode.audioUrl, settings.downloadLocation);
       }
     }
   }
 
-  await pruneEpisodes(podcastId, settings.episodesToKeep, settings.defaultPlayback)
+  await pruneEpisodes(podcastId, settings.episodesToKeep, settings.defaultPlayback);
 
   const updated = await db.podcast.findUniqueOrThrow({
     where: { id: podcastId },
     include: { episodes: true },
-  })
-  broadcast('podcast', updated)
-  log.info({ podcastId, title: podcast.title }, 'Podcast refresh complete')
+  });
+  broadcast('podcast', updated);
+  log.info({ podcastId, title: podcast.title }, 'Podcast refresh complete');
 }
 
 export async function refreshAll(onProgress?: (title: string, current: number, total: number) => void) {
-  const podcasts = await db.podcast.findMany()
-  log.info({ total: podcasts.length }, 'Starting full refresh')
+  const podcasts = await db.podcast.findMany();
+  log.info({ total: podcasts.length }, 'Starting full refresh');
 
   for (let i = 0; i < podcasts.length; i++) {
-    const p = podcasts[i]
-    onProgress?.(p.title, i + 1, podcasts.length)
-    broadcast('refresh', { podcastTitle: p.title, current: i + 1, total: podcasts.length, done: false })
+    const p = podcasts[i];
+    onProgress?.(p.title, i + 1, podcasts.length);
+    broadcast('refresh', {
+ podcastTitle: p.title, current: i + 1, total: podcasts.length, done: false,
+});
     try {
-      await refreshPodcast(p.id)
+      await refreshPodcast(p.id);
     } catch (err) {
-      log.error({ podcastId: p.id, title: p.title, err }, 'Failed to refresh podcast')
+      log.error({
+ podcastId: p.id, title: p.title, err,
+}, 'Failed to refresh podcast');
     }
   }
 
-  broadcast('refresh', { done: true })
-  log.info({ total: podcasts.length }, 'Full refresh complete')
+  broadcast('refresh', { done: true });
+  log.info({ total: podcasts.length }, 'Full refresh complete');
 }
 
 
 async function pruneEpisodes(podcastId: number, episodesToKeep: string, defaultPlayback: string) {
-  if (defaultPlayback !== 'download') return
-  if (episodesToKeep === 'all') return
+  if (defaultPlayback !== 'download') return;
+  if (episodesToKeep === 'all') return;
 
   if (episodesToKeep === 'all_unplayed') {
     const played = await db.episode.findMany({
-      where: { podcastId, played: true, downloadPath: { not: null } },
+      where: {
+ podcastId, played: true, downloadPath: { not: null },
+},
       select: { id: true, downloadPath: true },
-    })
-    let pruned = 0
+    });
+    let pruned = 0;
     for (const ep of played) {
       try {
-        await rm(ep.downloadPath!, { force: true })
-        await db.episode.update({ where: { id: ep.id }, data: { downloadPath: null, fileSize: null } })
-        pruned++
+        await rm(ep.downloadPath!, { force: true });
+        await db.episode.update({ where: { id: ep.id }, data: { downloadPath: null, fileSize: null } });
+        pruned++;
       } catch (err) {
-        log.warn({ podcastId, episodeId: ep.id, err }, 'Failed to delete downloaded file')
+        log.warn({
+ podcastId, episodeId: ep.id, err,
+}, 'Failed to delete downloaded file');
       }
     }
-    if (pruned > 0) log.info({ podcastId, pruned }, 'Pruned downloaded files for played episodes')
-    return
+    if (pruned > 0) log.info({ podcastId, pruned }, 'Pruned downloaded files for played episodes');
+    return;
   }
 
-  const limit = parseInt(episodesToKeep, 10)
-  if (isNaN(limit)) return
+  const limit = parseInt(episodesToKeep, 10);
+  if (isNaN(limit)) return;
 
   const downloaded = await db.episode.findMany({
     where: { podcastId, downloadPath: { not: null } },
     orderBy: { pubDate: 'desc' },
     select: { id: true, downloadPath: true },
-  })
-  const toDelete = downloaded.slice(limit)
-  let pruned = 0
+  });
+  const toDelete = downloaded.slice(limit);
+  let pruned = 0;
   for (const ep of toDelete) {
     try {
-      await rm(ep.downloadPath!, { force: true })
-      await db.episode.update({ where: { id: ep.id }, data: { downloadPath: null, fileSize: null } })
-      pruned++
+      await rm(ep.downloadPath!, { force: true });
+      await db.episode.update({ where: { id: ep.id }, data: { downloadPath: null, fileSize: null } });
+      pruned++;
     } catch (err) {
-      log.warn({ podcastId, episodeId: ep.id, err }, 'Failed to delete downloaded file')
+      log.warn({
+ podcastId, episodeId: ep.id, err,
+}, 'Failed to delete downloaded file');
     }
   }
-  if (pruned > 0) log.info({ podcastId, pruned }, 'Pruned old downloaded files')
+  if (pruned > 0) log.info({ podcastId, pruned }, 'Pruned old downloaded files');
 }

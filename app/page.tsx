@@ -1,13 +1,13 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { TopBar } from '@/components/TopBar'
-import { SplitPane } from '@/components/SplitPane'
-import { SettingsDialog } from '@/components/Settings'
-import { VideoPanel } from '@/components/VideoPanel'
+import { SettingsDialog } from '@/components/Settings';
+import { SplitPane } from '@/components/SplitPane';
+import { TopBar } from '@/components/TopBar';
+import { VideoPanel } from '@/components/VideoPanel';
+import { useState } from 'react';
 
 export default function Home() {
-  const [settingsOpen, setSettingsOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
     <>
@@ -16,5 +16,5 @@ export default function Home() {
       <SplitPane />
       <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </>
-  )
+  );
 }

@@ -1,30 +1,30 @@
-import { db } from '@/lib/db'
+import { db } from '@/lib/db';
 
 export async function getNextEpisode(
   currentEpisodeId: number,
   context: string,
-  contextPodcastId: number | null
+  contextPodcastId: number | null,
 ): Promise<number | null> {
   if (context === 'all') {
-    const currentItem = await db.queueItem.findUnique({ where: { episodeId: currentEpisodeId } })
-    if (!currentItem) return null
+    const currentItem = await db.queueItem.findUnique({ where: { episodeId: currentEpisodeId } });
+    if (!currentItem) return null;
 
     const next = await db.queueItem.findFirst({
       where: { position: { gt: currentItem.position } },
       orderBy: { position: 'asc' },
-    })
-    return next?.episodeId ?? null
+    });
+    return next?.episodeId ?? null;
   }
 
   if (context === 'podcast' && contextPodcastId) {
-    const current = await db.episode.findUnique({ where: { id: currentEpisodeId } })
-    if (!current) return null
+    const current = await db.episode.findUnique({ where: { id: currentEpisodeId } });
+    if (!current) return null;
 
-    const podcast = await db.podcast.findUnique({ where: { id: contextPodcastId } })
-    if (!podcast) return null
+    const podcast = await db.podcast.findUnique({ where: { id: contextPodcastId } });
+    if (!podcast) return null;
 
-    const effectiveType = podcast.typeOverride || podcast.type
-    const isSerial = effectiveType === 'serial'
+    const effectiveType = podcast.typeOverride || podcast.type;
+    const isSerial = effectiveType === 'serial';
 
     const next = await db.episode.findFirst({
       where: {
@@ -34,13 +34,13 @@ export async function getNextEpisode(
           : { lt: current.pubDate },
       },
       orderBy: { pubDate: isSerial ? 'asc' : 'desc' },
-    })
-    return next?.id ?? null
+    });
+    return next?.id ?? null;
   }
 
   if (context === 'favorites') {
-    const current = await db.episode.findUnique({ where: { id: currentEpisodeId } })
-    if (!current || !current.favoritedAt) return null
+    const current = await db.episode.findUnique({ where: { id: currentEpisodeId } });
+    if (!current || !current.favoritedAt) return null;
 
     const next = await db.episode.findFirst({
       where: {
@@ -48,38 +48,38 @@ export async function getNextEpisode(
         favoritedAt: { lt: current.favoritedAt },
       },
       orderBy: { favoritedAt: 'desc' },
-    })
-    return next?.id ?? null
+    });
+    return next?.id ?? null;
   }
 
-  return null
+  return null;
 }
 
 export async function getPrevEpisode(
   currentEpisodeId: number,
   context: string,
-  contextPodcastId: number | null
+  contextPodcastId: number | null,
 ): Promise<number | null> {
   if (context === 'all') {
-    const currentItem = await db.queueItem.findUnique({ where: { episodeId: currentEpisodeId } })
-    if (!currentItem) return null
+    const currentItem = await db.queueItem.findUnique({ where: { episodeId: currentEpisodeId } });
+    if (!currentItem) return null;
 
     const prev = await db.queueItem.findFirst({
       where: { position: { lt: currentItem.position } },
       orderBy: { position: 'desc' },
-    })
-    return prev?.episodeId ?? null
+    });
+    return prev?.episodeId ?? null;
   }
 
   if (context === 'podcast' && contextPodcastId) {
-    const current = await db.episode.findUnique({ where: { id: currentEpisodeId } })
-    if (!current) return null
+    const current = await db.episode.findUnique({ where: { id: currentEpisodeId } });
+    if (!current) return null;
 
-    const podcast = await db.podcast.findUnique({ where: { id: contextPodcastId } })
-    if (!podcast) return null
+    const podcast = await db.podcast.findUnique({ where: { id: contextPodcastId } });
+    if (!podcast) return null;
 
-    const effectiveType = podcast.typeOverride || podcast.type
-    const isSerial = effectiveType === 'serial'
+    const effectiveType = podcast.typeOverride || podcast.type;
+    const isSerial = effectiveType === 'serial';
 
     const prev = await db.episode.findFirst({
       where: {
@@ -89,13 +89,13 @@ export async function getPrevEpisode(
           : { gt: current.pubDate },
       },
       orderBy: { pubDate: isSerial ? 'desc' : 'asc' },
-    })
-    return prev?.id ?? null
+    });
+    return prev?.id ?? null;
   }
 
   if (context === 'favorites') {
-    const current = await db.episode.findUnique({ where: { id: currentEpisodeId } })
-    if (!current || !current.favoritedAt) return null
+    const current = await db.episode.findUnique({ where: { id: currentEpisodeId } });
+    if (!current || !current.favoritedAt) return null;
 
     const prev = await db.episode.findFirst({
       where: {
@@ -103,9 +103,9 @@ export async function getPrevEpisode(
         favoritedAt: { gt: current.favoritedAt },
       },
       orderBy: { favoritedAt: 'asc' },
-    })
-    return prev?.id ?? null
+    });
+    return prev?.id ?? null;
   }
 
-  return null
+  return null;
 }

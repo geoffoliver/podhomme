@@ -1,31 +1,31 @@
-import { db } from '@/lib/db'
-import { parseFeed } from '@/lib/feed'
-import { broadcast } from '@/lib/sse'
+import { broadcast } from '@/lib/sse';
+import { db } from '@/lib/db';
+import { parseFeed } from '@/lib/feed';
 
 export async function GET() {
   const podcasts = await db.podcast.findMany({
     orderBy: { title: 'asc' },
     include: { _count: { select: { episodes: { where: { played: false } } } } },
-  })
-  return Response.json(podcasts)
+  });
+  return Response.json(podcasts);
 }
 
 export async function POST(request: Request) {
-  const { feedUrl } = await request.json()
+  const { feedUrl } = await request.json();
   if (!feedUrl || typeof feedUrl !== 'string') {
-    return Response.json({ error: 'feedUrl required' }, { status: 400 })
+    return Response.json({ error: 'feedUrl required' }, { status: 400 });
   }
 
-  const existing = await db.podcast.findUnique({ where: { feedUrl } })
+  const existing = await db.podcast.findUnique({ where: { feedUrl } });
   if (existing) {
-    return Response.json({ error: 'Already subscribed' }, { status: 409 })
+    return Response.json({ error: 'Already subscribed' }, { status: 409 });
   }
 
-  let feed
+  let feed;
   try {
-    feed = await parseFeed(feedUrl)
+    feed = await parseFeed(feedUrl);
   } catch {
-    return Response.json({ error: 'Could not parse feed' }, { status: 422 })
+    return Response.json({ error: 'Could not parse feed' }, { status: 422 });
   }
 
   const podcast = await db.podcast.create({
@@ -39,15 +39,15 @@ export async function POST(request: Request) {
       type: feed.type,
       lastRefreshedAt: new Date(),
     },
-  })
+  });
 
-  const SIXTY_DAYS_MS = 60 * 24 * 60 * 60 * 1000
-  const newestPubDate = feed.episodes.length > 0 ? new Date(feed.episodes[0].pubDate).getTime() : 0
-  const allPlayed = feed.episodes.length > 0 && (Date.now() - newestPubDate) > SIXTY_DAYS_MS
+  const SIXTY_DAYS_MS = 60 * 24 * 60 * 60 * 1000;
+  const newestPubDate = feed.episodes.length > 0 ? new Date(feed.episodes[0].pubDate).getTime() : 0;
+  const allPlayed = feed.episodes.length > 0 && (Date.now() - newestPubDate) > SIXTY_DAYS_MS;
 
   for (let i = 0; i < feed.episodes.length; i++) {
-    const ep = feed.episodes[i]
-    const isLatest = i === 0 && !allPlayed
+    const ep = feed.episodes[i];
+    const isLatest = i === 0 && !allPlayed;
     const episode = await db.episode.create({
       data: {
         podcastId: podcast.id,
@@ -62,16 +62,16 @@ export async function POST(request: Request) {
         played: !isLatest,
         playedAt: !isLatest ? new Date() : null,
       },
-    })
+    });
 
     if (isLatest) {
-      const maxPos = await db.queueItem.aggregate({ _max: { position: true } })
+      const maxPos = await db.queueItem.aggregate({ _max: { position: true } });
       await db.queueItem.create({
         data: { episodeId: episode.id, position: (maxPos._max.position ?? -1) + 1 },
-      })
+      });
     }
   }
 
-  broadcast('podcast', podcast)
-  return Response.json(podcast, { status: 201 })
+  broadcast('podcast', podcast);
+  return Response.json(podcast, { status: 201 });
 }

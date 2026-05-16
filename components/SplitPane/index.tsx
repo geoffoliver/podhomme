@@ -1,8 +1,8 @@
-'use client'
+'use client';
 
-import { LeftPane } from './LeftPane'
-import { RightPane } from './RightPane'
-import styles from './index.module.css'
+import { LeftPane } from './LeftPane';
+import { RightPane } from './RightPane';
+import styles from './index.module.css';
 
 export function SplitPane() {
   return (
@@ -10,5 +10,5 @@ export function SplitPane() {
       <LeftPane />
       <RightPane />
     </div>
-  )
+  );
 }

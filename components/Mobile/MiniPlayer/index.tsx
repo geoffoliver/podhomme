@@ -1,35 +1,43 @@
-'use client'
+'use client';
 
-import { useEffect, useRef, useState } from 'react'
-import Image from 'next/image'
-import { Podcast, Play, Pause, SkipForward, Headphones } from 'lucide-react'
-import { usePlayback } from '@/context/PlaybackContext'
-import styles from './index.module.css'
+import {
+  Headphones, Pause, Play, Podcast, SkipForward,
+} from 'lucide-react';
+import {
+ useEffect, useRef, useState,
+} from 'react';
+import Image from 'next/image';
+
+import { usePlayback } from '@/context/PlaybackContext';
+
+import styles from './index.module.css';
 
 type Props = {
   onTap: () => void
 }
 
 export function MiniPlayer({ onTap }: Props) {
-  const { state, audioDetached, joinAudio, play, pause, seek, currentPosition } = usePlayback()
-  const { episode } = state
-  const [displayPos, setDisplayPos] = useState(0)
-  const rafRef = useRef<number | null>(null)
+  const {
+ state, audioDetached, joinAudio, play, pause, seek, currentPosition,
+} = usePlayback();
+  const { episode } = state;
+  const [displayPos, setDisplayPos] = useState(0);
+  const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
     function tick() {
-      setDisplayPos(currentPosition())
-      rafRef.current = requestAnimationFrame(tick)
+      setDisplayPos(currentPosition());
+      rafRef.current = requestAnimationFrame(tick);
     }
-    rafRef.current = requestAnimationFrame(tick)
-    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current) }
-  }, [currentPosition])
+    rafRef.current = requestAnimationFrame(tick);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, [currentPosition]);
 
-  if (!episode) return null
+  if (!episode) return null;
 
-  const duration = episode.duration ?? 0
-  const progress = duration > 0 ? Math.min(displayPos / duration, 1) : 0
-  const artUrl = episode.imageUrl ?? episode.podcast?.imageUrl ?? null
+  const duration = episode.duration ?? 0;
+  const progress = duration > 0 ? Math.min(displayPos / duration, 1) : 0;
+  const artUrl = episode.imageUrl ?? episode.podcast?.imageUrl ?? null;
 
   return (
     <div className={styles.player}>
@@ -72,5 +80,5 @@ export function MiniPlayer({ onTap }: Props) {
         <div className={styles.progressFill} style={{ width: `${progress * 100}%` }} />
       </div>
     </div>
-  )
+  );
 }

@@ -6,14 +6,14 @@
 //
 BSStrategy = {
   version: 1,
-  displayName: "Radio Paradise",
+  displayName: 'Radio Paradise',
   accepts: {
-    method: "predicateOnTab",
-    format: "%K LIKE[c] '*radioparadise.com*'",
-    args: ["URL"]
+    method: 'predicateOnTab',
+    format: '%K LIKE[c] \'*radioparadise.com*\'',
+    args: ['URL'],
   },
   isPlaying: function () {
-    return document.querySelector('#play-button').getAttribute('title') === "Pause";
+    return document.querySelector('#play-button').getAttribute('title') === 'Pause';
   },
   toggle: function () {
     document.querySelector('#play-button').click();
@@ -23,7 +23,7 @@ BSStrategy = {
     document.querySelector('#skip-button').click();
   },
   pause: function () {
-    if (document.querySelector('#play-button').getAttribute('title') === "Pause") {
+    if (document.querySelector('#play-button').getAttribute('title') === 'Pause') {
       document.querySelector('#play-button').click();
     }
   },
@@ -36,7 +36,7 @@ BSStrategy = {
       : document.querySelector('#now_playing .title .album').innerText;
     var artist = isMiniPlayer ? document.querySelector('app-player-mini-controller div.player-artist').innerText
       : document.querySelector('#now_playing .title .artist').innerText;
-    var image = isMiniPlayer ? document.querySelector('app-player-mini-controller img.player-cover').getAttribute("src")
+    var image = isMiniPlayer ? document.querySelector('app-player-mini-controller img.player-cover').getAttribute('src')
       : document.querySelector('#now_playing .now_playing_cover').getAttribute('src');
 
     return {
@@ -45,5 +45,5 @@ BSStrategy = {
         'artist': artist,
         'image': image,
     };
-  }
-}
+  },
+};

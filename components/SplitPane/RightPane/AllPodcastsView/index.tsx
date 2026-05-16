@@ -1,61 +1,66 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import { DragDropContext, Droppable, Draggable, type DropResult } from '@hello-pangea/dnd'
-import { Inbox } from 'lucide-react'
-import { usePodcasts } from '@/context/PodcastsContext'
-import { EpisodeRow } from '../EpisodeRow'
-import { EpisodeDetail } from '../EpisodeDetail'
-import type { Episode, QueueItem } from '@/types'
-import styles from './index.module.css'
+import {
+  DragDropContext, Draggable, type DropResult, Droppable,
+} from '@hello-pangea/dnd';
+import { useEffect, useState } from 'react';
+import { Inbox } from 'lucide-react';
+
+import type { Episode, QueueItem } from '@/types';
+import { EpisodeDetail } from '../EpisodeDetail';
+import { EpisodeRow } from '../EpisodeRow';
+import { usePodcasts } from '@/context/PodcastsContext';
+
+import styles from './index.module.css';
 
 type SortMode = 'manual' | 'asc' | 'desc'
 
 export function AllPodcastsView() {
-  const { queue, refreshQueue } = usePodcasts()
-  const [sortMode, setSortMode] = useState<SortMode>('manual')
-  const [detailEpisode, setDetailEpisode] = useState<Episode | null>(null)
-  const [localItems, setLocalItems] = useState<QueueItem[] | null>(null)
+  const { queue, refreshQueue } = usePodcasts();
+  const [sortMode, setSortMode] = useState<SortMode>('manual');
+  const [detailEpisode, setDetailEpisode] = useState<Episode | null>(null);
+  const [localItems, setLocalItems] = useState<QueueItem[] | null>(null);
 
   // Once the server queue syncs back, drop the optimistic override
-  useEffect(() => { setLocalItems(null) }, [queue])
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { setLocalItems(null); }, [queue]);
 
   const sorted: QueueItem[] = [...queue].sort((a, b) => {
-    if (sortMode === 'asc') return new Date(a.episode.pubDate).getTime() - new Date(b.episode.pubDate).getTime()
-    if (sortMode === 'desc') return new Date(b.episode.pubDate).getTime() - new Date(a.episode.pubDate).getTime()
-    return a.position - b.position
-  })
+    if (sortMode === 'asc') return new Date(a.episode.pubDate).getTime() - new Date(b.episode.pubDate).getTime();
+    if (sortMode === 'desc') return new Date(b.episode.pubDate).getTime() - new Date(a.episode.pubDate).getTime();
+    return a.position - b.position;
+  });
 
-  const displayItems = localItems ?? sorted
+  const displayItems = localItems ?? sorted;
 
   const totalSeconds = queue.reduce((sum, item) => {
-    const remaining = (item.episode.duration ?? 0) - Math.floor(item.episode.resumeAt ?? 0)
-    return sum + Math.max(0, remaining)
-  }, 0)
+    const remaining = (item.episode.duration ?? 0) - Math.floor(item.episode.resumeAt ?? 0);
+    return sum + Math.max(0, remaining);
+  }, 0);
   const totalTime = (() => {
-    if (totalSeconds === 0) return ''
-    const h = Math.floor(totalSeconds / 3600)
-    const m = Math.floor((totalSeconds % 3600) / 60)
-    const s = totalSeconds % 60
-    return `[${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}]`
-  })()
+    if (totalSeconds === 0) return '';
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
+    return `[${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}]`;
+  })();
 
   async function handleDragEnd(result: DropResult) {
-    if (!result.destination || result.destination.index === result.source.index) return
+    if (!result.destination || result.destination.index === result.source.index) return;
 
-    const items = Array.from(displayItems)
-    const [moved] = items.splice(result.source.index, 1)
-    items.splice(result.destination.index, 0, moved)
+    const items = Array.from(displayItems);
+    const [moved] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, moved);
 
-    setLocalItems(items)  // show new order immediately
+    setLocalItems(items);  // show new order immediately
 
-    const updates = items.map((item, idx) => ({ id: item.id, position: idx }))
+    const updates = items.map((item, idx) => ({ id: item.id, position: idx }));
     await fetch('/api/queue', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updates),
-    })
-    refreshQueue()
+    });
+    refreshQueue();
   }
 
   return (
@@ -120,5 +125,5 @@ export function AllPodcastsView() {
 
       <EpisodeDetail episode={detailEpisode} onClose={() => setDetailEpisode(null)} />
     </div>
-  )
+  );
 }

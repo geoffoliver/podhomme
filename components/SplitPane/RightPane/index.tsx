@@ -1,13 +1,14 @@
-'use client'
+'use client';
 
-import { usePodcasts } from '@/context/PodcastsContext'
-import { AllPodcastsView } from './AllPodcastsView'
-import { FavoritesView } from './FavoritesView'
-import { PodcastView } from './PodcastView'
-import styles from './index.module.css'
+import { AllPodcastsView } from './AllPodcastsView';
+import { FavoritesView } from './FavoritesView';
+import { PodcastView } from './PodcastView';
+import { usePodcasts } from '@/context/PodcastsContext';
+
+import styles from './index.module.css';
 
 export function RightPane() {
-  const { selectedView } = usePodcasts()
+  const { selectedView } = usePodcasts();
 
   return (
     <main className={styles.pane}>
@@ -15,5 +16,5 @@ export function RightPane() {
       {selectedView === 'favorites' && <FavoritesView />}
       {typeof selectedView === 'number' && <PodcastView podcastId={selectedView} />}
     </main>
-  )
+  );
 }
