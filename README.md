@@ -27,7 +27,7 @@ A shared podcast player for the browser. Multiple people can open the same URL a
 - **Tailwind CSS v4**
 - **SQLite** via **Prisma 7**
 - **Node.js** + **tsx** (worker process)
-- **Bun** runtime (web server)
+- **Node.js 22**
 - **PM2** process management
 
 ## Setup

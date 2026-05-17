@@ -70,7 +70,7 @@ Use test driven development. Write/update tests first, run them, check the cover
 # Tech
 - DB: SQLite/Prisma
 - Icons: Lucide
-- Runtime: Bun
+- Runtime: Node.js 22
 - Host OS: MacOS (Intel)
 - Package manager: yarn
 - Styling: Tailwind
