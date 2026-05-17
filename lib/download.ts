@@ -23,7 +23,9 @@ export async function downloadEpisode(episodeId: number, audioUrl: string, downl
 
     const ext = audioUrl.split('?')[0].split('.').pop() || 'mp3';
     const filename = `${episodeId}.${ext}`;
-    const filepath = path.join(downloadLocation, filename);
+    // turbopackIgnore tells the Turbopack file tracer not to follow this
+    // dynamic path, which would otherwise cause it to trace the whole project.
+    const filepath = path.join(/* turbopackIgnore: true */ downloadLocation, filename);
 
     const buffer = await res.arrayBuffer();
     await writeFile(filepath, Buffer.from(buffer));
