@@ -1,6 +1,8 @@
 #!/bin/sh
 set -e
 
+export DATABASE_URL="${DATABASE_URL:-file:/workspace/data/podhomme.db}"
+
 mkdir -p /workspace/data
 
 echo "==> Running database migrations..."
