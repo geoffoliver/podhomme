@@ -20,6 +20,8 @@ jobs:
 
       - run: yarn install --frozen-lockfile
 
+      - run: yarn prisma generate
+
       - run: yarn prisma migrate deploy
         env:
           DATABASE_URL: file:./prisma/test.db
@@ -40,6 +42,8 @@ jobs:
           cache: yarn
 
       - run: yarn install --frozen-lockfile
+
+      - run: yarn prisma generate
 
       - run: yarn playwright install --with-deps chromium
 
