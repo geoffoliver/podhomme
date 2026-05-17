@@ -20,11 +20,10 @@ test.describe('Smoke', () => {
     await expect(list.getByRole('option', { name: /Favorites/ })).toBeVisible();
   });
 
-  test('left pane footer has add, search, import, and refresh buttons', async ({ page, db: _ }) => {
+  test('left pane footer has add, search, and refresh buttons', async ({ page, db: _ }) => {
     await page.goto('/');
     await expect(page.getByRole('button', { name: 'Add podcast by URL' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Search for podcasts' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Import OPML' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Refresh all feeds' })).toBeVisible();
   });
 });
