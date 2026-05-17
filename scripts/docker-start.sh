@@ -8,11 +8,11 @@ echo "DATABASE_URL=${DATABASE_URL}" > .env
 
 mkdir -p /workspace/data
 
-echo "==> Running database migrations..."
+echo "[DOCKER START] ==> Running database migrations..."
 node_modules/.bin/prisma migrate deploy
 
-echo "==> Starting background worker..."
+echo "[DOCKER START] ==> Starting background worker..."
 node_modules/.bin/tsx worker/index.ts &
 
-echo "==> Starting web server..."
+echo "[DOCKER START] ==> Starting web server..."
 exec node_modules/.bin/next start
