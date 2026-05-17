@@ -172,6 +172,11 @@ describe('getNextEpisode', () => {
       const { podcast } = await seedPodcastAndEpisodes();
       expect(await getNextEpisode(999999, 'podcast', podcast.id)).toBeNull();
     });
+
+    it('returns null when the podcast record does not exist', async () => {
+      const { ep1 } = await seedPodcastAndEpisodes();
+      expect(await getNextEpisode(ep1.id, 'podcast', 999999)).toBeNull();
+    });
   });
 
   describe('favorites context', () => {
@@ -351,6 +356,11 @@ describe('getPrevEpisode', () => {
     it('returns null when the current episode does not exist', async () => {
       const { podcast } = await seedPodcastAndEpisodes();
       expect(await getPrevEpisode(999999, 'podcast', podcast.id)).toBeNull();
+    });
+
+    it('returns null when the podcast record does not exist', async () => {
+      const { ep1 } = await seedPodcastAndEpisodes();
+      expect(await getPrevEpisode(ep1.id, 'podcast', 999999)).toBeNull();
     });
   });
 

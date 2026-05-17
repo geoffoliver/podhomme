@@ -7,10 +7,12 @@ import { db } from '@/lib/db';
 import { refreshPodcast, refreshAll } from '@/lib/refresh';
 import { parseFeed } from '@/lib/feed';
 import { broadcast } from '@/lib/sse';
+import { downloadEpisode } from '@/lib/download';
 import { rm } from 'fs/promises';
 
 const mockParseFeed = parseFeed as jest.MockedFunction<typeof parseFeed>;
 const mockBroadcast = broadcast as jest.MockedFunction<typeof broadcast>;
+const mockDownloadEpisode = downloadEpisode as jest.MockedFunction<typeof downloadEpisode>;
 const mockRm = rm as jest.MockedFunction<typeof rm>;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -214,6 +216,23 @@ describe('refreshPodcast', () => {
       expect(mockRm).not.toHaveBeenCalled();
     });
 
+    it('triggers downloadEpisode for the newest episode when defaultPlayback is "download"', async () => {
+      await db.settings.update({
+        where: { id: 1 },
+        data: { defaultPlayback: 'download', episodesToKeep: 'all' },
+      });
+      mockParseFeed.mockResolvedValue(makeFeed([makeFeedEpisode({ guid: 'ep-new' })]));
+
+      await refreshPodcast(podcastId);
+
+      const episode = await db.episode.findFirst({ where: { podcastId } });
+      expect(mockDownloadEpisode).toHaveBeenCalledWith(
+        episode!.id,
+        episode!.audioUrl,
+        expect.any(String),
+      );
+    });
+
     describe('numeric episodesToKeep limit', () => {
       beforeEach(async () => {
         await db.settings.update({
@@ -246,6 +265,13 @@ describe('refreshPodcast', () => {
         expect(epA?.downloadPath).toBeNull();
         expect(epB?.downloadPath).toBeNull();
         expect(epC?.downloadPath).toBe('/dl/c.mp3'); // newest kept
+      });
+
+      it('continues pruning remaining episodes when rm fails for one', async () => {
+        mockRm.mockRejectedValueOnce(new Error('EACCES')).mockResolvedValue(undefined);
+        await expect(refreshPodcast(podcastId)).resolves.not.toThrow();
+        // Second episode should still have been attempted
+        expect(mockRm).toHaveBeenCalledTimes(2);
       });
     });
 
@@ -281,6 +307,11 @@ describe('refreshPodcast', () => {
         await refreshPodcast(podcastId);
         const played = await db.episode.findFirst({ where: { podcastId, guid: 'ep-played' } });
         expect(played?.downloadPath).toBeNull();
+      });
+
+      it('continues when rm fails for a played episode', async () => {
+        mockRm.mockRejectedValueOnce(new Error('ENOENT'));
+        await expect(refreshPodcast(podcastId)).resolves.not.toThrow();
       });
     });
   });
