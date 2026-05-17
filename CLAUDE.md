@@ -62,6 +62,11 @@ Any styling other than the global stylesheet should be done in CSS modules that 
 
 Always keep the CHANGELOG.md and README.md up-to-date.
 
+Always follow linting rules. If you can't get things working after 3 attempts, just report the problem and move on, and I'll sort it out.
+
+Use test driven development. Write/update tests first, run them, check the coverage, and then write code that will satisfy tests. Repeat the "run them, check the coverage" steps until all test pass and coverage is reasonable. 100% coverage would be ideal, but that's not always possible, so don't waste your time if it's not necessary.
+
+
 # Tech
 - DB: SQLite/Prisma
 - Icons: Lucide
