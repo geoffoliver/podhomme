@@ -1,9 +1,11 @@
 'use client';
 
 import {
- useEffect, useRef, useState, 
+  useEffect, useRef, useState,
 } from 'react';
+import { Download, Upload } from 'lucide-react';
 import type { Settings } from '@/types';
+import { usePodcasts } from '@/context/PodcastsContext';
 import styles from './index.module.css';
 
 type Props = {
@@ -29,7 +31,9 @@ const KEEP_OPTIONS = [
 ];
 
 export function SettingsDialog({ open, onClose }: Props) {
+  const { refreshPodcasts } = usePodcasts();
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const opmlImportRef = useRef<HTMLInputElement>(null);
   const [settings, setSettings] = useState<Settings | null>(null);
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -61,6 +65,23 @@ export function SettingsDialog({ open, onClose }: Props) {
     setSaving(false);
     setDirty(false);
     onClose();
+  }
+
+  async function handleImportOpml(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const form = new FormData();
+    form.append('file', file);
+    await fetch('/api/import/opml', { method: 'POST', body: form });
+    refreshPodcasts();
+    e.target.value = '';
+  }
+
+  function handleExportOpml() {
+    const a = document.createElement('a');
+    a.href = '/api/export/opml';
+    a.download = 'podhomme.opml';
+    a.click();
   }
 
   function handleClick(e: React.MouseEvent<HTMLDialogElement>) {
@@ -126,6 +147,37 @@ export function SettingsDialog({ open, onClose }: Props) {
               onChange={e => update('downloadLocation', e.target.value)}
               placeholder="./downloads"
             />
+          </div>
+
+          <div className={styles.field}>
+            <span className={styles.label}>Subscriptions</span>
+            <div className={styles.importExport}>
+              <button
+                type="button"
+                className="btn-ghost text-sm gap-1.5"
+                onClick={() => opmlImportRef.current?.click()}
+                aria-label="Import OPML"
+              >
+                <Upload size={14} />
+                Import OPML
+              </button>
+              <button
+                type="button"
+                className="btn-ghost text-sm gap-1.5"
+                onClick={handleExportOpml}
+                aria-label="Export OPML"
+              >
+                <Download size={14} />
+                Export OPML
+              </button>
+              <input
+                ref={opmlImportRef}
+                type="file"
+                accept=".opml,application/xml,text/xml"
+                className="hidden"
+                onChange={handleImportOpml}
+              />
+            </div>
           </div>
         </div>
       )}

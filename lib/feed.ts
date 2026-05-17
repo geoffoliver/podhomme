@@ -113,6 +113,39 @@ export async function parseFeed(url: string): Promise<FeedData> {
 export type OpmlOutline = {
   title: string
   feedUrl: string
+  siteUrl?: string | null
+}
+
+function xmlEscape(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+export function buildOpml(podcasts: OpmlOutline[]): string {
+  const date = new Date().toUTCString();
+  const outlines = podcasts
+    .map(p => {
+      const title = xmlEscape(p.title);
+      const xmlUrl = xmlEscape(p.feedUrl);
+      const htmlUrl = p.siteUrl ? ` htmlUrl="${xmlEscape(p.siteUrl)}"` : '';
+      return `    <outline type="rss" text="${title}" title="${title}" xmlUrl="${xmlUrl}"${htmlUrl}/>`;
+    })
+    .join('\n');
+  return [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<opml version="2.0">',
+    '  <head>',
+    `    <title>Podhomme Subscriptions</title>`,
+    `    <dateCreated>${date}</dateCreated>`,
+    '  </head>',
+    '  <body>',
+    outlines,
+    '  </body>',
+    '</opml>',
+  ].join('\n');
 }
 
 export function parseOpml(xml: string): OpmlOutline[] {

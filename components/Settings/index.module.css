@@ -46,6 +46,12 @@
     dark:text-neutral-300;
 }
 
+.importExport {
+  @apply
+    flex
+    gap-2;
+}
+
 .footer {
   @apply
     flex

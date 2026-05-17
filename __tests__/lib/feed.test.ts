@@ -1,4 +1,4 @@
-import { parseOpml } from '@/lib/feed';
+import { parseOpml, buildOpml } from '@/lib/feed';
 
 describe('parseOpml', () => {
   it('extracts feed URLs from a flat OPML body', () => {
@@ -50,5 +50,51 @@ describe('parseOpml', () => {
 </opml>`;
 
     expect(parseOpml(xml)).toHaveLength(0);
+  });
+});
+
+describe('buildOpml', () => {
+  it('produces a valid XML declaration and opml root', () => {
+    const xml = buildOpml([]);
+    expect(xml).toMatch(/^<\?xml version="1\.0"/);
+    expect(xml).toContain('<opml version="2.0">');
+  });
+
+  it('includes a body element', () => {
+    expect(buildOpml([])).toContain('<body>');
+  });
+
+  it('creates an outline element for each podcast', () => {
+    const xml = buildOpml([
+      { title: 'Pod A', feedUrl: 'https://a.example.com/feed.rss' },
+      { title: 'Pod B', feedUrl: 'https://b.example.com/feed.rss' },
+    ]);
+    expect((xml.match(/<outline type="rss"/g) ?? []).length).toBe(2);
+  });
+
+  it('sets xmlUrl to the feedUrl', () => {
+    const xml = buildOpml([{ title: 'Pod', feedUrl: 'https://feeds.example.com/pod.rss' }]);
+    expect(xml).toContain('xmlUrl="https://feeds.example.com/pod.rss"');
+  });
+
+  it('includes htmlUrl when siteUrl is provided', () => {
+    const xml = buildOpml([{ title: 'Pod', feedUrl: 'https://f.example.com/pod.rss', siteUrl: 'https://pod.example.com' }]);
+    expect(xml).toContain('htmlUrl="https://pod.example.com"');
+  });
+
+  it('omits htmlUrl when siteUrl is null or undefined', () => {
+    expect(buildOpml([{ title: 'Pod', feedUrl: 'https://f.example.com/pod.rss', siteUrl: null }])).not.toContain('htmlUrl');
+    expect(buildOpml([{ title: 'Pod', feedUrl: 'https://f.example.com/pod.rss' }])).not.toContain('htmlUrl');
+  });
+
+  it('escapes & in titles', () => {
+    const xml = buildOpml([{ title: 'Rock & Roll', feedUrl: 'https://f.example.com/r.rss' }]);
+    expect(xml).toContain('Rock &amp; Roll');
+    expect(xml).not.toContain('Rock & Roll');
+  });
+
+  it('escapes < and > in titles', () => {
+    const xml = buildOpml([{ title: '<Podcast>', feedUrl: 'https://f.example.com/r.rss' }]);
+    expect(xml).toContain('&lt;Podcast&gt;');
   });
 });

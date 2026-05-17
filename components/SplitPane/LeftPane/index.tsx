@@ -1,9 +1,9 @@
 'use client';
 
 import {
-  FileInput, Plus, Podcast, RefreshCw, Search, Star,
+  Plus, Podcast, RefreshCw, Search, Star,
 } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 
 import { PodcastSearch } from '@/components/PodcastSearch';
@@ -21,7 +21,6 @@ export function LeftPane() {
   const [feedUrl, setFeedUrl] = useState('');
   const [addError, setAddError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
-  const opmlRef = useRef<HTMLInputElement>(null);
 
   const items: { view: SelectedView; label: string; icon: React.ReactNode; badge?: number }[] = [
     {
@@ -50,16 +49,6 @@ export function LeftPane() {
       const body = await res.json();
       setAddError(body.error ?? 'Failed to add podcast');
     }
-  }
-
-  async function handleOpml(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const form = new FormData();
-    form.append('file', file);
-    await fetch('/api/import/opml', { method: 'POST', body: form });
-    refreshPodcasts();
-    e.target.value = '';
   }
 
   async function handleRefreshAll() {
@@ -156,16 +145,6 @@ export function LeftPane() {
           <Search size={14} />
         </button>
         <button
-          className="btn-ghost text-xs gap-1"
-          onClick={() => {
-            opmlRef.current?.click();
-          }}
-          title="Import OPML"
-          aria-label="Import OPML"
-        >
-          <FileInput size={14} />
-        </button>
-        <button
           className="btn-ghost text-xs gap-1 ml-auto"
           onClick={handleRefreshAll}
           disabled={refreshing || !!refreshStatus}
@@ -174,7 +153,6 @@ export function LeftPane() {
         >
           <RefreshCw size={14} className={refreshing || !!refreshStatus ? 'animate-spin' : ''} />
         </button>
-        <input ref={opmlRef} type="file" accept=".opml,application/xml,text/xml" className="hidden" onChange={handleOpml} />
       </div>
 
       <PodcastSearch open={searching} onClose={() => setSearching(false)} />
