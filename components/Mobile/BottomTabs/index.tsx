@@ -1,7 +1,7 @@
 'use client';
 
 import {
- Inbox, Library, Star, 
+  Inbox, Library, MessageSquare, Star,
 } from 'lucide-react';
 import type { MobileTab } from '../Shell';
 import styles from './index.module.css';
@@ -19,8 +19,11 @@ const TABS: { id: MobileTab; label: string; icon: React.ReactNode }[] = [
  id: 'library',  label: 'Library',   icon: <Library size={22} />, 
 },
   {
- id: 'favorites', label: 'Favorites', icon: <Star size={22} />, 
-},
+    id: 'favorites', label: 'Favorites', icon: <Star size={22} />,
+  },
+  {
+    id: 'chat', label: 'Chat', icon: <MessageSquare size={22} />,
+  },
 ];
 
 export function BottomTabs({ tab, onTab }: Props) {

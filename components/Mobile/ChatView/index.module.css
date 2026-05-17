@@ -1,0 +1,117 @@
+@reference "tailwindcss";
+
+.view {
+  @apply flex flex-col h-full;
+}
+
+.header {
+  @apply
+    px-4
+    pb-3
+    border-b
+    border-neutral-100
+    dark:border-neutral-800;
+  padding-top: max(1rem, env(safe-area-inset-top));
+}
+
+.headerTitle {
+  @apply text-2xl font-bold text-neutral-900 dark:text-neutral-100;
+}
+
+.nameBar {
+  @apply
+    px-3
+    py-2
+    border-b
+    border-neutral-100
+    shrink-0
+    dark:border-neutral-800;
+}
+
+.nameForm {
+  @apply flex gap-2 items-center;
+}
+
+.nameDisplay {
+  @apply flex items-center justify-between;
+}
+
+.nameLabel {
+  @apply text-xs text-neutral-500 dark:text-neutral-400;
+}
+
+.messages {
+  @apply
+    flex
+    flex-col
+    flex-1
+    overflow-y-auto
+    px-3
+    py-3
+    gap-3;
+}
+
+.empty {
+  @apply
+    text-xs
+    text-neutral-400
+    text-center
+    mt-4
+    dark:text-neutral-500;
+}
+
+.message {
+  @apply flex flex-col gap-0.5 items-start;
+}
+
+.mine {
+  @apply items-end;
+}
+
+.meta {
+  @apply flex items-baseline gap-1.5 px-0.5;
+}
+
+.author {
+  @apply text-xs font-semibold text-neutral-700 dark:text-neutral-300;
+}
+
+.time {
+  @apply text-xs text-neutral-400 dark:text-neutral-500;
+}
+
+.bubble {
+  @apply
+    max-w-full
+    rounded-lg
+    px-3
+    py-2
+    text-sm
+    break-words
+    bg-neutral-100
+    text-neutral-900
+    dark:bg-neutral-800
+    dark:text-neutral-100;
+}
+
+.mine .bubble {
+  @apply
+    bg-neutral-900
+    text-white
+    dark:bg-neutral-100
+    dark:text-neutral-900;
+}
+
+.inputRow {
+  @apply
+    flex
+    gap-2
+    items-center
+    px-3
+    py-3
+    border-t
+    border-neutral-100
+    shrink-0
+    dark:border-neutral-800;
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}

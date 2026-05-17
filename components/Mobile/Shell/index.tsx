@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { BottomTabs } from '../BottomTabs';
+import { ChatView } from '../ChatView';
 import { FavoritesView } from '../FavoritesView';
 import { LibraryView } from '../LibraryView';
 import { MiniPlayer } from '../MiniPlayer';
@@ -11,7 +12,7 @@ import { usePlayback } from '@/context/PlaybackContext';
 
 import styles from './index.module.css';
 
-export type MobileTab = 'queue' | 'library' | 'favorites'
+export type MobileTab = 'queue' | 'library' | 'favorites' | 'chat'
 
 export function MobileShell() {
   const [tab, setTab] = useState<MobileTab>('queue');
@@ -34,6 +35,7 @@ export function MobileShell() {
         {tab === 'queue'     && <QueueView />}
         {tab === 'library'   && <LibraryView />}
         {tab === 'favorites' && <FavoritesView />}
+        {tab === 'chat'      && <ChatView />}
       </div>
 
       {state.episodeId && (
