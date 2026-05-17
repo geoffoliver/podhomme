@@ -28,5 +28,5 @@ spec:
           value: ""
           scope: RUN_AND_BUILD_TIME
         - key: WEB_URL
-          value: ""
+          value: ${APP_URL}
           scope: RUN_AND_BUILD_TIME
