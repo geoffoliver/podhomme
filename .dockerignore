@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+docs/
+e2e/
+__tests__/
+playwright-report/
+test-results/
+prisma/dev.db
+prisma/e2e.db
+*.db
+.env*

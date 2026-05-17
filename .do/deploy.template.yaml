@@ -2,13 +2,11 @@ spec:
   name: podhomme
   services:
     - name: web
-      github:
-        branch: master
-        deploy_on_push: true
-        repo: geoffoliver/podhomme
-      build_command: NODE_ENV=development yarn install --frozen-lockfile && yarn prisma generate && yarn build
-      run_command: bash scripts/do-start.sh
-      environment_slug: node-js
+      image:
+        registry_type: GHCR
+        registry: geoffoliver
+        repository: podhomme
+        tag: latest
       instance_size_slug: apps-s-1vcpu-1gb
       instance_count: 1
       http_port: 3030
@@ -17,16 +15,16 @@ spec:
       envs:
         - key: DATABASE_URL
           value: file:/workspace/data/podhomme.db
-          scope: RUN_AND_BUILD_TIME
+          scope: RUN_TIME
         - key: NODE_ENV
           value: production
           scope: RUN_TIME
         - key: APP_PASSWORD
           value: ""
-          scope: RUN_AND_BUILD_TIME
+          scope: RUN_TIME
         - key: WORKER_SECRET
           value: ""
-          scope: RUN_AND_BUILD_TIME
+          scope: RUN_TIME
         - key: WEB_URL
           value: ${APP_URL}
-          scope: RUN_AND_BUILD_TIME
+          scope: RUN_TIME
