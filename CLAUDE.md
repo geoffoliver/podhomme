@@ -75,3 +75,4 @@ Use test driven development. Write/update tests first, run them, check the cover
 - Package manager: yarn
 - Styling: Tailwind
 - Process Management: PM2
+- Testing: Jest
