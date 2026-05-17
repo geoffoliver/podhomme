@@ -4,6 +4,7 @@ import {
   ChevronFirst,
   ChevronLast,
   Headphones,
+  MessageSquare,
   Pause,
   Play,
   Podcast,
@@ -31,9 +32,11 @@ function formatTime(seconds: number): string {
 
 type Props = {
   onSettingsClick: () => void
+  onChatClick: () => void
+  chatOpen: boolean
 }
 
-export function TopBar({ onSettingsClick }: Props) {
+export function TopBar({ onSettingsClick, onChatClick, chatOpen }: Props) {
   const {
  state, audioDetached, joinAudio, play, pause, seek, next, prev, currentPosition,
 } = usePlayback();
@@ -168,6 +171,17 @@ export function TopBar({ onSettingsClick }: Props) {
       <a href="/api/view?mode=mobile" className="btn-icon" title="Switch to mobile view" aria-label="Switch to mobile view">
         <Smartphone size={18} />
       </a>
+
+      {/* Chat */}
+      <button
+        className={`btn-icon ${chatOpen ? styles.activeIcon : ''}`}
+        onClick={onChatClick}
+        title="Chat"
+        aria-label="Chat"
+        aria-pressed={chatOpen}
+      >
+        <MessageSquare size={18} />
+      </button>
 
       {/* Settings */}
       <button className="btn-icon" onClick={onSettingsClick} title="Settings" aria-label="Settings">

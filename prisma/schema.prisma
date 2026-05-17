@@ -75,3 +75,10 @@ model Settings {
   defaultPlayback  String @default("stream")
   downloadLocation String @default("./downloads")
 }
+
+model ChatMessage {
+  id      Int      @id @default(autoincrement())
+  author  String
+  message String
+  sentAt  DateTime @default(now())
+}

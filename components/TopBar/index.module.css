@@ -121,6 +121,14 @@
     shrink-0;
 }
 
+.activeIcon {
+  @apply
+    text-neutral-900
+    bg-neutral-100
+    dark:text-neutral-100
+    dark:bg-neutral-800;
+}
+
 .joinBtn {
   @apply
     inline-flex
