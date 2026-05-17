@@ -26,8 +26,8 @@ export default defineConfig({
     // blow past action timeouts on cold runners. Pre-building means instant
     // page loads once next start is up.
     command: process.env.CI
-      ? 'next build && next start -p 3031'
-      : 'next dev -p 3031',
+      ? 'next build && PORT=3031 next start'
+      : 'PORT=3031 next dev',
     url: 'http://localhost:3031',
     reuseExistingServer: !process.env.CI,
     timeout: 300_000,  // allow 5 min for next build in CI
