@@ -15,7 +15,7 @@ spec:
       envs:
         - key: DATABASE_URL
           value: file:/workspace/data/podhomme.db
-          scope: RUN_TIME
+          scope: RUN_AND_BUILD_TIME
         - key: NODE_ENV
           value: production
           scope: RUN_TIME
