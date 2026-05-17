@@ -20,7 +20,7 @@ spec:
           scope: RUN_AND_BUILD_TIME
         - key: NODE_ENV
           value: production
-          scope: RUN_AND_BUILD_TIME
+          scope: RUN_TIME
         - key: APP_PASSWORD
           value: ""
           scope: RUN_AND_BUILD_TIME
