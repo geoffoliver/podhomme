@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
+  <channel>
+    <title>Test Podcast</title>
+    <description>A podcast used for E2E tests</description>
+    <link>https://example.com</link>
+    <itunes:author>Test Author</itunes:author>
+    <item>
+      <title>Episode 2: The Sequel</title>
+      <guid>ep-002</guid>
+      <enclosure url="http://localhost:4321/ep2.mp3" length="3600" type="audio/mpeg"/>
+      <pubDate>Wed, 01 May 2024 00:00:00 +0000</pubDate>
+      <itunes:duration>3600</itunes:duration>
+      <description>The second episode.</description>
+    </item>
+    <item>
+      <title>Episode 1: The Beginning</title>
+      <guid>ep-001</guid>
+      <enclosure url="http://localhost:4321/ep1.mp3" length="1800" type="audio/mpeg"/>
+      <pubDate>Mon, 01 Apr 2024 00:00:00 +0000</pubDate>
+      <itunes:duration>1800</itunes:duration>
+      <description>The first episode.</description>
+    </item>
+  </channel>
+</rss>
