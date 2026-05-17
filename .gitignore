@@ -46,6 +46,9 @@ next-env.d.ts
 # SQLite databases
 prisma/*.db
 prisma/*.db-journal
+
+# Docker volume data
+/data
 public/images/podcasts/*
 
 dev.db

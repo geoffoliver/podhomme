@@ -58,6 +58,30 @@ pm2 start ecosystem.config.js
 
 The web server runs on port 3000. The worker process handles scheduled feed refreshes.
 
+### Docker
+
+The easiest way to run Podhomme. The database is stored in `./data` on the host so it survives container restarts and upgrades.
+
+```bash
+docker compose up -d
+```
+
+The app will be available at [http://localhost:3030](http://localhost:3030).
+
+To set a password or configure other options, copy `.env.example` to `.env` and fill in the values before starting:
+
+```bash
+cp .env.example .env
+# edit .env, then:
+docker compose up -d
+```
+
+To upgrade to the latest image:
+
+```bash
+docker compose pull && docker compose up -d
+```
+
 ## Authentication
 
 Podhomme has no user accounts, but you can restrict access with a single shared password:

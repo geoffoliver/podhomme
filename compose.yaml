@@ -1,0 +1,13 @@
+services:
+  podhomme:
+    image: ghcr.io/geoffoliver/podhomme:latest
+    ports:
+      - "3030:3030"
+    volumes:
+      - ./data:/workspace/data
+    environment:
+      DATABASE_URL: file:/workspace/data/podhomme.db
+      APP_PASSWORD: ${APP_PASSWORD:-}
+      WORKER_SECRET: ${WORKER_SECRET:-}
+      WEB_URL: ${WEB_URL:-http://localhost:3030}
+    restart: unless-stopped
