@@ -14,6 +14,7 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV PORT=3030
+ENV DATABASE_URL=file:/workspace/data/podhomme.db
 
 # Full node_modules from builder (includes tsx for the worker)
 COPY --from=builder /app/node_modules ./node_modules
