@@ -6,7 +6,7 @@ test.describe('Add podcast', () => {
 
     // Open the add URL form
     await page.getByRole('button', { name: 'Add podcast by URL' }).click();
-    await page.getByRole('textbox').fill(FEED_URL);
+    await page.getByRole('textbox', { name: 'RSS feed URL' }).fill(FEED_URL);
     await page.getByRole('button', { name: 'Add', exact: true }).click();
 
     // Podcast should appear in the sidebar
@@ -18,7 +18,7 @@ test.describe('Add podcast', () => {
     await page.goto('/');
 
     await page.getByRole('button', { name: 'Add podcast by URL' }).click();
-    await page.getByRole('textbox').fill(FEED_URL);
+    await page.getByRole('textbox', { name: 'RSS feed URL' }).fill(FEED_URL);
     await page.getByRole('button', { name: 'Add', exact: true }).click();
 
     // Click the podcast in the sidebar to open its view
@@ -35,7 +35,7 @@ test.describe('Add podcast', () => {
     await page.goto('/');
 
     await page.getByRole('button', { name: 'Add podcast by URL' }).click();
-    await page.getByRole('textbox').fill('http://localhost:4321/does-not-exist.rss');
+    await page.getByRole('textbox', { name: 'RSS feed URL' }).fill('http://localhost:4321/does-not-exist.rss');
     await page.getByRole('button', { name: 'Add', exact: true }).click();
 
     // An error message should appear in the form
@@ -49,7 +49,7 @@ test.describe('Add podcast', () => {
     await page.goto('/');
 
     await page.getByRole('button', { name: 'Add podcast by URL' }).click();
-    await page.getByRole('textbox').fill(FEED_URL);
+    await page.getByRole('textbox', { name: 'RSS feed URL' }).fill(FEED_URL);
     await page.getByRole('button', { name: 'Add', exact: true }).click();
 
     await expect(page.getByText(/already subscribed/i)).toBeVisible();
