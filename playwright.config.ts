@@ -22,13 +22,17 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'next dev -p 3031',
+    // Use a production build in CI — next dev compiles on-demand which can
+    // blow past action timeouts on cold runners. Pre-building means instant
+    // page loads once next start is up.
+    command: process.env.CI
+      ? 'next build && next start -p 3031'
+      : 'next dev -p 3031',
     url: 'http://localhost:3031',
     reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
+    timeout: 300_000,  // allow 5 min for next build in CI
     env: {
       DATABASE_URL: 'file:./prisma/e2e.db',
-      // Ensure no password gate during tests
       APP_PASSWORD: '',
     },
   },
