@@ -9,7 +9,7 @@ echo "DATABASE_URL=${DATABASE_URL}" > .env
 mkdir -p /workspace/data
 
 echo "[DOCKER START] ==> Running database migrations..."
-node_modules/.bin/prisma migrate deploy
+DATABASE_URL="${DATABASE_URL:-file:/workspace/data/podhomme.db}" node_modules/.bin/prisma migrate deploy
 
 echo "[DOCKER START] ==> Starting background worker..."
 node_modules/.bin/tsx worker/index.ts &

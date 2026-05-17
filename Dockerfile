@@ -25,8 +25,9 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/next.config.ts ./next.config.ts
 
-# Prisma schema, migrations, and generated client
+# Prisma schema, migrations, generated client, and config
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 COPY --from=builder /app/app/generated ./app/generated
 
 # Worker (runs as TypeScript via tsx — needs tsconfig for @/* aliases)
