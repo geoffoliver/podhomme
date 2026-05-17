@@ -34,8 +34,7 @@ A shared podcast player for the browser. Multiple people can open the same URL a
 
 ### Prerequisites
 
-- [Bun](https://bun.sh)
-- [Node.js](https://nodejs.org) (for the background worker)
+- [Node.js](https://nodejs.org) 22+
 - [PM2](https://pm2.keymetrics.io) (`npm install -g pm2`)
 
 ### Development
