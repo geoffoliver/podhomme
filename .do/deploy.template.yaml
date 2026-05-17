@@ -6,7 +6,7 @@ spec:
         branch: master
         deploy_on_push: true
         repo: geoffoliver/podhomme
-      build_command: yarn install --frozen-lockfile && yarn prisma generate && yarn build
+      build_command: yarn install --frozen-lockfile --production=false && yarn prisma generate && yarn build
       run_command: bash scripts/do-start.sh
       environment_slug: node-js
       instance_size_slug: apps-s-1vcpu-1gb
