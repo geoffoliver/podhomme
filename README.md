@@ -2,6 +2,8 @@
 
 A shared podcast player for the browser. Multiple people can open the same URL and control playback together in real time — play, pause, seek, and queue management all sync instantly across every connected tab.
 
+[![Deploy to DO](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/geoffoliver/podhomme/tree/master)
+
 ## Features
 
 - **Shared playback** — all connected browsers stay in sync via Server-Sent Events
@@ -56,6 +58,21 @@ pm2 start ecosystem.config.js
 ```
 
 The web server runs on port 3000. The worker process handles scheduled feed refreshes.
+
+## Deploy to DigitalOcean
+
+Click the button above (or [this link](https://cloud.digitalocean.com/apps/new?repo=https://github.com/geoffoliver/podhomme/tree/master)) to spin up Podhomme on DigitalOcean App Platform in a few clicks.
+
+> **Important — persistent storage:** App Platform containers are ephemeral, so the SQLite database will be wiped on every redeploy unless you attach a persistent volume. After your first deploy, go to your app in the DO dashboard → **Storage** → add a volume mounted at `/workspace/data`. The `DATABASE_URL` env var is pre-set to `file:/workspace/data/podhomme.db` to match this path.
+
+After deploying, set these environment variables in the DO dashboard:
+
+| Variable | Required | Description |
+|---|---|---|
+| `DATABASE_URL` | Yes | Pre-filled as `file:/workspace/data/podhomme.db` — change only if you move the volume mount path |
+| `WEB_URL` | Yes | Your app's public URL (e.g. `https://podhomme-xxxx.ondigitalocean.app`) — needed for the BeardedSpice endpoint |
+| `APP_PASSWORD` | No | Set to require a password; leave blank for open access |
+| `WORKER_SECRET` | No | Random string the background worker uses to authenticate refresh requests — set this if you set `APP_PASSWORD` |
 
 ## Authentication
 
