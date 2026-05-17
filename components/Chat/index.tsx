@@ -90,7 +90,8 @@ export function ChatDrawer({ open, onClose }: Props) {
   }
 
   return (
-    <aside className={`${styles.drawer} ${open ? styles.open : ''}`} aria-label="Chat">
+    <aside className={`${styles.drawer} ${open ? styles.open : ''}`}>
+      <div className={styles.inner} aria-label="Chat">
       <div className={styles.header}>
         <span className={styles.title}>Chat</span>
         <button className="btn-icon" onClick={onClose} aria-label="Close chat">
@@ -166,6 +167,7 @@ export function ChatDrawer({ open, onClose }: Props) {
           <Send size={14} />
         </button>
       </form>
+      </div>
     </aside>
   );
 }

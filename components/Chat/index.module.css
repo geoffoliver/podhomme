@@ -1,24 +1,32 @@
 @reference "tailwindcss";
 
+/* Outer shell: clips the inner panel and drives the layout push */
 .drawer {
   @apply
-    flex
-    flex-col
     w-0
     overflow-hidden
-    border-l
-    border-neutral-200
-    bg-white
     shrink-0
-    transition-all
-    duration-300
-    dark:border-neutral-800
-    dark:bg-neutral-950;
+    transition-[width]
+    duration-300;
 }
 
 .open {
   @apply
     w-72;
+}
+
+/* Inner panel: always 288px wide so content never squishes */
+.inner {
+  @apply
+    flex
+    flex-col
+    w-72
+    h-full
+    border-l
+    border-neutral-200
+    bg-white
+    dark:border-neutral-800
+    dark:bg-neutral-950;
 }
 
 .header {
