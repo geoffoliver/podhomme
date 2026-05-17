@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { BottomTabs } from '../BottomTabs';
 import { ChatView } from '../ChatView';
 import { FavoritesView } from '../FavoritesView';
@@ -17,7 +17,23 @@ export type MobileTab = 'queue' | 'library' | 'favorites' | 'chat'
 export function MobileShell() {
   const [tab, setTab] = useState<MobileTab>('queue');
   const [nowPlayingOpen, setNowPlayingOpen] = useState(false);
+  const [unreadChat, setUnreadChat] = useState(false);
+  const tabRef = useRef(tab);
+  tabRef.current = tab;
   const { state } = usePlayback();
+
+  useEffect(() => {
+    const source = new EventSource('/api/events');
+    source.addEventListener('chat', () => {
+      if (tabRef.current !== 'chat') setUnreadChat(true);
+    });
+    return () => source.close();
+  }, []);
+
+  function switchTab(next: MobileTab) {
+    setTab(next);
+    if (next === 'chat') setUnreadChat(false);
+  }
 
   useEffect(() => {
     const prev = document.documentElement.style.overflow;
@@ -42,7 +58,7 @@ export function MobileShell() {
         <MiniPlayer onTap={() => setNowPlayingOpen(true)} />
       )}
 
-      <BottomTabs tab={tab} onTab={setTab} />
+      <BottomTabs tab={tab} onTab={switchTab} unreadChat={unreadChat} />
 
       <NowPlaying open={nowPlayingOpen} onClose={() => setNowPlayingOpen(false)} />
     </div>

@@ -34,9 +34,10 @@ type Props = {
   onSettingsClick: () => void
   onChatClick: () => void
   chatOpen: boolean
+  hasUnreadChat?: boolean
 }
 
-export function TopBar({ onSettingsClick, onChatClick, chatOpen }: Props) {
+export function TopBar({ onSettingsClick, onChatClick, chatOpen, hasUnreadChat }: Props) {
   const {
  state, audioDetached, joinAudio, play, pause, seek, next, prev, currentPosition,
 } = usePlayback();
@@ -173,15 +174,18 @@ export function TopBar({ onSettingsClick, onChatClick, chatOpen }: Props) {
       </a>
 
       {/* Chat */}
-      <button
-        className={`btn-icon ${chatOpen ? styles.activeIcon : ''}`}
-        onClick={onChatClick}
-        title="Chat"
-        aria-label="Chat"
-        aria-pressed={chatOpen}
-      >
-        <MessageSquare size={18} />
-      </button>
+      <div className={styles.chatWrap}>
+        <button
+          className={`btn-icon ${chatOpen ? styles.activeIcon : ''}`}
+          onClick={onChatClick}
+          title="Chat"
+          aria-label="Chat"
+          aria-pressed={chatOpen}
+        >
+          <MessageSquare size={18} />
+        </button>
+        {hasUnreadChat && <span className={styles.unreadDot} aria-hidden="true" />}
+      </div>
 
       {/* Settings */}
       <button className="btn-icon" onClick={onSettingsClick} title="Settings" aria-label="Settings">

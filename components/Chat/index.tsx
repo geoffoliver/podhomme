@@ -14,6 +14,7 @@ type ChatMessage = {
 type Props = {
   open: boolean
   onClose: () => void
+  onMessage?: () => void
 }
 
 const NAME_KEY = 'podhomme_chat_name';
@@ -22,7 +23,7 @@ function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-export function ChatDrawer({ open, onClose }: Props) {
+export function ChatDrawer({ open, onClose, onMessage }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [name, setName] = useState('');
@@ -46,11 +47,16 @@ export function ChatDrawer({ open, onClose }: Props) {
   }, [open]);
 
   // Listen for incoming chat SSE events
+  const openRef = useRef(open);
+  openRef.current = open;
+  const onMessageRef = useRef(onMessage);
+  onMessageRef.current = onMessage;
   useEffect(() => {
     const source = new EventSource('/api/events');
     source.addEventListener('chat', (e) => {
       const msg = JSON.parse(e.data) as ChatMessage;
       setMessages(prev => [...prev.slice(-49), msg]);
+      if (!openRef.current) onMessageRef.current?.();
     });
     return () => source.close();
   }, []);

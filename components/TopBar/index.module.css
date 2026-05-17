@@ -121,6 +121,22 @@
     shrink-0;
 }
 
+.chatWrap {
+  @apply relative;
+}
+
+.unreadDot {
+  @apply
+    absolute
+    top-0.5
+    right-0.5
+    w-2
+    h-2
+    rounded-full
+    bg-sky-500
+    pointer-events-none;
+}
+
 .activeIcon {
   @apply
     text-neutral-900
