@@ -2,6 +2,7 @@
 
 A shared podcast player for the browser. Multiple people can open the same URL and control playback together in real time — play, pause, seek, and queue management all sync instantly across every connected tab.
 
+[![Tests](https://github.com/geoffoliver/podhomme/actions/workflows/test.yml/badge.svg)](https://github.com/geoffoliver/podhomme/actions/workflows/test.yml)
 [![Deploy to DO](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/geoffoliver/podhomme/tree/master)
 
 ## Features
