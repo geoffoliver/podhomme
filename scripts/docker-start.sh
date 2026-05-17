@@ -3,6 +3,9 @@ set -e
 
 export DATABASE_URL="${DATABASE_URL:-file:/workspace/data/podhomme.db}"
 
+# Write .env so prisma.config.ts dotenv loading picks up DATABASE_URL
+echo "DATABASE_URL=${DATABASE_URL}" > .env
+
 mkdir -p /workspace/data
 
 echo "==> Running database migrations..."
