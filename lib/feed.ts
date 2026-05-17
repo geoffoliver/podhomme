@@ -1,5 +1,6 @@
 import Parser from 'rss-parser';
 import { XMLParser } from 'fast-xml-parser';
+import { USER_AGENT } from '@/lib/user-agent';
 
 type FeedEpisode = {
   guid: string
@@ -26,6 +27,9 @@ const parser = new Parser({
   customFields: {
     feed: ['itunes:author', 'itunes:image', 'itunes:type'] as string[],
     item: ['itunes:duration', 'itunes:image', 'itunes:summary'] as string[],
+  },
+  requestOptions: {
+    headers: { 'User-Agent': USER_AGENT },
   },
 });
 

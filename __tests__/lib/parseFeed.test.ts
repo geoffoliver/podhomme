@@ -4,6 +4,7 @@ jest.mock('rss-parser', () => jest.fn(() => ({ parseURL: jest.fn() })));
 
 import { parseFeed } from '@/lib/feed';
 import Parser from 'rss-parser';
+import { USER_AGENT } from '@/lib/user-agent';
 
 // Grab the parseURL mock from the one instance created when feed.ts loaded.
 // mock.results[0].value is the returned object; mock.instances[0] is the raw `this` (no parseURL).
@@ -35,6 +36,16 @@ function makeRawItem(overrides: Record<string, unknown> = {}) {
 }
 
 const URL = 'https://feeds.example.com/test.rss';
+
+// ─── User-Agent ───────────────────────────────────────────────────────────────
+
+describe('parseFeed — user agent', () => {
+  it('passes User-Agent to the rss-parser constructor via requestOptions.headers', () => {
+    const ctorArg = MockParser.mock.calls[0]?.[0] as Record<string, unknown>;
+    const headers = (ctorArg?.requestOptions as Record<string, unknown>)?.headers as Record<string, string>;
+    expect(headers?.['User-Agent']).toBe(USER_AGENT);
+  });
+});
 
 // ─── Feed metadata ────────────────────────────────────────────────────────────
 

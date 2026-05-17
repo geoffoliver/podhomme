@@ -2,6 +2,7 @@ import { mkdir, writeFile } from 'fs/promises';
 import { db } from '@/lib/db';
 import logger from '@/lib/logger';
 import path from 'path';
+import { USER_AGENT } from '@/lib/user-agent';
 
 const log = logger.child({ module: 'download' });
 
@@ -15,7 +16,7 @@ export async function downloadEpisode(episodeId: number, audioUrl: string, downl
   try {
     await mkdir(downloadLocation, { recursive: true });
 
-    const res = await fetch(audioUrl);
+    const res = await fetch(audioUrl, { headers: { 'User-Agent': USER_AGENT } });
     if (!res.ok) {
       log.warn({ episodeId, status: res.status }, 'Failed to fetch audio for download');
       return;

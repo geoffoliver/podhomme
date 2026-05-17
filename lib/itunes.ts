@@ -1,4 +1,5 @@
 import { iTunesData } from '@/types';
+import { USER_AGENT } from '@/lib/user-agent';
 
 class iTunes {
   baseUrl = 'https://itunes.apple.com/';
@@ -14,7 +15,7 @@ class iTunes {
   }
 
   private async fetch(url: string): Promise<iTunesData> {
-    const result = await fetch(url);
+    const result = await fetch(url, { headers: { 'User-Agent': USER_AGENT } });
     return result.json() as Promise<iTunesData>;
   }
 }
