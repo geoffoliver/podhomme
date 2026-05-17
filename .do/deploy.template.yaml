@@ -16,21 +16,17 @@ spec:
         - path: /
       envs:
         - key: DATABASE_URL
-          description: Path to the SQLite database file. Set this to file:/workspace/data/podhomme.db and mount a persistent volume at /workspace/data to survive deploys.
           value: file:/workspace/data/podhomme.db
           scope: RUN_AND_BUILD_TIME
         - key: NODE_ENV
           value: production
           scope: RUN_AND_BUILD_TIME
         - key: APP_PASSWORD
-          description: Optional. Set to require a password to access the app. Leave blank to allow open access.
           value: ""
           scope: RUN_AND_BUILD_TIME
         - key: WORKER_SECRET
-          description: Optional. A secret token the background worker sends with refresh requests. Set to any random string.
           value: ""
           scope: RUN_AND_BUILD_TIME
         - key: WEB_URL
-          description: The public URL of your deployed app (e.g. https://podhomme-xxxx.ondigitalocean.app). Used by the BeardedSpice strategy endpoint.
           value: ""
           scope: RUN_AND_BUILD_TIME
