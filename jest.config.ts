@@ -9,6 +9,7 @@ const customConfig: Config = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   globalSetup: '<rootDir>/jest.globalSetup.js',
   maxWorkers: 1,
+  testPathIgnorePatterns: ['/node_modules/', '<rootDir>/e2e/'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
