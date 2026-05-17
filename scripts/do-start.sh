@@ -7,11 +7,11 @@ set -euo pipefail
 # /workspace/data (recommended), this is a no-op on subsequent deploys.
 mkdir -p /workspace/data
 
-echo "==> Running database migrations..."
+echo "[DO START] ==> Running database migrations..."
 yarn prisma migrate deploy
 
-echo "==> Starting background worker..."
+echo "[DO START] ==> Starting background worker..."
 yarn worker &
 
-echo "==> Starting web server..."
+echo "[DO START] ==> Starting web server..."
 exec yarn start
