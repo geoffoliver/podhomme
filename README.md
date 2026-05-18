@@ -63,7 +63,7 @@ The web server runs on port 3000. The worker process handles scheduled feed refr
 The easiest way to run Podhomme — no need to clone the repo:
 
 ```bash
-docker compose -f https://raw.githubusercontent.com/geoffoliver/podhomme/master/compose.yaml up -d
+curl -fsSL https://raw.githubusercontent.com/geoffoliver/podhomme/master/compose.yaml | docker compose -f - up -d
 ```
 
 The app will be available at [http://localhost:3030](http://localhost:3030). The database is stored in `./data` on the host so it survives container restarts and upgrades.
@@ -73,8 +73,8 @@ To set a password or configure other options, create a `.env` file in the direct
 To upgrade to the latest image:
 
 ```bash
-docker compose -f https://raw.githubusercontent.com/geoffoliver/podhomme/master/compose.yaml pull && \
-docker compose -f https://raw.githubusercontent.com/geoffoliver/podhomme/master/compose.yaml up -d
+curl -fsSL https://raw.githubusercontent.com/geoffoliver/podhomme/master/compose.yaml | docker compose -f - pull && \
+curl -fsSL https://raw.githubusercontent.com/geoffoliver/podhomme/master/compose.yaml | docker compose -f - up -d
 ```
 
 ## Authentication
