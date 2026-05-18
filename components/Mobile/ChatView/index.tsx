@@ -90,6 +90,8 @@ export function ChatView() {
               onChange={e => setNameInput(e.target.value)}
               maxLength={50}
               autoFocus
+              autoComplete="off"
+              data-1p-ignore
             />
             <button type="submit" className="btn-primary text-xs px-2 py-1">OK</button>
           </form>
