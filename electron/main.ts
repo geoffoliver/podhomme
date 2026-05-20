@@ -1,5 +1,6 @@
-import { app, BrowserWindow, shell, Menu, utilityProcess } from 'electron';
+import { app, BrowserWindow, shell, Menu, utilityProcess, dialog } from 'electron';
 import type { UtilityProcess } from 'electron';
+import { autoUpdater } from 'electron-updater';
 import path from 'path';
 import http from 'http';
 
@@ -79,6 +80,32 @@ function startServer() {
   });
 }
 
+function setupAutoUpdater() {
+  autoUpdater.autoDownload = true;
+  autoUpdater.autoInstallOnAppQuit = true;
+
+  autoUpdater.on('update-downloaded', () => {
+    dialog
+      .showMessageBox({
+        type: 'info',
+        title: 'Update ready',
+        message: 'A new version of Podhomme has been downloaded.',
+        detail: 'Restart now to install the update, or it will be installed automatically when you quit.',
+        buttons: ['Restart Now', 'Later'],
+        defaultId: 0,
+      })
+      .then(({ response }) => {
+        if (response === 0) autoUpdater.quitAndInstall();
+      });
+  });
+
+  autoUpdater.on('error', (err) => {
+    console.error('Auto-updater error:', err.message);
+  });
+
+  autoUpdater.checkForUpdates();
+}
+
 function setupMenu() {
   const template: Electron.MenuItemConstructorOptions[] = [
     {
@@ -155,6 +182,7 @@ app.whenReady().then(async () => {
     startServer();
     await waitForServer(SERVER_URL);
     createWindow();
+    setupAutoUpdater();
   }
 
   app.on('activate', () => {
