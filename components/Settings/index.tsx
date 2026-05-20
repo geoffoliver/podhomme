@@ -33,6 +33,7 @@ export function SettingsDialog({ open, onClose }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const opmlImportRef = useRef<HTMLInputElement>(null);
   const [settings, setSettings] = useState<Settings | null>(null);
+  const [localAddresses, setLocalAddresses] = useState<string[]>([]);
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -44,6 +45,9 @@ export function SettingsDialog({ open, onClose }: Props) {
       fetch('/api/settings')
         .then((r) => r.json())
         .then(setSettings);
+      fetch('/api/local-address')
+        .then((r) => r.json())
+        .then((d) => setLocalAddresses(d.addresses ?? []));
     } else {
       el.close();
     }
@@ -167,6 +171,25 @@ export function SettingsDialog({ open, onClose }: Props) {
               placeholder="./downloads"
             />
           </div>
+
+          {localAddresses.length > 0 && (
+            <div className={styles.field}>
+              <span className={styles.label}>Local address</span>
+              <div className={styles.localAddresses}>
+                {localAddresses.map((addr) => (
+                  <a
+                    key={addr}
+                    href={addr}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.localAddress}
+                  >
+                    {addr}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className={styles.field}>
             <span className={styles.label}>Subscriptions</span>
