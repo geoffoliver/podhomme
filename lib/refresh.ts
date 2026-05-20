@@ -7,6 +7,8 @@ import { rm } from 'fs/promises';
 
 const log = logger.child({ module: 'refresh' });
 
+let isRefreshing = false;
+
 export async function refreshPodcast(podcastId: number) {
   const podcast = await db.podcast.findUniqueOrThrow({ where: { id: podcastId } });
   log.info({ podcastId, title: podcast.title }, 'Refreshing podcast');
@@ -122,6 +124,9 @@ export async function refreshPodcast(podcastId: number) {
 }
 
 export async function refreshAll(onProgress?: (title: string, current: number, total: number) => void) {
+  if (isRefreshing) return;
+  isRefreshing = true;
+  try {
   const podcasts = await db.podcast.findMany();
   log.info({ total: podcasts.length }, 'Starting full refresh');
 
@@ -142,6 +147,9 @@ export async function refreshAll(onProgress?: (title: string, current: number, t
 
   broadcast('refresh', { done: true });
   log.info({ total: podcasts.length }, 'Full refresh complete');
+  } finally {
+    isRefreshing = false;
+  }
 }
 
 

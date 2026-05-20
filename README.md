@@ -26,7 +26,6 @@ A shared podcast player for the browser. Multiple people can open the same URL a
 - **Next.js 16** (App Router) + React 19
 - **Tailwind CSS v4**
 - **SQLite** via **Prisma 7**
-- **Node.js** + **tsx** (worker process)
 - **Node.js 22**
 - **PM2** process management
 
@@ -45,7 +44,7 @@ npx prisma migrate dev
 yarn dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3030](http://localhost:3030).
 
 ### Production
 
@@ -56,7 +55,7 @@ yarn build
 pm2 start ecosystem.config.js
 ```
 
-The web server runs on port 3000. The worker process handles scheduled feed refreshes.
+The web server runs on port 3030. Feed refreshes are triggered automatically by the browser client on a schedule.
 
 ### Docker
 
@@ -84,20 +83,17 @@ Podhomme has no user accounts, but you can restrict access with a single shared 
 ```bash
 # .env
 APP_PASSWORD=your-password-here
-WORKER_SECRET=some-long-random-string
 ```
 
 When `APP_PASSWORD` is set, every page and API route requires a valid session cookie. The login page at `/login` is the only public path. If `APP_PASSWORD` is not set, the app is open to anyone who can reach it (useful for local development).
 
 Changing the password invalidates all existing sessions — users will be prompted to log in again.
 
-`WORKER_SECRET` allows the background refresh worker to call the app's API without a session cookie. It should be a long random string, separate from `APP_PASSWORD`. Both variables should be set together whenever auth is enabled.
-
 ## BeardedSpice / Airfoil Integration
 
 BeardedSpice is used here not for media key control, but as a bridge to get Now Playing metadata (episode title, podcast name, artwork) from the browser into Airfoil.
 
-1. Download `public/beardedspice.js` from the running app at `http://localhost:3000/beardedspice.js`
+1. Download `public/beardedspice.js` from the running app at `http://localhost:3030/beardedspice.js`
 2. In BeardedSpice preferences → Strategies → Add custom strategy
 3. Select the downloaded file
 4. BeardedSpice will read the current episode metadata from the page and expose it to Airfoil as Now Playing info

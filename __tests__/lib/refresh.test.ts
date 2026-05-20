@@ -399,4 +399,17 @@ describe('refreshAll', () => {
     expect(onProgress).toHaveBeenNthCalledWith(1, expect.any(String), 1, 2);
     expect(onProgress).toHaveBeenNthCalledWith(2, expect.any(String), 2, 2);
   });
+
+  it('does not run concurrently when called while already refreshing', async () => {
+    await db.podcast.create({ data: { title: 'Podcast A', feedUrl: 'https://feeds.example.com/a.rss' } });
+    mockParseFeed.mockResolvedValue(makeFeed([]));
+
+    // Both calls start in the same tick; p1 sets isRefreshing=true synchronously
+    // before any await, so p2 sees it and returns immediately
+    const p1 = refreshAll();
+    const p2 = refreshAll();
+    await Promise.all([p1, p2]);
+
+    expect(mockParseFeed).toHaveBeenCalledTimes(1);
+  });
 });

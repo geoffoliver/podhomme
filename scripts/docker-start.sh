@@ -11,8 +11,5 @@ mkdir -p /workspace/data
 echo "[DOCKER START] ==> Running database migrations..."
 DATABASE_URL="${DATABASE_URL:-file:/workspace/data/podhomme.db}" node_modules/.bin/prisma migrate deploy
 
-echo "[DOCKER START] ==> Starting background worker..."
-node_modules/.bin/tsx worker/index.ts &
-
 echo "[DOCKER START] ==> Starting web server..."
 exec node_modules/.bin/next start

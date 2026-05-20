@@ -6,7 +6,6 @@
     "dev": "PORT=3030 next dev",
     "build": "next build",
     "start": "PORT=3030 next start",
-    "worker": "tsx worker/index.ts",
     "lint": "eslint",
     "test": "jest",
     "test:watch": "jest --watch",
