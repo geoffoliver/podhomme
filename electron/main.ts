@@ -1,7 +1,9 @@
-import { app, BrowserWindow, shell } from 'electron';
+import { app, BrowserWindow, shell, Menu } from 'electron';
 import { spawn, ChildProcess } from 'child_process';
 import path from 'path';
 import http from 'http';
+
+app.name = 'Podhomme';
 
 const PORT = 3030;
 const SERVER_URL = `http://localhost:${PORT}`;
@@ -92,6 +94,40 @@ function startServer() {
   });
 }
 
+function setupMenu() {
+  const template: Electron.MenuItemConstructorOptions[] = [
+    {
+      label: app.name,
+      submenu: [
+        { role: 'about' },
+        { type: 'separator' },
+        {
+          label: 'Preferences…',
+          accelerator: 'CmdOrCtrl+,',
+          click: () => {
+            mainWindow?.webContents.executeJavaScript(
+              'window.dispatchEvent(new CustomEvent("electron:open-settings"))',
+            );
+          },
+        },
+        { type: 'separator' },
+        { role: 'services' },
+        { type: 'separator' },
+        { role: 'hide' },
+        { role: 'hideOthers' },
+        { role: 'unhide' },
+        { type: 'separator' },
+        { role: 'quit' },
+      ],
+    },
+    { role: 'editMenu' },
+    { role: 'viewMenu' },
+    { role: 'windowMenu' },
+  ];
+
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+}
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1400,
@@ -119,6 +155,8 @@ function createWindow() {
 }
 
 app.whenReady().then(async () => {
+  setupMenu();
+
   if (isDev) {
     // In dev, assume `next dev` or `next start` is already running
     createWindow();

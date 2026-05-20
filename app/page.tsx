@@ -5,10 +5,16 @@ import { SplitPane } from '@/components/SplitPane';
 import { TopBar } from '@/components/TopBar';
 import { VideoPanel } from '@/components/VideoPanel';
 import { ChatDrawer } from '@/components/Chat';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Home() {
   const [settingsOpen, setSettingsOpen] = useState(false);
+
+  useEffect(() => {
+    const handler = () => setSettingsOpen(true);
+    window.addEventListener('electron:open-settings', handler);
+    return () => window.removeEventListener('electron:open-settings', handler);
+  }, []);
   const [chatOpen, setChatOpen] = useState(false);
   const [hasUnreadChat, setHasUnreadChat] = useState(false);
 
