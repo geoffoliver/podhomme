@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-05-20
+
 ### Added
 - **BeardedSpice strategy served dynamically** — `/api/beardedspice` now returns the strategy JS with `WEB_URL` from the environment substituted in; the predicate matches on the tab URL instead of the page title so it keeps working while tracks are playing. Download from `/api/beardedspice` and install as a custom strategy in BeardedSpice
 - **Video podcast support** — episodes with `video/*` enclosure MIME types play in a collapsible video panel below the top bar (desktop) or in the Now Playing overlay (mobile); both surfaces have a fullscreen button; all existing transport controls work the same way
