@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-05-20
+
+### Fixed
+- GitHub releases are now published automatically instead of left as drafts
+
 ## [0.1.1] - 2026-05-20
 
 ### Fixed
