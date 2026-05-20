@@ -4,7 +4,7 @@ jest.mock('@/lib/feed');
 jest.mock('fs/promises', () => ({ rm: jest.fn() }));
 
 import { db } from '@/lib/db';
-import { refreshPodcast, refreshAll } from '@/lib/refresh';
+import { refreshPodcast, refreshAll, startRefresh, __resetRefreshState } from '@/lib/refresh';
 import { parseFeed } from '@/lib/feed';
 import { broadcast } from '@/lib/sse';
 import { downloadEpisode } from '@/lib/download';
@@ -411,5 +411,69 @@ describe('refreshAll', () => {
     await Promise.all([p1, p2]);
 
     expect(mockParseFeed).toHaveBeenCalledTimes(1);
+  });
+});
+
+// ─── startRefresh ─────────────────────────────────────────────────────────────
+
+describe('startRefresh', () => {
+  beforeEach(() => {
+    mockParseFeed.mockReset();
+    mockBroadcast.mockClear();
+    __resetRefreshState();
+  });
+
+  it('returns { started: true } and fires a refresh on first call', async () => {
+    await db.podcast.create({ data: { title: 'P', feedUrl: 'https://feeds.example.com/p.rss' } });
+    mockParseFeed.mockResolvedValue(makeFeed([]));
+
+    const result = await startRefresh();
+    expect(result).toEqual({ started: true });
+
+    // Let the background refresh complete
+    await new Promise(resolve => setTimeout(resolve, 50));
+    expect(mockParseFeed).toHaveBeenCalledTimes(1);
+  });
+
+  it('returns already_running when a refresh is in progress', async () => {
+    await db.podcast.create({ data: { title: 'P', feedUrl: 'https://feeds.example.com/p.rss' } });
+    let resolveRefresh!: () => void;
+    mockParseFeed.mockImplementation(
+      () => new Promise<ReturnType<typeof makeFeed>>(resolve => { resolveRefresh = () => resolve(makeFeed([])); }),
+    );
+
+    const first = startRefresh();
+    // Give the background refresh time to start and set isRefreshing
+    await new Promise(resolve => setImmediate(resolve));
+
+    const second = await startRefresh();
+    expect(second).toEqual({ skipped: true, reason: 'already_running' });
+
+    resolveRefresh();
+    await first;
+  });
+
+  it('returns too_soon when called within the refresh frequency window', async () => {
+    mockParseFeed.mockResolvedValue(makeFeed([]));
+
+    // First call succeeds and records lastRefreshedAt
+    await startRefresh();
+    await new Promise(resolve => setTimeout(resolve, 20));
+
+    // Second call immediately after — within any reasonable frequency window
+    const result = await startRefresh();
+    expect(result).toMatchObject({ skipped: true, reason: 'too_soon' });
+    expect((result as { nextRefreshIn: number }).nextRefreshIn).toBeGreaterThan(0);
+  });
+
+  it('force=true bypasses the too_soon guard', async () => {
+    await db.podcast.create({ data: { title: 'P', feedUrl: 'https://feeds.example.com/p.rss' } });
+    mockParseFeed.mockResolvedValue(makeFeed([]));
+
+    await startRefresh();
+    await new Promise(resolve => setTimeout(resolve, 20));
+
+    const result = await startRefresh(true);
+    expect(result).toEqual({ started: true });
   });
 });

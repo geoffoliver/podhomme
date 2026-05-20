@@ -53,7 +53,7 @@ export function LeftPane() {
 
   async function handleRefreshAll() {
     setRefreshing(true);
-    await fetch('/api/podcasts/refresh', { method: 'POST' });
+    await fetch('/api/podcasts/refresh?force=true', { method: 'POST' });
     setRefreshing(false);
   }
 

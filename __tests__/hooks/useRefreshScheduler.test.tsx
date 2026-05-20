@@ -38,6 +38,24 @@ describe('useRefreshScheduler', () => {
     expect(mockFetch).toHaveBeenCalledWith('/api/podcasts/refresh', { method: 'POST' });
   });
 
+  it('schedules next refresh using nextRefreshIn when server says too_soon', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve({ skipped: true, reason: 'too_soon', nextRefreshIn: 30 * 60 * 1000 }),
+    });
+
+    renderHook(() => useRefreshScheduler());
+    await act(async () => {});
+
+    mockFetch.mockClear();
+
+    // Should fire after nextRefreshIn (30 min), not after a full settings-based interval
+    await act(async () => { jest.advanceTimersByTime(30 * 60 * 1000); });
+    await act(async () => {});
+
+    expect(mockFetch).toHaveBeenCalledWith('/api/podcasts/refresh', { method: 'POST' });
+  });
+
   it('schedules the next refresh based on settings after SSE done:true', async () => {
     renderHook(() => useRefreshScheduler());
     await act(async () => {});

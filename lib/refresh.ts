@@ -8,6 +8,33 @@ import { rm } from 'fs/promises';
 const log = logger.child({ module: 'refresh' });
 
 let isRefreshing = false;
+let lastRefreshedAt = 0;
+
+export type RefreshResult =
+  | { started: true }
+  | { skipped: true; reason: 'already_running' }
+  | { skipped: true; reason: 'too_soon'; nextRefreshIn: number };
+
+export function __resetRefreshState() {
+  isRefreshing = false;
+  lastRefreshedAt = 0;
+}
+
+export async function startRefresh(force = false): Promise<RefreshResult> {
+  if (isRefreshing) return { skipped: true, reason: 'already_running' };
+
+  if (!force && lastRefreshedAt > 0) {
+    const settings = await db.settings.findUniqueOrThrow({ where: { id: 1 } });
+    const intervalMs = settings.refreshFrequency * 60 * 1000;
+    const elapsed = Date.now() - lastRefreshedAt;
+    if (elapsed < intervalMs) {
+      return { skipped: true, reason: 'too_soon', nextRefreshIn: intervalMs - elapsed };
+    }
+  }
+
+  refreshAll().catch(err => log.error({ err }, 'Refresh failed'));
+  return { started: true };
+}
 
 export async function refreshPodcast(podcastId: number) {
   const podcast = await db.podcast.findUniqueOrThrow({ where: { id: podcastId } });
@@ -148,6 +175,7 @@ export async function refreshAll(onProgress?: (title: string, current: number, t
   broadcast('refresh', { done: true });
   log.info({ total: podcasts.length }, 'Full refresh complete');
   } finally {
+    lastRefreshedAt = Date.now();
     isRefreshing = false;
   }
 }

@@ -28,7 +28,12 @@ export function useRefreshScheduler() {
   async function triggerRefresh() {
     clearTimer();
     try {
-      await fetch('/api/podcasts/refresh', { method: 'POST' });
+      const res = await fetch('/api/podcasts/refresh', { method: 'POST' });
+      const data = await res.json();
+      if (data.skipped && data.reason === 'too_soon' && data.nextRefreshIn) {
+        timerRef.current = setTimeout(triggerRefresh, data.nextRefreshIn);
+      }
+      // started or already_running: wait for SSE done:true to reschedule
     } catch {
       scheduleNext();
     }
