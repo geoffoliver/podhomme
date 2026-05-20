@@ -120,6 +120,7 @@ function startServer(): Promise<void> {
       env: {
         ...process.env,
         DATABASE_URL: `file:${dbPath}`,
+        PODHOMME_DATA_DIR: dbDir,
         PORT: String(PORT),
         NODE_ENV: 'production',
       },

@@ -8,6 +8,11 @@ const log = logger.child({ module: 'download' });
 
 const inProgress = new Set<number>();
 
+function resolveDownloadLocation(location: string): string {
+  if (path.isAbsolute(location)) return location;
+  return path.join(process.env.PODHOMME_DATA_DIR ?? process.cwd(), location);
+}
+
 export async function downloadEpisode(
   episodeId: number,
   audioUrl: string,
@@ -16,9 +21,11 @@ export async function downloadEpisode(
   if (inProgress.has(episodeId)) return;
   inProgress.add(episodeId);
 
+  const resolvedLocation = resolveDownloadLocation(downloadLocation);
+
   log.info({ episodeId }, 'Downloading episode audio');
   try {
-    await mkdir(downloadLocation, { recursive: true });
+    await mkdir(resolvedLocation, { recursive: true });
 
     const res = await fetch(audioUrl, {
       headers: { 'User-Agent': USER_AGENT },
@@ -36,7 +43,7 @@ export async function downloadEpisode(
     // turbopackIgnore tells the Turbopack file tracer not to follow this
     // dynamic path, which would otherwise cause it to trace the whole project.
     const filepath = path.join(
-      /* turbopackIgnore: true */ downloadLocation,
+      /* turbopackIgnore: true */ resolvedLocation,
       filename,
     );
 
