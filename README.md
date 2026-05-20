@@ -1,8 +1,9 @@
 # Podhomme
 
-A shared podcast player for the browser. Multiple people can open the same URL and control playback together in real time — play, pause, seek, and queue management all sync instantly across every connected tab.
+A shared podcast player for the browser — and now the desktop. Multiple people can open the same URL and control playback together in real time — play, pause, seek, and queue management all sync instantly across every connected tab.
 
 [![Tests](https://github.com/geoffoliver/podhomme/actions/workflows/test.yml/badge.svg)](https://github.com/geoffoliver/podhomme/actions/workflows/test.yml)
+[![Release](https://github.com/geoffoliver/podhomme/actions/workflows/release.yml/badge.svg)](https://github.com/geoffoliver/podhomme/releases/latest)
 
 ## Features
 
@@ -27,9 +28,19 @@ A shared podcast player for the browser. Multiple people can open the same URL a
 - **Tailwind CSS v4**
 - **SQLite** via **Prisma 7**
 - **Node.js 22**
-- **PM2** process management
+- **Electron 41** (desktop app)
+- **PM2** process management (self-hosted)
 
-## Setup
+## Desktop App
+
+Pre-built installers for macOS, Windows, and Linux are available on the [Releases](https://github.com/geoffoliver/podhomme/releases/latest) page. The app bundles its own server — no separate install needed. It checks for updates automatically and prompts you to restart when one is ready.
+
+> **macOS note:** because the app isn't notarized yet, Gatekeeper will block it on first launch. Run this once after installing:
+> ```bash
+> xattr -cr /Applications/Podhomme.app
+> ```
+
+## Setup (self-hosted / web)
 
 ### Prerequisites
 
