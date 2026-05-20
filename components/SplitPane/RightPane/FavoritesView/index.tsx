@@ -1,8 +1,6 @@
 'use client';
 
-import {
-  useCallback, useEffect, useState,
-} from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Star } from 'lucide-react';
 import { Virtuoso } from 'react-virtuoso';
 
@@ -19,23 +17,27 @@ export function FavoritesView() {
 
   function fetchFavorites() {
     fetch('/api/episodes?favorited=true')
-      .then(r => r.json())
+      .then((r) => r.json())
       .then((data: Episode[]) =>
-        setEpisodes(data.sort((a, b) => {
-          const ta = a.favoritedAt ? new Date(a.favoritedAt).getTime() : 0;
-          const tb = b.favoritedAt ? new Date(b.favoritedAt).getTime() : 0;
-          return tb - ta;
-        })),
+        setEpisodes(
+          data.sort((a, b) => {
+            const ta = a.favoritedAt ? new Date(a.favoritedAt).getTime() : 0;
+            const tb = b.favoritedAt ? new Date(b.favoritedAt).getTime() : 0;
+            return tb - ta;
+          }),
+        ),
       );
   }
 
-  useEffect(() => { fetchFavorites(); }, []);
+  useEffect(() => {
+    fetchFavorites();
+  }, []);
 
   useSse((event, data) => {
     if (event === 'episode') {
       const ep = data as Episode;
-      setEpisodes(prev => {
-        const filtered = prev.filter(e => e.id !== ep.id);
+      setEpisodes((prev) => {
+        const filtered = prev.filter((e) => e.id !== ep.id);
         if (!ep.favorited) return filtered;
         return [ep, ...filtered].sort((a, b) => {
           const ta = a.favoritedAt ? new Date(a.favoritedAt).getTime() : 0;
@@ -46,14 +48,23 @@ export function FavoritesView() {
     }
   });
 
-  const renderEpisode = useCallback((_: number, ep: Episode) => (
-    <EpisodeRow episode={ep} context="favorites" onDetail={setDetailEpisode} />
-  ), [setDetailEpisode]);
+  const renderEpisode = useCallback(
+    (_: number, ep: Episode) => (
+      <EpisodeRow
+        episode={ep}
+        context="favorites"
+        onDetail={setDetailEpisode}
+      />
+    ),
+    [setDetailEpisode],
+  );
 
   return (
     <div className={styles.view}>
       <div className={styles.toolbar}>
-        <span className={styles.toolbarTitle}>Favorites ({episodes.length})</span>
+        <span className={styles.toolbarTitle}>
+          Favorites ({episodes.length})
+        </span>
       </div>
 
       {episodes.length === 0 ? (
@@ -69,7 +80,10 @@ export function FavoritesView() {
         />
       )}
 
-      <EpisodeDetail episode={detailEpisode} onClose={() => setDetailEpisode(null)} />
+      <EpisodeDetail
+        episode={detailEpisode}
+        onClose={() => setDetailEpisode(null)}
+      />
     </div>
   );
 }

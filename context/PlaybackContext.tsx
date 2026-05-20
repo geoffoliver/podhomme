@@ -12,7 +12,7 @@ import {
 import type { PlaybackStateData } from '@/types';
 import { useSse } from './SseContext';
 
-type Action = { type: 'SET'; payload: PlaybackStateData }
+type Action = { type: 'SET'; payload: PlaybackStateData };
 
 const defaultState: PlaybackStateData = {
   id: 1,
@@ -31,20 +31,24 @@ function reducer(state: PlaybackStateData, action: Action): PlaybackStateData {
 }
 
 type Ctx = {
-  state: PlaybackStateData
-  isVideo: boolean
-  audioDetached: boolean
-  joinAudio: () => void
-  registerVideoElement: (el: HTMLVideoElement | null) => void
-  currentPosition: () => number
-  play: () => void
-  pause: () => void
-  seek: (pos: number) => void
-  next: () => void
-  prev: () => void
-  loadEpisode: (id: number, context: PlaybackStateData['context'], podcastId?: number) => void
-  toggleFavorite: () => void
-}
+  state: PlaybackStateData;
+  isVideo: boolean;
+  audioDetached: boolean;
+  joinAudio: () => void;
+  registerVideoElement: (el: HTMLVideoElement | null) => void;
+  currentPosition: () => number;
+  play: () => void;
+  pause: () => void;
+  seek: (pos: number) => void;
+  next: () => void;
+  prev: () => void;
+  loadEpisode: (
+    id: number,
+    context: PlaybackStateData['context'],
+    podcastId?: number,
+  ) => void;
+  toggleFavorite: () => void;
+};
 
 export const PlaybackContext = createContext<Ctx | null>(null);
 
@@ -59,7 +63,9 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
 
   // Derived — kept in a ref so callbacks can read it without stale closures
   const isVideo = state.episode?.mediaType === 'video';
-  useEffect(() => { isVideoRef.current = isVideo; });
+  useEffect(() => {
+    isVideoRef.current = isVideo;
+  });
 
   const getMediaEl = (): HTMLMediaElement | null =>
     isVideoRef.current ? videoElementRef.current : audioRef.current;
@@ -71,7 +77,7 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
   // Load initial state
   useEffect(() => {
     fetch('/api/playback')
-      .then(r => r.json())
+      .then((r) => r.json())
       .then((data: PlaybackStateData) => {
         dispatch({ type: 'SET', payload: data });
         prevEpisodeIdRef.current = data.episodeId;
@@ -92,7 +98,9 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
 
   const applyStateToMedia = useCallback((data: PlaybackStateData) => {
     const isVid = data.episode?.mediaType === 'video';
-    const media: HTMLMediaElement | null = isVid ? videoElementRef.current : audioRef.current;
+    const media: HTMLMediaElement | null = isVid
+      ? videoElementRef.current
+      : audioRef.current;
     if (!media) return;
 
     if (!data.isPlaying) setAudioDetached(false);
@@ -101,8 +109,13 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
       prevEpisodeIdRef.current = data.episodeId;
       if (data.episode) {
         // Clear the other element when switching media type
-        const other: HTMLMediaElement | null = isVid ? audioRef.current : videoElementRef.current;
-        if (other) { other.pause(); other.src = ''; }
+        const other: HTMLMediaElement | null = isVid
+          ? audioRef.current
+          : videoElementRef.current;
+        if (other) {
+          other.pause();
+          other.src = '';
+        }
         media.src = `/api/episodes/${data.episodeId}/audio`;
         media.currentTime = data.position;
         if (data.isPlaying) media.play().catch(() => {});
@@ -118,7 +131,8 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
       }
       // Correct significant drift (seek from another client)
       const expected = data.isPlaying
-        ? data.position + (Date.now() - new Date(data.updatedAt).getTime()) / 1000
+        ? data.position +
+          (Date.now() - new Date(data.updatedAt).getTime()) / 1000
         : data.position;
       if (Math.abs(media.currentTime - expected) > 5) {
         media.currentTime = Math.max(0, expected);
@@ -148,20 +162,23 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
         }
       }, 5000);
     }
-    return () => { if (syncRef.current) clearInterval(syncRef.current); };
-  }, [state.isPlaying]);  
+    return () => {
+      if (syncRef.current) clearInterval(syncRef.current);
+    };
+  }, [state.isPlaying]);
 
-  const post = useCallback((body: object) =>
-    fetch('/api/playback', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    })
-      .then(r => r.json())
-      .then((data: PlaybackStateData) => {
-        dispatch({ type: 'SET', payload: data });
-        applyStateToMedia(data);
-      }),
+  const post = useCallback(
+    (body: object) =>
+      fetch('/api/playback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+        .then((r) => r.json())
+        .then((data: PlaybackStateData) => {
+          dispatch({ type: 'SET', payload: data });
+          applyStateToMedia(data);
+        }),
     [applyStateToMedia],
   );
 
@@ -169,19 +186,25 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
   const pause = useCallback(() => {
     const pos = getMediaEl()?.currentTime ?? state.position;
     return post({ action: 'pause', position: pos });
-  }, [post, state.position]);  
-  const seek = useCallback((pos: number) => {
-    const media = getMediaEl();
-    if (media) media.currentTime = pos;
-    return post({ action: 'seek', position: pos });
-  }, [post]);  
+  }, [post, state.position]);
+  const seek = useCallback(
+    (pos: number) => {
+      const media = getMediaEl();
+      if (media) media.currentTime = pos;
+      return post({ action: 'seek', position: pos });
+    },
+    [post],
+  );
   const next = useCallback(() => post({ action: 'next' }), [post]);
   const prev = useCallback(() => post({ action: 'prev' }), [post]);
   const loadEpisode = useCallback(
     (id: number, context: PlaybackStateData['context'], podcastId?: number) =>
       post({
- action: 'load', episodeId: id, context, contextPodcastId: podcastId ?? null, 
-}),
+        action: 'load',
+        episodeId: id,
+        context,
+        contextPodcastId: podcastId ?? null,
+      }),
     [post],
   );
   const toggleFavorite = useCallback(async () => {
@@ -199,11 +222,13 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
     if (!media) return;
     media.muted = false;
     setAudioDetached(false);
-  }, []);  
+  }, []);
 
   const currentPosition = useCallback(() => {
     if (!state.isPlaying) return state.position;
-    return state.position + (Date.now() - new Date(state.updatedAt).getTime()) / 1000;
+    return (
+      state.position + (Date.now() - new Date(state.updatedAt).getTime()) / 1000
+    );
   }, [state]);
 
   // Media Session API — feeds macOS Now Playing, iOS Control Center, lock screen
@@ -216,9 +241,12 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const rawArt = state.episode.imageUrl ?? state.episode.podcast.imageUrl ?? '';
+    const rawArt =
+      state.episode.imageUrl ?? state.episode.podcast.imageUrl ?? '';
     const artSrc = rawArt
-      ? (rawArt.startsWith('/') ? `${window.location.origin}${rawArt}` : rawArt)
+      ? rawArt.startsWith('/')
+        ? `${window.location.origin}${rawArt}`
+        : rawArt
       : null;
 
     navigator.mediaSession.metadata = new MediaMetadata({
@@ -228,22 +256,40 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
       artwork: artSrc ? [{ src: artSrc }] : [],
     });
 
-    navigator.mediaSession.playbackState = state.isPlaying ? 'playing' : 'paused';
+    navigator.mediaSession.playbackState = state.isPlaying
+      ? 'playing'
+      : 'paused';
 
     navigator.mediaSession.setActionHandler('play', () => play());
     navigator.mediaSession.setActionHandler('pause', () => pause());
     navigator.mediaSession.setActionHandler('previoustrack', () => prev());
     navigator.mediaSession.setActionHandler('nexttrack', () => next());
     navigator.mediaSession.setActionHandler('seekbackward', (d) =>
-      seek(Math.max(0, (getMediaEl()?.currentTime ?? state.position) - (d.seekOffset ?? 15))),
+      seek(
+        Math.max(
+          0,
+          (getMediaEl()?.currentTime ?? state.position) - (d.seekOffset ?? 15),
+        ),
+      ),
     );
     navigator.mediaSession.setActionHandler('seekforward', (d) =>
-      seek((getMediaEl()?.currentTime ?? state.position) + (d.seekOffset ?? 30)),
+      seek(
+        (getMediaEl()?.currentTime ?? state.position) + (d.seekOffset ?? 30),
+      ),
     );
     navigator.mediaSession.setActionHandler('seekto', (d) => {
       if (d.seekTime != null) seek(d.seekTime);
     });
-  }, [state.episode, state.isPlaying, play, pause, prev, next, seek, state.position]);
+  }, [
+    state.episode,
+    state.isPlaying,
+    play,
+    pause,
+    prev,
+    next,
+    seek,
+    state.position,
+  ]);
 
   // Dynamic page title
   useEffect(() => {
@@ -256,16 +302,18 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
 
   // Expose window.podhomme for BeardedSpice
   useEffect(() => {
-     
-    ;(window as any).podhomme = {
+    (window as any).podhomme = {
       isPlaying: () => state.isPlaying,
       toggle: () => (state.isPlaying ? pause() : play()),
       pause,
-      skipBack: () => seek(Math.max(0, (getMediaEl()?.currentTime ?? state.position) - 15)),
-      skipForward: () => seek((getMediaEl()?.currentTime ?? state.position) + 30),
+      skipBack: () =>
+        seek(Math.max(0, (getMediaEl()?.currentTime ?? state.position) - 15)),
+      skipForward: () =>
+        seek((getMediaEl()?.currentTime ?? state.position) + 30),
       favorite: toggleFavorite,
       trackInfo: () => {
-        const rawImage = state.episode?.imageUrl ?? state.episode?.podcast.imageUrl ?? '';
+        const rawImage =
+          state.episode?.imageUrl ?? state.episode?.podcast.imageUrl ?? '';
         const image = rawImage.startsWith('/')
           ? `${window.location.origin}${rawImage}`
           : rawImage;
@@ -283,9 +331,23 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
   const onEnded = useCallback(() => post({ action: 'next' }), [post]);
 
   return (
-    <PlaybackContext.Provider value={{
- state, isVideo, audioDetached, joinAudio, registerVideoElement, currentPosition, play, pause, seek, next, prev, loadEpisode, toggleFavorite, 
-}}>
+    <PlaybackContext.Provider
+      value={{
+        state,
+        isVideo,
+        audioDetached,
+        joinAudio,
+        registerVideoElement,
+        currentPosition,
+        play,
+        pause,
+        seek,
+        next,
+        prev,
+        loadEpisode,
+        toggleFavorite,
+      }}
+    >
       {/* Hidden audio element — always in DOM */}
       <audio ref={audioRef} onEnded={onEnded} />
       {children}

@@ -14,9 +14,7 @@ import {
   SkipForward,
   Star,
 } from 'lucide-react';
-import {
-  useCallback, useEffect, useRef, useState,
-} from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 
 import { usePlayback } from '@/context/PlaybackContext';
@@ -28,19 +26,31 @@ function formatTime(seconds: number): string {
   const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);
   const sec = s % 60;
-  if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+  if (h > 0)
+    return `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
   return `${m}:${String(sec).padStart(2, '0')}`;
 }
 
 type Props = {
-  open: boolean
-  onClose: () => void
-}
+  open: boolean;
+  onClose: () => void;
+};
 
 export function NowPlaying({ open, onClose }: Props) {
   const {
- state, isVideo, registerVideoElement, audioDetached, joinAudio, play, pause, seek, next, prev, currentPosition, toggleFavorite,
-} = usePlayback();
+    state,
+    isVideo,
+    registerVideoElement,
+    audioDetached,
+    joinAudio,
+    play,
+    pause,
+    seek,
+    next,
+    prev,
+    currentPosition,
+    toggleFavorite,
+  } = usePlayback();
   const { episode } = state;
   const [displayPos, setDisplayPos] = useState(0);
   const [seeking, setSeeking] = useState(false);
@@ -48,10 +58,13 @@ export function NowPlaying({ open, onClose }: Props) {
   const rafRef = useRef<number | null>(null);
   const videoElRef = useRef<HTMLVideoElement | null>(null);
 
-  const videoRefCallback = useCallback((el: HTMLVideoElement | null) => {
-    videoElRef.current = el;
-    registerVideoElement(el);
-  }, [registerVideoElement]);
+  const videoRefCallback = useCallback(
+    (el: HTMLVideoElement | null) => {
+      videoElRef.current = el;
+      registerVideoElement(el);
+    },
+    [registerVideoElement],
+  );
 
   const handleFullscreen = () => videoElRef.current?.requestFullscreen();
 
@@ -61,7 +74,9 @@ export function NowPlaying({ open, onClose }: Props) {
       rafRef.current = requestAnimationFrame(tick);
     }
     rafRef.current = requestAnimationFrame(tick);
-    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
   }, [currentPosition, seeking]);
 
   // Close overlay if episode disappears while open
@@ -75,14 +90,24 @@ export function NowPlaying({ open, onClose }: Props) {
 
   return (
     // Always mounted — visibility:hidden keeps the video element alive when closed
-    <div className={`${styles.overlay} ${!open ? styles.overlayClosed : ''} ${isVideo ? styles.overlayVideo : ''}`}>
+    <div
+      className={`${styles.overlay} ${!open ? styles.overlayClosed : ''} ${isVideo ? styles.overlayVideo : ''}`}
+    >
       <div className={styles.topBar}>
-        <button className={styles.closeBtn} onClick={onClose} aria-label="Close now playing">
+        <button
+          className={styles.closeBtn}
+          onClick={onClose}
+          aria-label="Close now playing"
+        >
           <ChevronDown size={26} />
         </button>
         <span className={styles.heading}>Now Playing</span>
         {isVideo ? (
-          <button className={styles.fullscreenBtn} onClick={handleFullscreen} aria-label="Fullscreen">
+          <button
+            className={styles.fullscreenBtn}
+            onClick={handleFullscreen}
+            aria-label="Fullscreen"
+          >
             <Maximize2 size={20} />
           </button>
         ) : (
@@ -91,7 +116,9 @@ export function NowPlaying({ open, onClose }: Props) {
       </div>
 
       {/* Video element — always mounted so PlaybackContext can control it */}
-      <div className={`${styles.videoWrap} ${!isVideo ? styles.videoWrapHidden : ''}`}>
+      <div
+        className={`${styles.videoWrap} ${!isVideo ? styles.videoWrapHidden : ''}`}
+      >
         <video ref={videoRefCallback} className={styles.video} />
       </div>
 
@@ -107,14 +134,18 @@ export function NowPlaying({ open, onClose }: Props) {
               className={`${styles.artwork} ${state.isPlaying ? styles.artworkPlaying : ''}`}
             />
           ) : (
-            <div className={styles.artworkPlaceholder}><Podcast size={80} /></div>
+            <div className={styles.artworkPlaceholder}>
+              <Podcast size={80} />
+            </div>
           )}
         </div>
       )}
 
       <div className={styles.meta}>
         <span className={styles.episodeTitle}>{episode?.title ?? ''}</span>
-        <span className={styles.podcastTitle}>{episode?.podcast?.title ?? ''}</span>
+        <span className={styles.podcastTitle}>
+          {episode?.podcast?.title ?? ''}
+        </span>
       </div>
 
       <div className={styles.seekArea}>
@@ -125,9 +156,18 @@ export function NowPlaying({ open, onClose }: Props) {
           max={Math.max(1, duration)}
           step={1}
           value={sliderValue}
-          onChange={e => { setSeeking(true); setSeekValue(Number(e.target.value)); }}
-          onMouseUp={e => { seek(Number((e.target as HTMLInputElement).value)); setSeeking(false); }}
-          onTouchEnd={e => { seek(Number((e.currentTarget as HTMLInputElement).value)); setSeeking(false); }}
+          onChange={(e) => {
+            setSeeking(true);
+            setSeekValue(Number(e.target.value));
+          }}
+          onMouseUp={(e) => {
+            seek(Number((e.target as HTMLInputElement).value));
+            setSeeking(false);
+          }}
+          onTouchEnd={(e) => {
+            seek(Number((e.currentTarget as HTMLInputElement).value));
+            setSeeking(false);
+          }}
           aria-label="Playback position"
         />
         <div className={styles.times}>
@@ -137,19 +177,39 @@ export function NowPlaying({ open, onClose }: Props) {
       </div>
 
       <div className={styles.transport}>
-        <button className={styles.transportBtn} onClick={prev} aria-label="Previous episode">
+        <button
+          className={styles.transportBtn}
+          onClick={prev}
+          aria-label="Previous episode"
+        >
           <ChevronFirst size={26} />
         </button>
-        <button className={styles.transportBtn} onClick={() => seek(Math.max(0, displayPos - 15))} aria-label="Skip back 15 seconds">
+        <button
+          className={styles.transportBtn}
+          onClick={() => seek(Math.max(0, displayPos - 15))}
+          aria-label="Skip back 15 seconds"
+        >
           <SkipBack size={26} />
         </button>
-        <button className={styles.playBtn} onClick={state.isPlaying ? pause : play} aria-label={state.isPlaying ? 'Pause' : 'Play'}>
+        <button
+          className={styles.playBtn}
+          onClick={state.isPlaying ? pause : play}
+          aria-label={state.isPlaying ? 'Pause' : 'Play'}
+        >
           {state.isPlaying ? <Pause size={30} /> : <Play size={30} />}
         </button>
-        <button className={styles.transportBtn} onClick={() => seek(displayPos + 30)} aria-label="Skip forward 30 seconds">
+        <button
+          className={styles.transportBtn}
+          onClick={() => seek(displayPos + 30)}
+          aria-label="Skip forward 30 seconds"
+        >
           <SkipForward size={26} />
         </button>
-        <button className={styles.transportBtn} onClick={next} aria-label="Next episode">
+        <button
+          className={styles.transportBtn}
+          onClick={next}
+          aria-label="Next episode"
+        >
           <ChevronLast size={26} />
         </button>
       </div>

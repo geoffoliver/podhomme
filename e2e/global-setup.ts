@@ -14,15 +14,23 @@ export default async function globalSetup() {
   });
 
   // Start a mock RSS + audio server so the add-podcast flow can fetch a real feed
-  const feedXml = readFileSync(path.resolve(__dirname, 'fixtures/feed.xml'), 'utf-8');
+  const feedXml = readFileSync(
+    path.resolve(__dirname, 'fixtures/feed.xml'),
+    'utf-8',
+  );
 
   const server = createServer((req, res) => {
     if (req.url === '/feed.rss') {
-      res.writeHead(200, { 'Content-Type': 'application/rss+xml; charset=utf-8' });
+      res.writeHead(200, {
+        'Content-Type': 'application/rss+xml; charset=utf-8',
+      });
       res.end(feedXml);
     } else {
       // Serve an empty valid response for any audio URL
-      res.writeHead(200, { 'Content-Type': 'audio/mpeg', 'Content-Length': '0' });
+      res.writeHead(200, {
+        'Content-Type': 'audio/mpeg',
+        'Content-Length': '0',
+      });
       res.end();
     }
   });
@@ -34,6 +42,6 @@ export default async function globalSetup() {
 
   // Return teardown function — Playwright calls this after all tests finish
   return async () => {
-    await new Promise<void>(resolve => server.close(() => resolve()));
+    await new Promise<void>((resolve) => server.close(() => resolve()));
   };
 }

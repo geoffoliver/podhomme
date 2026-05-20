@@ -14,12 +14,14 @@ export async function GET(request: Request) {
     },
     orderBy: { pubDate: 'desc' },
     include: {
- podcast: {
- select: {
- title: true, imageUrl: true, author: true, 
-}, 
-}, 
-},
+      podcast: {
+        select: {
+          title: true,
+          imageUrl: true,
+          author: true,
+        },
+      },
+    },
   });
   return Response.json(episodes);
 }

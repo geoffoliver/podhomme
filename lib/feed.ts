@@ -3,25 +3,25 @@ import { XMLParser } from 'fast-xml-parser';
 import { USER_AGENT } from '@/lib/user-agent';
 
 type FeedEpisode = {
-  guid: string
-  title: string
-  description: string | null
-  audioUrl: string
-  mediaType: string
-  imageUrl: string | null
-  duration: number | null
-  pubDate: Date
-}
+  guid: string;
+  title: string;
+  description: string | null;
+  audioUrl: string;
+  mediaType: string;
+  imageUrl: string | null;
+  duration: number | null;
+  pubDate: Date;
+};
 
 type FeedData = {
-  title: string
-  description: string | null
-  imageUrl: string | null
-  siteUrl: string | null
-  author: string | null
-  type: string
-  episodes: FeedEpisode[]
-}
+  title: string;
+  description: string | null;
+  imageUrl: string | null;
+  siteUrl: string | null;
+  author: string | null;
+  type: string;
+  episodes: FeedEpisode[];
+};
 
 const parser = new Parser({
   customFields: {
@@ -60,7 +60,9 @@ function parseDuration(raw: string | number | null | undefined): number | null {
   return Math.floor(Number(raw)) || null;
 }
 
-function extractEnclosureUrl(item: Parser.Item): { url: string; mediaType: string } | null {
+function extractEnclosureUrl(
+  item: Parser.Item,
+): { url: string; mediaType: string } | null {
   const enc = item.enclosure;
   if (!enc?.url) return null;
   const mediaType = enc.type?.startsWith('video/') ? 'video' : 'audio';
@@ -71,7 +73,8 @@ export async function parseFeed(url: string): Promise<FeedData> {
   const feed = await parser.parseURL(url);
 
   const f = feed as any;
-  const imageUrl = extractImage(f['itunes:image']) || extractImage(feed.image) || null;
+  const imageUrl =
+    extractImage(f['itunes:image']) || extractImage(feed.image) || null;
 
   const type =
     ((f['itunes:type'] as string) || 'episodic').toLowerCase() === 'serial'
@@ -89,7 +92,8 @@ export async function parseFeed(url: string): Promise<FeedData> {
       return {
         guid: item.guid || item.link || item.title || String(Date.now()),
         title: item.title || 'Untitled',
-        description: item.content || item.contentSnippet || it['itunes:summary'] || null,
+        description:
+          item.content || item.contentSnippet || it['itunes:summary'] || null,
         audioUrl: enclosure.url,
         mediaType: enclosure.mediaType,
         imageUrl: itemImage,
@@ -111,10 +115,10 @@ export async function parseFeed(url: string): Promise<FeedData> {
 }
 
 export type OpmlOutline = {
-  title: string
-  feedUrl: string
-  siteUrl?: string | null
-}
+  title: string;
+  feedUrl: string;
+  siteUrl?: string | null;
+};
 
 function xmlEscape(s: string): string {
   return s
@@ -127,7 +131,7 @@ function xmlEscape(s: string): string {
 export function buildOpml(podcasts: OpmlOutline[]): string {
   const date = new Date().toUTCString();
   const outlines = podcasts
-    .map(p => {
+    .map((p) => {
       const title = xmlEscape(p.title);
       const xmlUrl = xmlEscape(p.feedUrl);
       const htmlUrl = p.siteUrl ? ` htmlUrl="${xmlEscape(p.siteUrl)}"` : '';
@@ -149,7 +153,10 @@ export function buildOpml(podcasts: OpmlOutline[]): string {
 }
 
 export function parseOpml(xml: string): OpmlOutline[] {
-  const xmlParser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '@_' });
+  const xmlParser = new XMLParser({
+    ignoreAttributes: false,
+    attributeNamePrefix: '@_',
+  });
   const doc = xmlParser.parse(xml);
 
   const outlines: OpmlOutline[] = [];

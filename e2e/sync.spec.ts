@@ -17,47 +17,68 @@ test.describe('Real-time sync (SSE)', () => {
     db.createQueueItem(episode.id, 0);
   });
 
-  test('play in one tab is reflected in a second tab', async ({ page, context }) => {
+  test('play in one tab is reflected in a second tab', async ({
+    page,
+    context,
+  }) => {
     const page2 = await context.newPage();
 
     await page.goto('/');
     await page2.goto('/');
 
-    await page.getByRole('listbox', { name: 'Podcast library' })
+    await page
+      .getByRole('listbox', { name: 'Podcast library' })
       .getByRole('option', { name: /Sync Podcast/ })
       .click();
     await page.getByRole('button', { name: 'Play episode' }).click();
 
-    await expect(page.locator('[data-podhomme="episode-title"]'))
-      .not.toContainText('Nothing playing', { timeout: 5000 });
-    await expect(page2.locator('[data-podhomme="episode-title"]'))
-      .not.toContainText('Nothing playing', { timeout: 5000 });
+    await expect(
+      page.locator('[data-podhomme="episode-title"]'),
+    ).not.toContainText('Nothing playing', { timeout: 5000 });
+    await expect(
+      page2.locator('[data-podhomme="episode-title"]'),
+    ).not.toContainText('Nothing playing', { timeout: 5000 });
 
     await page2.close();
   });
 
-  test('pause in one tab updates the Play button in the other', async ({ page, context }) => {
+  test('pause in one tab updates the Play button in the other', async ({
+    page,
+    context,
+  }) => {
     const page2 = await context.newPage();
 
     await page.goto('/');
     await page2.goto('/');
 
-    await page.getByRole('listbox', { name: 'Podcast library' })
+    await page
+      .getByRole('listbox', { name: 'Podcast library' })
       .getByRole('option', { name: /Sync Podcast/ })
       .click();
     await page.getByRole('button', { name: 'Play episode' }).click();
-    await expect(page.getByRole('button', { name: 'Pause', exact: true })).toBeVisible({ timeout: 5000 });
-    await expect(page2.getByRole('button', { name: 'Pause', exact: true })).toBeVisible({ timeout: 5000 });
+    await expect(
+      page.getByRole('button', { name: 'Pause', exact: true }),
+    ).toBeVisible({ timeout: 5000 });
+    await expect(
+      page2.getByRole('button', { name: 'Pause', exact: true }),
+    ).toBeVisible({ timeout: 5000 });
 
     await page2.getByRole('button', { name: 'Pause', exact: true }).click();
 
-    await expect(page.getByRole('button', { name: 'Play', exact: true })).toBeVisible({ timeout: 5000 });
-    await expect(page2.getByRole('button', { name: 'Play', exact: true })).toBeVisible({ timeout: 5000 });
+    await expect(
+      page.getByRole('button', { name: 'Play', exact: true }),
+    ).toBeVisible({ timeout: 5000 });
+    await expect(
+      page2.getByRole('button', { name: 'Play', exact: true }),
+    ).toBeVisible({ timeout: 5000 });
 
     await page2.close();
   });
 
-  test('episode marked played in one tab disappears from All Podcasts in the other', async ({ page, context }) => {
+  test('episode marked played in one tab disappears from All Podcasts in the other', async ({
+    page,
+    context,
+  }) => {
     const page2 = await context.newPage();
 
     await page.goto('/');
@@ -69,8 +90,12 @@ test.describe('Real-time sync (SSE)', () => {
     await page.getByRole('button', { name: 'More actions' }).click();
     await page.getByText('Mark as played').click();
 
-    await expect(page.getByText('Sync Episode')).not.toBeVisible({ timeout: 5000 });
-    await expect(page2.getByText('Sync Episode')).not.toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Sync Episode')).not.toBeVisible({
+      timeout: 5000,
+    });
+    await expect(page2.getByText('Sync Episode')).not.toBeVisible({
+      timeout: 5000,
+    });
 
     await page2.close();
   });

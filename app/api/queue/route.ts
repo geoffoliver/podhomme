@@ -7,12 +7,16 @@ export async function GET() {
     include: {
       episode: {
         include: {
- podcast: {
- select: {
- title: true, imageUrl: true, author: true, type: true, typeOverride: true, 
-}, 
-}, 
-},
+          podcast: {
+            select: {
+              title: true,
+              imageUrl: true,
+              author: true,
+              type: true,
+              typeOverride: true,
+            },
+          },
+        },
       },
     },
   });

@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
 
 export async function GET() {
-  const webUrl = (process.env.WEB_URL ?? 'http://localhost:3000').replace(/\/$/, '');
+  const webUrl = (process.env.WEB_URL ?? 'http://localhost:3000').replace(
+    /\/$/,
+    '',
+  );
 
   const js = `//
 //  Podhomme.js

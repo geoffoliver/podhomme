@@ -3,7 +3,9 @@ jest.mock('@/lib/db', () => ({
 }));
 jest.mock('@/lib/logger', () => ({
   __esModule: true,
-  default: { child: () => ({ info: jest.fn(), warn: jest.fn(), error: jest.fn() }) },
+  default: {
+    child: () => ({ info: jest.fn(), warn: jest.fn(), error: jest.fn() }),
+  },
 }));
 jest.mock('fs/promises', () => ({
   mkdir: jest.fn().mockResolvedValue(undefined),
@@ -31,7 +33,11 @@ beforeEach(() => {
 describe('downloadEpisode — user agent', () => {
   it('sends the User-Agent header when fetching audio', async () => {
     mockFetch.mockResolvedValue(makeOkResponse());
-    await downloadEpisode(1, 'https://cdn.example.com/ep.mp3', '/tmp/downloads');
+    await downloadEpisode(
+      1,
+      'https://cdn.example.com/ep.mp3',
+      '/tmp/downloads',
+    );
     expect(mockFetch).toHaveBeenCalledWith(
       'https://cdn.example.com/ep.mp3',
       expect.objectContaining({
@@ -43,11 +49,21 @@ describe('downloadEpisode — user agent', () => {
   it('does not re-enter if already in progress', async () => {
     // Hang the first fetch so the episode stays in-progress while we call again
     let resolve!: (v: unknown) => void;
-    const hanging = new Promise((r) => { resolve = r; });
+    const hanging = new Promise((r) => {
+      resolve = r;
+    });
     mockFetch.mockReturnValueOnce(hanging);
 
-    const first = downloadEpisode(1, 'https://cdn.example.com/ep.mp3', '/tmp/downloads');
-    await downloadEpisode(1, 'https://cdn.example.com/ep.mp3', '/tmp/downloads');
+    const first = downloadEpisode(
+      1,
+      'https://cdn.example.com/ep.mp3',
+      '/tmp/downloads',
+    );
+    await downloadEpisode(
+      1,
+      'https://cdn.example.com/ep.mp3',
+      '/tmp/downloads',
+    );
     expect(mockFetch).toHaveBeenCalledTimes(1);
     resolve({ ok: false }); // let the first call finish
     await first;

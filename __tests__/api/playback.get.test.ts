@@ -19,10 +19,20 @@ describe('GET /api/playback', () => {
 
   it('includes the loaded episode with podcast metadata when one is loaded', async () => {
     const podcast = await db.podcast.create({
-      data: { title: 'Test Pod', feedUrl: 'https://feeds.example.com/test.rss', author: 'Author' },
+      data: {
+        title: 'Test Pod',
+        feedUrl: 'https://feeds.example.com/test.rss',
+        author: 'Author',
+      },
     });
     const episode = await db.episode.create({
-      data: { podcastId: podcast.id, guid: 'ep-1', title: 'Ep 1', audioUrl: 'u', pubDate: new Date() },
+      data: {
+        podcastId: podcast.id,
+        guid: 'ep-1',
+        title: 'Ep 1',
+        audioUrl: 'u',
+        pubDate: new Date(),
+      },
     });
     await db.playbackState.update({
       where: { id: 1 },

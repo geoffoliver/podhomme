@@ -1,11 +1,7 @@
 'use client';
 
-import {
-  Podcast, Search, X,
-} from 'lucide-react';
-import {
- useEffect, useRef, useState,
-} from 'react';
+import { Podcast, Search, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 
 import type { iTunesResult } from '@/types';
@@ -14,9 +10,9 @@ import { usePodcasts } from '@/context/PodcastsContext';
 import styles from './index.module.css';
 
 type Props = {
-  open: boolean
-  onClose: () => void
-}
+  open: boolean;
+  onClose: () => void;
+};
 
 export function PodcastSearch({ open, onClose }: Props) {
   const { podcasts, refreshPodcasts } = usePodcasts();
@@ -43,7 +39,7 @@ export function PodcastSearch({ open, onClose }: Props) {
     }
   }, [open]);
 
-  const subscribedUrls = new Set(podcasts.map(p => p.feedUrl));
+  const subscribedUrls = new Set(podcasts.map((p) => p.feedUrl));
 
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -51,28 +47,32 @@ export function PodcastSearch({ open, onClose }: Props) {
     if (!q) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/podcasts/search?q=${encodeURIComponent(q)}`);
+      const res = await fetch(
+        `/api/podcasts/search?q=${encodeURIComponent(q)}`,
+      );
       const data = await res.json();
-      setResults((data.results as iTunesResult[]).filter(r => r.feedUrl));
+      setResults((data.results as iTunesResult[]).filter((r) => r.feedUrl));
     } finally {
       setLoading(false);
     }
   }
 
   async function handleSubscribe(result: iTunesResult) {
-    setSubscribing(prev => new Set(prev).add(result.feedUrl));
+    setSubscribing((prev) => new Set(prev).add(result.feedUrl));
     try {
       await fetch('/api/podcasts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ feedUrl: result.feedUrl }),
       });
-      setJustSubscribed(prev => new Set(prev).add(result.feedUrl));
+      setJustSubscribed((prev) => new Set(prev).add(result.feedUrl));
       refreshPodcasts();
     } finally {
-      setSubscribing(prev => {
- const n = new Set(prev); n.delete(result.feedUrl); return n;
-});
+      setSubscribing((prev) => {
+        const n = new Set(prev);
+        n.delete(result.feedUrl);
+        return n;
+      });
     }
   }
 
@@ -81,7 +81,11 @@ export function PodcastSearch({ open, onClose }: Props) {
   }
 
   return (
-    <dialog ref={dialogRef} className={styles.dialog} onClick={handleBackdropClick}>
+    <dialog
+      ref={dialogRef}
+      className={styles.dialog}
+      onClick={handleBackdropClick}
+    >
       <div className={styles.panel}>
         <div className={styles.header}>
           <h2 className={styles.title}>Search Podcasts</h2>
@@ -97,9 +101,13 @@ export function PodcastSearch({ open, onClose }: Props) {
             type="search"
             placeholder="Search by name or author…"
             value={query}
-            onChange={e => setQuery(e.target.value)}
+            onChange={(e) => setQuery(e.target.value)}
           />
-          <button className="btn-primary" type="submit" disabled={loading || !query.trim()}>
+          <button
+            className="btn-primary"
+            type="submit"
+            disabled={loading || !query.trim()}
+          >
             <Search size={15} />
             {loading ? 'Searching…' : 'Search'}
           </button>
@@ -109,27 +117,51 @@ export function PodcastSearch({ open, onClose }: Props) {
           {!loading && query && results.length === 0 && (
             <div className={styles.empty}>No results found</div>
           )}
-          {results.map(result => {
-            const isSubscribed = subscribedUrls.has(result.feedUrl) || justSubscribed.has(result.feedUrl);
+          {results.map((result) => {
+            const isSubscribed =
+              subscribedUrls.has(result.feedUrl) ||
+              justSubscribed.has(result.feedUrl);
             const isSubscribing = subscribing.has(result.feedUrl);
             return (
               <div key={result.collectionId} className={styles.result}>
                 {result.artworkUrl100 ? (
-                  <Image src={result.artworkUrl100} alt="" width={48} height={48} className={styles.artwork} />
+                  <Image
+                    src={result.artworkUrl100}
+                    alt=""
+                    width={48}
+                    height={48}
+                    className={styles.artwork}
+                  />
                 ) : (
-                  <div className={styles.artworkPlaceholder}><Podcast size={20} /></div>
+                  <div className={styles.artworkPlaceholder}>
+                    <Podcast size={20} />
+                  </div>
                 )}
                 <div className={styles.info}>
                   <span className={styles.name}>{result.collectionName}</span>
-                  {result.artistName && <span className={styles.author}>{result.artistName}</span>}
-                  {result.primaryGenreName && <span className={styles.genre}>{result.primaryGenreName}</span>}
+                  {result.artistName && (
+                    <span className={styles.author}>{result.artistName}</span>
+                  )}
+                  {result.primaryGenreName && (
+                    <span className={styles.genre}>
+                      {result.primaryGenreName}
+                    </span>
+                  )}
                 </div>
                 <button
-                  className={isSubscribed ? 'btn-ghost text-xs shrink-0' : 'btn-primary text-xs shrink-0'}
+                  className={
+                    isSubscribed
+                      ? 'btn-ghost text-xs shrink-0'
+                      : 'btn-primary text-xs shrink-0'
+                  }
                   onClick={() => handleSubscribe(result)}
                   disabled={isSubscribed || isSubscribing}
                 >
-                  {isSubscribing ? 'Subscribing…' : isSubscribed ? 'Subscribed' : 'Subscribe'}
+                  {isSubscribing
+                    ? 'Subscribing…'
+                    : isSubscribed
+                      ? 'Subscribed'
+                      : 'Subscribe'}
                 </button>
               </div>
             );

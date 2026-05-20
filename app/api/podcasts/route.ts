@@ -33,7 +33,7 @@ export async function POST(request: Request) {
       feedUrl,
       title: feed.title,
       description: feed.description,
-      imageUrl: feed.imageUrl,  // temp; replaced after we have the ID
+      imageUrl: feed.imageUrl, // temp; replaced after we have the ID
       siteUrl: feed.siteUrl,
       author: feed.author,
       type: feed.type,
@@ -42,8 +42,10 @@ export async function POST(request: Request) {
   });
 
   const SIXTY_DAYS_MS = 60 * 24 * 60 * 60 * 1000;
-  const newestPubDate = feed.episodes.length > 0 ? new Date(feed.episodes[0].pubDate).getTime() : 0;
-  const allPlayed = feed.episodes.length > 0 && (Date.now() - newestPubDate) > SIXTY_DAYS_MS;
+  const newestPubDate =
+    feed.episodes.length > 0 ? new Date(feed.episodes[0].pubDate).getTime() : 0;
+  const allPlayed =
+    feed.episodes.length > 0 && Date.now() - newestPubDate > SIXTY_DAYS_MS;
 
   for (let i = 0; i < feed.episodes.length; i++) {
     const ep = feed.episodes[i];
@@ -67,7 +69,10 @@ export async function POST(request: Request) {
     if (isLatest) {
       const maxPos = await db.queueItem.aggregate({ _max: { position: true } });
       await db.queueItem.create({
-        data: { episodeId: episode.id, position: (maxPos._max.position ?? -1) + 1 },
+        data: {
+          episodeId: episode.id,
+          position: (maxPos._max.position ?? -1) + 1,
+        },
       });
     }
   }

@@ -13,7 +13,7 @@ export default function Home() {
   const [hasUnreadChat, setHasUnreadChat] = useState(false);
 
   function openChat() {
-    setChatOpen(v => !v);
+    setChatOpen((v) => !v);
     setHasUnreadChat(false);
   }
 
@@ -34,7 +34,10 @@ export default function Home() {
           onMessage={() => setHasUnreadChat(true)}
         />
       </div>
-      <SettingsDialog open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <SettingsDialog
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+      />
     </>
   );
 }

@@ -16,7 +16,10 @@ const mockBroadcast = broadcast as jest.MockedFunction<typeof broadcast>;
 
 function makeOpml(...feeds: { title: string; url: string }[]) {
   const outlines = feeds
-    .map(({ title, url }) => `<outline text="${title}" title="${title}" type="rss" xmlUrl="${url}"/>`)
+    .map(
+      ({ title, url }) =>
+        `<outline text="${title}" title="${title}" type="rss" xmlUrl="${url}"/>`,
+    )
     .join('');
   return `<?xml version="1.0"?><opml version="2.0"><body>${outlines}</body></opml>`;
 }
@@ -24,11 +27,21 @@ function makeOpml(...feeds: { title: string; url: string }[]) {
 function post(xml: string) {
   const fd = new FormData();
   fd.set('file', new Blob([xml], { type: 'text/xml' }), 'import.opml');
-  return POST(new Request('http://localhost/api/import/opml', { method: 'POST', body: fd }));
+  return POST(
+    new Request('http://localhost/api/import/opml', {
+      method: 'POST',
+      body: fd,
+    }),
+  );
 }
 
 function postNoFile() {
-  return POST(new Request('http://localhost/api/import/opml', { method: 'POST', body: new FormData() }));
+  return POST(
+    new Request('http://localhost/api/import/opml', {
+      method: 'POST',
+      body: new FormData(),
+    }),
+  );
 }
 
 const baseFeed = {
@@ -101,7 +114,10 @@ describe('POST /api/import/opml', () => {
     const res = await post(makeOpml({ title: 'My Podcast', url: FEED_A }));
     const body = await res.json();
 
-    expect(body.results[0]).toMatchObject({ feedUrl: FEED_A, status: 'exists' });
+    expect(body.results[0]).toMatchObject({
+      feedUrl: FEED_A,
+      status: 'exists',
+    });
   });
 
   it('does not call parseFeed for already-subscribed feeds', async () => {
@@ -127,10 +143,12 @@ describe('POST /api/import/opml', () => {
       .mockRejectedValueOnce(new Error('Network error'))
       .mockResolvedValueOnce({ ...baseFeed, title: 'Podcast B' });
 
-    await post(makeOpml(
-      { title: 'Feed A', url: FEED_A },
-      { title: 'Feed B', url: FEED_B },
-    ));
+    await post(
+      makeOpml(
+        { title: 'Feed A', url: FEED_A },
+        { title: 'Feed B', url: FEED_B },
+      ),
+    );
 
     const podB = await db.podcast.findUnique({ where: { feedUrl: FEED_B } });
     expect(podB).not.toBeNull();
@@ -141,14 +159,20 @@ describe('POST /api/import/opml', () => {
       .mockRejectedValueOnce(new Error('Network error'))
       .mockResolvedValueOnce({ ...baseFeed, title: 'Podcast B' });
 
-    const res = await post(makeOpml(
-      { title: 'Feed A', url: FEED_A },
-      { title: 'Feed B', url: FEED_B },
-    ));
+    const res = await post(
+      makeOpml(
+        { title: 'Feed A', url: FEED_A },
+        { title: 'Feed B', url: FEED_B },
+      ),
+    );
     const body = await res.json();
 
-    expect(body.results.find((r: any) => r.feedUrl === FEED_A)?.status).toBe('error');
-    expect(body.results.find((r: any) => r.feedUrl === FEED_B)?.status).toBe('added');
+    expect(body.results.find((r: any) => r.feedUrl === FEED_A)?.status).toBe(
+      'error',
+    );
+    expect(body.results.find((r: any) => r.feedUrl === FEED_B)?.status).toBe(
+      'added',
+    );
   });
 
   // ── multiple feeds ─────────────────────────────────────────────────────────
@@ -158,10 +182,12 @@ describe('POST /api/import/opml', () => {
       .mockResolvedValueOnce({ ...baseFeed, title: 'Podcast A' })
       .mockResolvedValueOnce({ ...baseFeed, title: 'Podcast B' });
 
-    const res = await post(makeOpml(
-      { title: 'Feed A', url: FEED_A },
-      { title: 'Feed B', url: FEED_B },
-    ));
+    const res = await post(
+      makeOpml(
+        { title: 'Feed A', url: FEED_A },
+        { title: 'Feed B', url: FEED_B },
+      ),
+    );
     const body = await res.json();
 
     expect(body.results).toHaveLength(2);
@@ -174,8 +200,26 @@ describe('POST /api/import/opml', () => {
     mockParseFeed.mockResolvedValue({
       ...baseFeed,
       episodes: [
-        { guid: 'ep-1', title: 'Ep 1', description: null, audioUrl: 'u', mediaType: 'audio', imageUrl: null, duration: null, pubDate: new Date(Date.now() - 24 * 60 * 60 * 1000) },
-        { guid: 'ep-2', title: 'Ep 2', description: null, audioUrl: 'u', mediaType: 'audio', imageUrl: null, duration: null, pubDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) },
+        {
+          guid: 'ep-1',
+          title: 'Ep 1',
+          description: null,
+          audioUrl: 'u',
+          mediaType: 'audio',
+          imageUrl: null,
+          duration: null,
+          pubDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
+        },
+        {
+          guid: 'ep-2',
+          title: 'Ep 2',
+          description: null,
+          audioUrl: 'u',
+          mediaType: 'audio',
+          imageUrl: null,
+          duration: null,
+          pubDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+        },
       ],
     });
 
@@ -188,8 +232,26 @@ describe('POST /api/import/opml', () => {
     mockParseFeed.mockResolvedValue({
       ...baseFeed,
       episodes: [
-        { guid: 'ep-new', title: 'New', description: null, audioUrl: 'u', mediaType: 'audio', imageUrl: null, duration: null, pubDate: new Date(Date.now() - 24 * 60 * 60 * 1000) },
-        { guid: 'ep-old', title: 'Old', description: null, audioUrl: 'u', mediaType: 'audio', imageUrl: null, duration: null, pubDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) },
+        {
+          guid: 'ep-new',
+          title: 'New',
+          description: null,
+          audioUrl: 'u',
+          mediaType: 'audio',
+          imageUrl: null,
+          duration: null,
+          pubDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
+        },
+        {
+          guid: 'ep-old',
+          title: 'Old',
+          description: null,
+          audioUrl: 'u',
+          mediaType: 'audio',
+          imageUrl: null,
+          duration: null,
+          pubDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+        },
       ],
     });
 

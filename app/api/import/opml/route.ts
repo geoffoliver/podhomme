@@ -18,13 +18,19 @@ export async function POST(request: Request) {
     return Response.json({ error: 'No feeds found in OPML' }, { status: 422 });
   }
 
-  const results: { feedUrl: string; status: 'added' | 'exists' | 'error' }[] = [];
+  const results: { feedUrl: string; status: 'added' | 'exists' | 'error' }[] =
+    [];
   log.info({ total: outlines.length }, 'Starting OPML import');
 
   for (const outline of outlines) {
-    const existing = await db.podcast.findUnique({ where: { feedUrl: outline.feedUrl } });
+    const existing = await db.podcast.findUnique({
+      where: { feedUrl: outline.feedUrl },
+    });
     if (existing) {
-      log.debug({ feedUrl: outline.feedUrl }, 'Feed already subscribed, skipping');
+      log.debug(
+        { feedUrl: outline.feedUrl },
+        'Feed already subscribed, skipping',
+      );
       results.push({ feedUrl: outline.feedUrl, status: 'exists' });
       continue;
     }
@@ -37,7 +43,7 @@ export async function POST(request: Request) {
           feedUrl: outline.feedUrl,
           title: feed.title,
           description: feed.description,
-          imageUrl: feed.imageUrl,  // temp; replaced after we have the ID
+          imageUrl: feed.imageUrl, // temp; replaced after we have the ID
           siteUrl: feed.siteUrl,
           author: feed.author,
           type: feed.type,
@@ -46,8 +52,12 @@ export async function POST(request: Request) {
       });
 
       const SIXTY_DAYS_MS = 60 * 24 * 60 * 60 * 1000;
-      const newestPubDate = feed.episodes.length > 0 ? new Date(feed.episodes[0].pubDate).getTime() : 0;
-      const allPlayed = feed.episodes.length > 0 && (Date.now() - newestPubDate) > SIXTY_DAYS_MS;
+      const newestPubDate =
+        feed.episodes.length > 0
+          ? new Date(feed.episodes[0].pubDate).getTime()
+          : 0;
+      const allPlayed =
+        feed.episodes.length > 0 && Date.now() - newestPubDate > SIXTY_DAYS_MS;
 
       for (let i = 0; i < feed.episodes.length; i++) {
         const ep = feed.episodes[i];
@@ -68,17 +78,27 @@ export async function POST(request: Request) {
         });
 
         if (isLatest) {
-          const maxPos = await db.queueItem.aggregate({ _max: { position: true } });
+          const maxPos = await db.queueItem.aggregate({
+            _max: { position: true },
+          });
           await db.queueItem.create({
-            data: { episodeId: episode.id, position: (maxPos._max.position ?? -1) + 1 },
+            data: {
+              episodeId: episode.id,
+              position: (maxPos._max.position ?? -1) + 1,
+            },
           });
         }
       }
 
       broadcast('podcast', podcast);
-      log.info({
- feedUrl: outline.feedUrl, title: feed.title, episodes: feed.episodes.length,
-}, 'Feed imported');
+      log.info(
+        {
+          feedUrl: outline.feedUrl,
+          title: feed.title,
+          episodes: feed.episodes.length,
+        },
+        'Feed imported',
+      );
       results.push({ feedUrl: outline.feedUrl, status: 'added' });
     } catch (ex: any) {
       log.error({ feedUrl: outline.feedUrl, err: ex }, 'Failed to import feed');
@@ -86,12 +106,17 @@ export async function POST(request: Request) {
     }
   }
 
-  const added = results.filter(r => r.status === 'added').length;
-  const skipped = results.filter(r => r.status === 'exists').length;
-  const failed = results.filter(r => r.status === 'error').length;
-  log.info({
- added, skipped, failed,
-}, 'OPML import complete');
+  const added = results.filter((r) => r.status === 'added').length;
+  const skipped = results.filter((r) => r.status === 'exists').length;
+  const failed = results.filter((r) => r.status === 'error').length;
+  log.info(
+    {
+      added,
+      skipped,
+      failed,
+    },
+    'OPML import complete',
+  );
 
   return Response.json({ results });
 }

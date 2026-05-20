@@ -1,11 +1,7 @@
 'use client';
 
-import {
-  Headphones, Pause, Play, Podcast, SkipForward,
-} from 'lucide-react';
-import {
- useEffect, useRef, useState,
-} from 'react';
+import { Headphones, Pause, Play, Podcast, SkipForward } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 
 import { usePlayback } from '@/context/PlaybackContext';
@@ -13,13 +9,19 @@ import { usePlayback } from '@/context/PlaybackContext';
 import styles from './index.module.css';
 
 type Props = {
-  onTap: () => void
-}
+  onTap: () => void;
+};
 
 export function MiniPlayer({ onTap }: Props) {
   const {
- state, audioDetached, joinAudio, play, pause, seek, currentPosition,
-} = usePlayback();
+    state,
+    audioDetached,
+    joinAudio,
+    play,
+    pause,
+    seek,
+    currentPosition,
+  } = usePlayback();
   const { episode } = state;
   const [displayPos, setDisplayPos] = useState(0);
   const rafRef = useRef<number | null>(null);
@@ -30,7 +32,9 @@ export function MiniPlayer({ onTap }: Props) {
       rafRef.current = requestAnimationFrame(tick);
     }
     rafRef.current = requestAnimationFrame(tick);
-    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
   }, [currentPosition]);
 
   if (!episode) return null;
@@ -41,11 +45,23 @@ export function MiniPlayer({ onTap }: Props) {
 
   return (
     <div className={styles.player}>
-      <button className={styles.infoArea} onClick={onTap} aria-label="Open now playing">
+      <button
+        className={styles.infoArea}
+        onClick={onTap}
+        aria-label="Open now playing"
+      >
         {artUrl ? (
-          <Image src={artUrl} alt="" width={44} height={44} className={styles.artwork} />
+          <Image
+            src={artUrl}
+            alt=""
+            width={44}
+            height={44}
+            className={styles.artwork}
+          />
         ) : (
-          <div className={styles.artworkPlaceholder}><Podcast size={18} /></div>
+          <div className={styles.artworkPlaceholder}>
+            <Podcast size={18} />
+          </div>
         )}
         <div className={styles.info}>
           <span className={styles.title}>{episode.title}</span>
@@ -55,7 +71,11 @@ export function MiniPlayer({ onTap }: Props) {
 
       <div className={styles.controls}>
         {audioDetached ? (
-          <button className={styles.controlBtn} onClick={joinAudio} aria-label="Tap to hear">
+          <button
+            className={styles.controlBtn}
+            onClick={joinAudio}
+            aria-label="Tap to hear"
+          >
             <Headphones size={22} />
           </button>
         ) : (
@@ -77,7 +97,10 @@ export function MiniPlayer({ onTap }: Props) {
       </div>
 
       <div className={styles.progressTrack}>
-        <div className={styles.progressFill} style={{ width: `${progress * 100}%` }} />
+        <div
+          className={styles.progressFill}
+          style={{ width: `${progress * 100}%` }}
+        />
       </div>
     </div>
   );

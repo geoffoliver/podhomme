@@ -19,7 +19,10 @@ function mimeType(filePath: string): string {
   return map[ext] ?? 'audio/mpeg';
 }
 
-export async function GET(request: Request, ctx: RouteContext<'/api/episodes/[id]/audio'>) {
+export async function GET(
+  request: Request,
+  ctx: RouteContext<'/api/episodes/[id]/audio'>,
+) {
   const { id } = await ctx.params;
   const episodeId = Number(id);
 
@@ -42,14 +45,19 @@ export async function GET(request: Request, ctx: RouteContext<'/api/episodes/[id
           const start = parseInt(match[1], 10);
           const end = match[2] ? parseInt(match[2], 10) : fileSize - 1;
           const length = end - start + 1;
-          const nodeStream = createReadStream(episode.downloadPath, { start, end });
+          const nodeStream = createReadStream(episode.downloadPath, {
+            start,
+            end,
+          });
           const body = new ReadableStream({
             start(controller) {
-              nodeStream.on('data', chunk => controller.enqueue(chunk));
+              nodeStream.on('data', (chunk) => controller.enqueue(chunk));
               nodeStream.on('end', () => controller.close());
-              nodeStream.on('error', err => controller.error(err));
+              nodeStream.on('error', (err) => controller.error(err));
             },
-            cancel() { nodeStream.destroy(); },
+            cancel() {
+              nodeStream.destroy();
+            },
           });
           return new Response(body, {
             status: 206,
@@ -66,11 +74,13 @@ export async function GET(request: Request, ctx: RouteContext<'/api/episodes/[id
       const nodeStream = createReadStream(episode.downloadPath);
       const body = new ReadableStream({
         start(controller) {
-          nodeStream.on('data', chunk => controller.enqueue(chunk));
+          nodeStream.on('data', (chunk) => controller.enqueue(chunk));
           nodeStream.on('end', () => controller.close());
-          nodeStream.on('error', err => controller.error(err));
+          nodeStream.on('error', (err) => controller.error(err));
         },
-        cancel() { nodeStream.destroy(); },
+        cancel() {
+          nodeStream.destroy();
+        },
       });
       return new Response(body, {
         headers: {
@@ -87,7 +97,11 @@ export async function GET(request: Request, ctx: RouteContext<'/api/episodes/[id
   // No local file — if download mode is on, fetch in the background so next play is local
   const settings = await db.settings.findUnique({ where: { id: 1 } });
   if (settings?.defaultPlayback === 'download') {
-    downloadEpisode(episodeId, episode.audioUrl, settings.downloadLocation).catch(() => {});
+    downloadEpisode(
+      episodeId,
+      episode.audioUrl,
+      settings.downloadLocation,
+    ).catch(() => {});
   }
 
   return Response.redirect(episode.audioUrl, 302);

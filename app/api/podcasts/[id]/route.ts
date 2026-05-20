@@ -2,7 +2,10 @@ import type { NextRequest } from 'next/server';
 import { broadcast } from '@/lib/sse';
 import { db } from '@/lib/db';
 
-export async function GET(_req: NextRequest, ctx: RouteContext<'/api/podcasts/[id]'>) {
+export async function GET(
+  _req: NextRequest,
+  ctx: RouteContext<'/api/podcasts/[id]'>,
+) {
   const { id } = await ctx.params;
   const podcast = await db.podcast.findUnique({
     where: { id: Number(id) },
@@ -12,7 +15,10 @@ export async function GET(_req: NextRequest, ctx: RouteContext<'/api/podcasts/[i
   return Response.json(podcast);
 }
 
-export async function PATCH(request: NextRequest, ctx: RouteContext<'/api/podcasts/[id]'>) {
+export async function PATCH(
+  request: NextRequest,
+  ctx: RouteContext<'/api/podcasts/[id]'>,
+) {
   const { id } = await ctx.params;
   const body = await request.json();
   const allowed = ['typeOverride', 'title', 'description'];
@@ -24,7 +30,10 @@ export async function PATCH(request: NextRequest, ctx: RouteContext<'/api/podcas
   return Response.json(podcast);
 }
 
-export async function DELETE(_req: NextRequest, ctx: RouteContext<'/api/podcasts/[id]'>) {
+export async function DELETE(
+  _req: NextRequest,
+  ctx: RouteContext<'/api/podcasts/[id]'>,
+) {
   const { id } = await ctx.params;
   await db.podcast.delete({ where: { id: Number(id) } });
   broadcast('podcast', { id: Number(id), deleted: true });

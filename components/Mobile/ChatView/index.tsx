@@ -5,16 +5,19 @@ import { Pencil, Send } from 'lucide-react';
 import styles from './index.module.css';
 
 type ChatMessage = {
-  id: number
-  author: string
-  message: string
-  sentAt: string
-}
+  id: number;
+  author: string;
+  message: string;
+  sentAt: string;
+};
 
 const NAME_KEY = 'podhomme_chat_name';
 
 function formatTime(iso: string) {
-  return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  return new Date(iso).toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 }
 
 export function ChatView() {
@@ -34,14 +37,16 @@ export function ChatView() {
   }, []);
 
   useEffect(() => {
-    fetch('/api/chat').then(r => r.json()).then(setMessages);
+    fetch('/api/chat')
+      .then((r) => r.json())
+      .then(setMessages);
   }, []);
 
   useEffect(() => {
     const source = new EventSource('/api/events');
     source.addEventListener('chat', (e) => {
       const msg = JSON.parse(e.data) as ChatMessage;
-      setMessages(prev => [...prev.slice(-49), msg]);
+      setMessages((prev) => [...prev.slice(-49), msg]);
     });
     return () => source.close();
   }, []);
@@ -82,25 +87,38 @@ export function ChatView() {
 
       <div className={styles.nameBar}>
         {editingName ? (
-          <form className={styles.nameForm} onSubmit={e => { e.preventDefault(); saveName(); }}>
+          <form
+            className={styles.nameForm}
+            onSubmit={(e) => {
+              e.preventDefault();
+              saveName();
+            }}
+          >
             <input
               className="input"
               placeholder="Your name"
               value={nameInput}
-              onChange={e => setNameInput(e.target.value)}
+              onChange={(e) => setNameInput(e.target.value)}
               maxLength={50}
               autoFocus
               autoComplete="off"
               data-1p-ignore
             />
-            <button type="submit" className="btn-primary text-xs px-2 py-1">OK</button>
+            <button type="submit" className="btn-primary text-xs px-2 py-1">
+              OK
+            </button>
           </form>
         ) : (
           <div className={styles.nameDisplay}>
-            <span className={styles.nameLabel}>Chatting as <strong>{name}</strong></span>
+            <span className={styles.nameLabel}>
+              Chatting as <strong>{name}</strong>
+            </span>
             <button
               className="btn-icon"
-              onClick={() => { setNameInput(name); setEditingName(true); }}
+              onClick={() => {
+                setNameInput(name);
+                setEditingName(true);
+              }}
               aria-label="Edit name"
             >
               <Pencil size={12} />
@@ -113,8 +131,11 @@ export function ChatView() {
         {messages.length === 0 && (
           <p className={styles.empty}>No messages yet. Say something!</p>
         )}
-        {messages.map(msg => (
-          <div key={msg.id} className={`${styles.message} ${msg.author === name ? styles.mine : ''}`}>
+        {messages.map((msg) => (
+          <div
+            key={msg.id}
+            className={`${styles.message} ${msg.author === name ? styles.mine : ''}`}
+          >
             <div className={styles.meta}>
               <span className={styles.author}>{msg.author}</span>
               <span className={styles.time}>{formatTime(msg.sentAt)}</span>
@@ -131,7 +152,7 @@ export function ChatView() {
           className="input"
           placeholder={name ? 'Say something…' : 'Set a name above first'}
           value={input}
-          onChange={e => setInput(e.target.value)}
+          onChange={(e) => setInput(e.target.value)}
           maxLength={500}
           disabled={!name || editingName}
         />

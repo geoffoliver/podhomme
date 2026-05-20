@@ -73,28 +73,50 @@ describe('buildOpml', () => {
   });
 
   it('sets xmlUrl to the feedUrl', () => {
-    const xml = buildOpml([{ title: 'Pod', feedUrl: 'https://feeds.example.com/pod.rss' }]);
+    const xml = buildOpml([
+      { title: 'Pod', feedUrl: 'https://feeds.example.com/pod.rss' },
+    ]);
     expect(xml).toContain('xmlUrl="https://feeds.example.com/pod.rss"');
   });
 
   it('includes htmlUrl when siteUrl is provided', () => {
-    const xml = buildOpml([{ title: 'Pod', feedUrl: 'https://f.example.com/pod.rss', siteUrl: 'https://pod.example.com' }]);
+    const xml = buildOpml([
+      {
+        title: 'Pod',
+        feedUrl: 'https://f.example.com/pod.rss',
+        siteUrl: 'https://pod.example.com',
+      },
+    ]);
     expect(xml).toContain('htmlUrl="https://pod.example.com"');
   });
 
   it('omits htmlUrl when siteUrl is null or undefined', () => {
-    expect(buildOpml([{ title: 'Pod', feedUrl: 'https://f.example.com/pod.rss', siteUrl: null }])).not.toContain('htmlUrl');
-    expect(buildOpml([{ title: 'Pod', feedUrl: 'https://f.example.com/pod.rss' }])).not.toContain('htmlUrl');
+    expect(
+      buildOpml([
+        {
+          title: 'Pod',
+          feedUrl: 'https://f.example.com/pod.rss',
+          siteUrl: null,
+        },
+      ]),
+    ).not.toContain('htmlUrl');
+    expect(
+      buildOpml([{ title: 'Pod', feedUrl: 'https://f.example.com/pod.rss' }]),
+    ).not.toContain('htmlUrl');
   });
 
   it('escapes & in titles', () => {
-    const xml = buildOpml([{ title: 'Rock & Roll', feedUrl: 'https://f.example.com/r.rss' }]);
+    const xml = buildOpml([
+      { title: 'Rock & Roll', feedUrl: 'https://f.example.com/r.rss' },
+    ]);
     expect(xml).toContain('Rock &amp; Roll');
     expect(xml).not.toContain('Rock & Roll');
   });
 
   it('escapes < and > in titles', () => {
-    const xml = buildOpml([{ title: '<Podcast>', feedUrl: 'https://f.example.com/r.rss' }]);
+    const xml = buildOpml([
+      { title: '<Podcast>', feedUrl: 'https://f.example.com/r.rss' },
+    ]);
     expect(xml).toContain('&lt;Podcast&gt;');
   });
 });

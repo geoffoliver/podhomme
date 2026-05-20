@@ -1,7 +1,15 @@
 'use client';
 
 import {
-  ArrowDown, ArrowUp, CheckCircle, Inbox, MoreVertical, Play, Podcast, Star, StarOff,
+  ArrowDown,
+  ArrowUp,
+  CheckCircle,
+  Inbox,
+  MoreVertical,
+  Play,
+  Podcast,
+  Star,
+  StarOff,
 } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -13,9 +21,13 @@ import { usePodcasts } from '@/context/PodcastsContext';
 
 import styles from './index.module.css';
 
-function formatRemaining(duration: number | null, resumeAt: number): string | null {
+function formatRemaining(
+  duration: number | null,
+  resumeAt: number,
+): string | null {
   if (!duration) return null;
-  const secs = resumeAt > 0 ? Math.max(0, duration - Math.floor(resumeAt)) : duration;
+  const secs =
+    resumeAt > 0 ? Math.max(0, duration - Math.floor(resumeAt)) : duration;
   const h = Math.floor(secs / 3600);
   const m = Math.floor((secs % 3600) / 60);
   if (h > 0) return resumeAt > 0 ? `${h}h ${m}m left` : `${h}h ${m}m`;
@@ -37,7 +49,8 @@ export function QueueView() {
   const [menuOpenId, setMenuOpenId] = useState<number | null>(null);
 
   const totalSeconds = queue.reduce((sum, item) => {
-    const remaining = (item.episode.duration ?? 0) - Math.floor(item.episode.resumeAt ?? 0);
+    const remaining =
+      (item.episode.duration ?? 0) - Math.floor(item.episode.resumeAt ?? 0);
     return sum + Math.max(0, remaining);
   }, 0);
 
@@ -67,7 +80,8 @@ export function QueueView() {
       <div className={styles.header}>
         <h1 className={styles.headerTitle}>Queue</h1>
         <span className={styles.headerMeta}>
-          {queue.length} unplayed{totalSeconds > 0 ? ` ${formatTotal(totalSeconds)}` : ''}
+          {queue.length} unplayed
+          {totalSeconds > 0 ? ` ${formatTotal(totalSeconds)}` : ''}
         </span>
       </div>
 
@@ -85,16 +99,28 @@ export function QueueView() {
             const menuOpen = menuOpenId === ep.id;
             return (
               <div key={item.id} className={styles.row}>
-                <button className={styles.rowMain} onClick={() => loadEpisode(ep.id, 'all')}>
+                <button
+                  className={styles.rowMain}
+                  onClick={() => loadEpisode(ep.id, 'all')}
+                >
                   {artUrl ? (
-                    <Image src={artUrl} alt="" width={52} height={52} className={styles.artwork} />
+                    <Image
+                      src={artUrl}
+                      alt=""
+                      width={52}
+                      height={52}
+                      className={styles.artwork}
+                    />
                   ) : (
-                    <div className={styles.artworkPlaceholder}><Podcast size={22} /></div>
+                    <div className={styles.artworkPlaceholder}>
+                      <Podcast size={22} />
+                    </div>
                   )}
                   <div className={styles.info}>
                     <span className={styles.title}>{ep.title}</span>
                     <span className={styles.meta}>
-                      {ep.podcast?.title}{dur ? ` · ${dur}` : ''}
+                      {ep.podcast?.title}
+                      {dur ? ` · ${dur}` : ''}
                     </span>
                   </div>
                   <Play size={18} className={styles.playIcon} />
@@ -110,26 +136,67 @@ export function QueueView() {
                   </button>
                   {menuOpen && (
                     <>
-                      <div className={styles.menuBackdrop} onClick={() => setMenuOpenId(null)} />
+                      <div
+                        className={styles.menuBackdrop}
+                        onClick={() => setMenuOpenId(null)}
+                      />
                       <div className={styles.menu}>
-                        <button className={styles.menuItem} onClick={() => { setDetailEpisode(ep as unknown as Episode); setMenuOpenId(null); }}>
+                        <button
+                          className={styles.menuItem}
+                          onClick={() => {
+                            setDetailEpisode(ep as unknown as Episode);
+                            setMenuOpenId(null);
+                          }}
+                        >
                           Episode detail
                         </button>
                         {idx > 0 && (
-                          <button className={styles.menuItem} onClick={() => { moveItem(idx, idx - 1); setMenuOpenId(null); }}>
+                          <button
+                            className={styles.menuItem}
+                            onClick={() => {
+                              moveItem(idx, idx - 1);
+                              setMenuOpenId(null);
+                            }}
+                          >
                             <ArrowUp size={15} /> Move up
                           </button>
                         )}
                         {idx < queue.length - 1 && (
-                          <button className={styles.menuItem} onClick={() => { moveItem(idx, idx + 1); setMenuOpenId(null); }}>
+                          <button
+                            className={styles.menuItem}
+                            onClick={() => {
+                              moveItem(idx, idx + 1);
+                              setMenuOpenId(null);
+                            }}
+                          >
                             <ArrowDown size={15} /> Move down
                           </button>
                         )}
-                        <button className={styles.menuItem} onClick={() => { patchEpisode(ep.id, { played: true }); setMenuOpenId(null); }}>
+                        <button
+                          className={styles.menuItem}
+                          onClick={() => {
+                            patchEpisode(ep.id, { played: true });
+                            setMenuOpenId(null);
+                          }}
+                        >
                           <CheckCircle size={15} /> Mark played
                         </button>
-                        <button className={styles.menuItem} onClick={() => { patchEpisode(ep.id, { favorited: !ep.favorited }); setMenuOpenId(null); }}>
-                          {ep.favorited ? <><StarOff size={15} /> Unfavorite</> : <><Star size={15} /> Favorite</>}
+                        <button
+                          className={styles.menuItem}
+                          onClick={() => {
+                            patchEpisode(ep.id, { favorited: !ep.favorited });
+                            setMenuOpenId(null);
+                          }}
+                        >
+                          {ep.favorited ? (
+                            <>
+                              <StarOff size={15} /> Unfavorite
+                            </>
+                          ) : (
+                            <>
+                              <Star size={15} /> Favorite
+                            </>
+                          )}
                         </button>
                       </div>
                     </>
@@ -141,7 +208,10 @@ export function QueueView() {
         </div>
       )}
 
-      <EpisodeDetail episode={detailEpisode} onClose={() => setDetailEpisode(null)} />
+      <EpisodeDetail
+        episode={detailEpisode}
+        onClose={() => setDetailEpisode(null)}
+      />
     </div>
   );
 }

@@ -8,7 +8,7 @@ function isPublic(pathname: string): boolean {
     pathname === '/login' ||
     pathname.startsWith('/api/auth/') ||
     pathname.startsWith('/_next') ||
-    pathname.includes('.')        // static files: sw.js, icons, images, etc.
+    pathname.includes('.') // static files: sw.js, icons, images, etc.
   );
 }
 
@@ -38,11 +38,14 @@ export async function proxy(request: NextRequest) {
 
   const override = request.cookies.get('view')?.value;
   const ua = request.headers.get('user-agent') ?? '';
-  const mobile = override === 'mobile' || (override !== 'desktop' && MOBILE_RE.test(ua));
+  const mobile =
+    override === 'mobile' || (override !== 'desktop' && MOBILE_RE.test(ua));
   const onMobilePath = pathname === '/m' || pathname.startsWith('/m/');
 
-  if (mobile && !onMobilePath) return NextResponse.rewrite(new URL('/m', request.url));
-  if (!mobile && onMobilePath) return NextResponse.redirect(new URL('/', request.url));
+  if (mobile && !onMobilePath)
+    return NextResponse.rewrite(new URL('/m', request.url));
+  if (!mobile && onMobilePath)
+    return NextResponse.redirect(new URL('/', request.url));
   return NextResponse.next();
 }
 

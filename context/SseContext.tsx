@@ -1,14 +1,21 @@
 'use client';
 
-import {
- createContext, useContext, useEffect, useRef, 
-} from 'react';
+import { createContext, useContext, useEffect, useRef } from 'react';
 
-type SseListener = (event: string, data: unknown) => void
+type SseListener = (event: string, data: unknown) => void;
 
-const SseContext = createContext<{ subscribe: (fn: SseListener) => () => void } | null>(null);
+const SseContext = createContext<{
+  subscribe: (fn: SseListener) => () => void;
+} | null>(null);
 
-const SSE_EVENTS = ['connected', 'playback', 'episode', 'podcast', 'queue', 'refresh'];
+const SSE_EVENTS = [
+  'connected',
+  'playback',
+  'episode',
+  'podcast',
+  'queue',
+  'refresh',
+];
 
 export function SseProvider({ children }: { children: React.ReactNode }) {
   const listeners = useRef<Set<SseListener>>(new Set());
@@ -24,7 +31,7 @@ export function SseProvider({ children }: { children: React.ReactNode }) {
         es.addEventListener(evt, (e: MessageEvent) => {
           try {
             const data = JSON.parse(e.data);
-            listeners.current.forEach(fn => fn(evt, data));
+            listeners.current.forEach((fn) => fn(evt, data));
           } catch (ex: unknown) {
             console.log(e.data);
             console.error('Error parsing SSE data', ex);
@@ -50,14 +57,18 @@ export function SseProvider({ children }: { children: React.ReactNode }) {
     return () => listeners.current.delete(fn);
   };
 
-  return <SseContext.Provider value={{ subscribe }}>{children}</SseContext.Provider>;
+  return (
+    <SseContext.Provider value={{ subscribe }}>{children}</SseContext.Provider>
+  );
 }
 
 export function useSse(listener: SseListener) {
   const ctx = useContext(SseContext);
   // Stable ref so subscribe/unsubscribe doesn't fire on every render
   const listenerRef = useRef(listener);
-  useEffect(() => { listenerRef.current = listener; });
+  useEffect(() => {
+    listenerRef.current = listener;
+  });
 
   useEffect(() => {
     if (!ctx) return;

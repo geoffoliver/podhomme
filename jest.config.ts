@@ -19,7 +19,9 @@ const customConfig: Config = {
 // user config can't override it. Post-process the resolved config to let @prisma through
 // (Prisma v7 ships an ESM .mjs WASM loader that Jest's CJS environment can't parse otherwise).
 export default async () => {
-  const config = await (createJestConfig(customConfig) as () => Promise<Config>)();
+  const config = await (
+    createJestConfig(customConfig) as () => Promise<Config>
+  )();
   config.transformIgnorePatterns = [
     '/node_modules/(?!@prisma/)',
     '^.+\\.module\\.(css|sass|scss)$',

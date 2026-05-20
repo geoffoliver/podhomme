@@ -2,8 +2,8 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './e2e',
-  fullyParallel: false,   // SQLite is single-writer
-  workers: 1,             // one test at a time to avoid DB conflicts
+  fullyParallel: false, // SQLite is single-writer
+  workers: 1, // one test at a time to avoid DB conflicts
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? 'github' : 'list',
@@ -30,7 +30,7 @@ export default defineConfig({
       : 'PORT=3031 next dev',
     url: 'http://localhost:3031',
     reuseExistingServer: !process.env.CI,
-    timeout: 300_000,  // allow 5 min for next build in CI
+    timeout: 300_000, // allow 5 min for next build in CI
     env: {
       DATABASE_URL: 'file:./prisma/e2e.db',
       APP_PASSWORD: '',

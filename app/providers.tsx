@@ -14,7 +14,9 @@ function RefreshScheduler() {
 export function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {});
+      navigator.serviceWorker
+        .register('/sw.js', { scope: '/' })
+        .catch(() => {});
     }
   }, []);
 
@@ -22,9 +24,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <SseProvider>
       <RefreshScheduler />
       <PlaybackProvider>
-        <PodcastsProvider>
-          {children}
-        </PodcastsProvider>
+        <PodcastsProvider>{children}</PodcastsProvider>
       </PlaybackProvider>
     </SseProvider>
   );

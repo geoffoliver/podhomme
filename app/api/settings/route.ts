@@ -9,7 +9,12 @@ export async function GET() {
 export async function PATCH(request: Request) {
   await ensureSingletons();
   const body = await request.json();
-  const allowed = ['refreshFrequency', 'episodesToKeep', 'defaultPlayback', 'downloadLocation'];
+  const allowed = [
+    'refreshFrequency',
+    'episodesToKeep',
+    'defaultPlayback',
+    'downloadLocation',
+  ];
   const data = Object.fromEntries(
     Object.entries(body).filter(([k]) => allowed.includes(k)),
   );

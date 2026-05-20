@@ -1,7 +1,10 @@
 import type { NextRequest } from 'next/server';
 import { refreshPodcast } from '@/lib/refresh';
 
-export async function POST(_req: NextRequest, ctx: RouteContext<'/api/podcasts/[id]/refresh'>) {
+export async function POST(
+  _req: NextRequest,
+  ctx: RouteContext<'/api/podcasts/[id]/refresh'>,
+) {
   const { id } = await ctx.params;
   try {
     await refreshPodcast(Number(id));

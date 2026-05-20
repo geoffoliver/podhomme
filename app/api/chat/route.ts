@@ -22,10 +22,16 @@ export async function POST(request: Request) {
   const message = typeof body.message === 'string' ? body.message.trim() : '';
 
   if (!author || author.length > MAX_AUTHOR_LEN) {
-    return Response.json({ error: 'Author is required and must be 50 characters or fewer' }, { status: 400 });
+    return Response.json(
+      { error: 'Author is required and must be 50 characters or fewer' },
+      { status: 400 },
+    );
   }
   if (!message || message.length > MAX_MESSAGE_LEN) {
-    return Response.json({ error: 'Message is required and must be 500 characters or fewer' }, { status: 400 });
+    return Response.json(
+      { error: 'Message is required and must be 500 characters or fewer' },
+      { status: 400 },
+    );
   }
 
   const msg = await db.chatMessage.create({ data: { author, message } });
@@ -39,7 +45,9 @@ export async function POST(request: Request) {
       take: count - MAX_MESSAGES,
       select: { id: true },
     });
-    await db.chatMessage.deleteMany({ where: { id: { in: oldest.map(m => m.id) } } });
+    await db.chatMessage.deleteMany({
+      where: { id: { in: oldest.map((m) => m.id) } },
+    });
   }
 
   return Response.json(msg, { status: 201 });

@@ -9,12 +9,14 @@ export async function GET() {
     include: {
       episode: {
         include: {
- podcast: {
- select: {
- title: true, imageUrl: true, author: true,
-},
-},
-},
+          podcast: {
+            select: {
+              title: true,
+              imageUrl: true,
+              author: true,
+            },
+          },
+        },
       },
     },
   });
@@ -26,7 +28,9 @@ export async function POST(request: Request) {
   const body = await request.json();
   const { action } = body;
 
-  const current = await db.playbackState.findUniqueOrThrow({ where: { id: 1 } });
+  const current = await db.playbackState.findUniqueOrThrow({
+    where: { id: 1 },
+  });
 
   let update: Parameters<typeof db.playbackState.update>[0]['data'] = {};
 
@@ -77,19 +81,32 @@ export async function POST(request: Request) {
   } else if (action === 'next' || action === 'prev') {
     if (!current.episodeId) return Response.json({ ok: true });
 
-    const nextId = action === 'next'
-      ? await getNextEpisode(current.episodeId, current.context, current.contextPodcastId)
-      : await getPrevEpisode(current.episodeId, current.context, current.contextPodcastId);
+    const nextId =
+      action === 'next'
+        ? await getNextEpisode(
+            current.episodeId,
+            current.context,
+            current.contextPodcastId,
+          )
+        : await getPrevEpisode(
+            current.episodeId,
+            current.context,
+            current.contextPodcastId,
+          );
 
     if (action === 'next') {
       // Episode finished — mark played and clear resume point
       const ep = await db.episode.update({
         where: { id: current.episodeId },
         data: {
- played: true, playedAt: new Date(), resumeAt: 0,
-},
+          played: true,
+          playedAt: new Date(),
+          resumeAt: 0,
+        },
       });
-      await db.queueItem.deleteMany({ where: { episodeId: current.episodeId } });
+      await db.queueItem.deleteMany({
+        where: { episodeId: current.episodeId },
+      });
       broadcast('episode', ep);
     } else {
       // Navigating back — save current position so we can return here
@@ -102,16 +119,20 @@ export async function POST(request: Request) {
 
     if (!nextId) {
       update = {
- isPlaying: false, episodeId: null, position: 0,
-};
+        isPlaying: false,
+        episodeId: null,
+        position: 0,
+      };
     } else {
       const incoming = await db.episode.findUnique({
         where: { id: nextId },
         select: { resumeAt: true },
       });
       update = {
- episodeId: nextId, position: incoming?.resumeAt ?? 0, isPlaying: true,
-};
+        episodeId: nextId,
+        position: incoming?.resumeAt ?? 0,
+        isPlaying: true,
+      };
     }
   } else {
     return Response.json({ error: 'Unknown action' }, { status: 400 });
@@ -123,12 +144,14 @@ export async function POST(request: Request) {
     include: {
       episode: {
         include: {
- podcast: {
- select: {
- title: true, imageUrl: true, author: true,
-},
-},
-},
+          podcast: {
+            select: {
+              title: true,
+              imageUrl: true,
+              author: true,
+            },
+          },
+        },
       },
     },
   });

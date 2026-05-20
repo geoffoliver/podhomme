@@ -42,7 +42,10 @@ describe('PATCH /api/episodes/[id]', () => {
   beforeEach(async () => {
     mockBroadcast.mockClear();
     const podcast = await db.podcast.create({
-      data: { title: 'Test Podcast', feedUrl: 'https://feeds.example.com/test.rss' },
+      data: {
+        title: 'Test Podcast',
+        feedUrl: 'https://feeds.example.com/test.rss',
+      },
     });
     podcastId = podcast.id;
   });
@@ -71,11 +74,15 @@ describe('PATCH /api/episodes/[id]', () => {
 
     it('removes the episode from the queue', async () => {
       const episode = await seedEpisode();
-      await db.queueItem.create({ data: { episodeId: episode.id, position: 0 } });
+      await db.queueItem.create({
+        data: { episodeId: episode.id, position: 0 },
+      });
 
       await patch(episode.id, { played: true });
 
-      const qi = await db.queueItem.findUnique({ where: { episodeId: episode.id } });
+      const qi = await db.queueItem.findUnique({
+        where: { episodeId: episode.id },
+      });
       expect(qi).toBeNull();
     });
 
@@ -110,7 +117,9 @@ describe('PATCH /api/episodes/[id]', () => {
 
       await patch(episode.id, { played: false });
 
-      const qi = await db.queueItem.findUnique({ where: { episodeId: episode.id } });
+      const qi = await db.queueItem.findUnique({
+        where: { episodeId: episode.id },
+      });
       expect(qi).not.toBeNull();
       expect(qi?.position).toBe(1);
     });
@@ -120,17 +129,23 @@ describe('PATCH /api/episodes/[id]', () => {
 
       await patch(episode.id, { played: false });
 
-      const qi = await db.queueItem.findUnique({ where: { episodeId: episode.id } });
+      const qi = await db.queueItem.findUnique({
+        where: { episodeId: episode.id },
+      });
       expect(qi?.position).toBe(0);
     });
 
     it('does not add a second queue entry if the episode is already queued', async () => {
       const episode = await seedEpisode({ played: true });
-      await db.queueItem.create({ data: { episodeId: episode.id, position: 0 } });
+      await db.queueItem.create({
+        data: { episodeId: episode.id, position: 0 },
+      });
 
       await patch(episode.id, { played: false });
 
-      expect(await db.queueItem.count({ where: { episodeId: episode.id } })).toBe(1);
+      expect(
+        await db.queueItem.count({ where: { episodeId: episode.id } }),
+      ).toBe(1);
     });
 
     it('broadcasts queue and episode events', async () => {
@@ -158,7 +173,10 @@ describe('PATCH /api/episodes/[id]', () => {
     });
 
     it('sets favorited:false and clears favoritedAt', async () => {
-      const episode = await seedEpisode({ favorited: true, favoritedAt: new Date() });
+      const episode = await seedEpisode({
+        favorited: true,
+        favoritedAt: new Date(),
+      });
 
       const res = await patch(episode.id, { favorited: false });
       const body = await res.json();

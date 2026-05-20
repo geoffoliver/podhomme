@@ -1,7 +1,7 @@
 type SseClient = {
-  controller: ReadableStreamDefaultController
-  encoder: TextEncoder
-}
+  controller: ReadableStreamDefaultController;
+  encoder: TextEncoder;
+};
 
 const clients = new Set<SseClient>();
 

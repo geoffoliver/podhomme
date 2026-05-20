@@ -1,11 +1,7 @@
 'use client';
 
-import {
-  ExternalLink, Podcast, RefreshCw, Rss, Trash2,
-} from 'lucide-react';
-import {
-  useCallback, useEffect, useState,
-} from 'react';
+import { ExternalLink, Podcast, RefreshCw, Rss, Trash2 } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Virtuoso } from 'react-virtuoso';
 
@@ -18,8 +14,8 @@ import { useSse } from '@/context/SseContext';
 import styles from './index.module.css';
 
 type Props = {
-  podcastId: number
-}
+  podcastId: number;
+};
 
 export function PodcastView({ podcastId }: Props) {
   const { setSelectedView, refreshPodcasts } = usePodcasts();
@@ -31,7 +27,7 @@ export function PodcastView({ podcastId }: Props) {
 
   const fetchPodcast = useCallback(() => {
     fetch(`/api/podcasts/${podcastId}`)
-      .then(r => r.json())
+      .then((r) => r.json())
       .then((data: PodcastType & { episodes: Episode[] }) => {
         setPodcast(data);
         const effectiveType = data.typeOverride || data.type;
@@ -44,13 +40,15 @@ export function PodcastView({ podcastId }: Props) {
       });
   }, [podcastId]);
 
-  useEffect(() => { fetchPodcast(); }, [fetchPodcast]);
+  useEffect(() => {
+    fetchPodcast();
+  }, [fetchPodcast]);
 
   useSse((event, data) => {
     if (event === 'episode') {
       const ep = data as Episode;
       if (ep.podcastId === podcastId) {
-        setEpisodes(prev => prev.map(e => e.id === ep.id ? ep : e));
+        setEpisodes((prev) => prev.map((e) => (e.id === ep.id ? ep : e)));
       }
     }
     if (event === 'podcast') {
@@ -83,14 +81,17 @@ export function PodcastView({ podcastId }: Props) {
     fetchPodcast();
   }
 
-  const renderEpisode = useCallback((_: number, ep: Episode) => (
-    <EpisodeRow
-      episode={ep}
-      context="podcast"
-      contextPodcastId={podcastId}
-      onDetail={setDetailEpisode}
-    />
-  ), [podcastId, setDetailEpisode]);
+  const renderEpisode = useCallback(
+    (_: number, ep: Episode) => (
+      <EpisodeRow
+        episode={ep}
+        context="podcast"
+        contextPodcastId={podcastId}
+        onDetail={setDetailEpisode}
+      />
+    ),
+    [podcastId, setDetailEpisode],
+  );
 
   if (!podcast) return <div className={styles.empty}>Loading…</div>;
 
@@ -100,23 +101,46 @@ export function PodcastView({ podcastId }: Props) {
     <div className={styles.view}>
       <div className={styles.header}>
         {podcast.imageUrl ? (
-          <Image src={podcast.imageUrl} alt="" width={96} height={96} className={styles.artwork} />
+          <Image
+            src={podcast.imageUrl}
+            alt=""
+            width={96}
+            height={96}
+            className={styles.artwork}
+          />
         ) : (
-          <div className={styles.artworkPlaceholder}><Podcast size={32} /></div>
+          <div className={styles.artworkPlaceholder}>
+            <Podcast size={32} />
+          </div>
         )}
         <div className={styles.headerInfo}>
           <h2 className={styles.podcastTitle}>{podcast.title}</h2>
-          {podcast.author && <p className={styles.podcastAuthor}>{podcast.author}</p>}
+          {podcast.author && (
+            <p className={styles.podcastAuthor}>{podcast.author}</p>
+          )}
           {podcast.description && (
-            <p className={styles.podcastDescription} dangerouslySetInnerHTML={{ __html: podcast.description }} />
+            <p
+              className={styles.podcastDescription}
+              dangerouslySetInnerHTML={{ __html: podcast.description }}
+            />
           )}
           <div className={styles.podcastLinks}>
             {podcast.siteUrl && (
-              <a href={podcast.siteUrl} target="_blank" rel="noopener noreferrer" className={styles.podcastLink}>
+              <a
+                href={podcast.siteUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.podcastLink}
+              >
                 <ExternalLink size={11} /> Website
               </a>
             )}
-            <a href={podcast.feedUrl} target="_blank" rel="noopener noreferrer" className={styles.podcastLink}>
+            <a
+              href={podcast.feedUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.podcastLink}
+            >
               <Rss size={11} /> RSS Feed
             </a>
           </div>
@@ -126,13 +150,16 @@ export function PodcastView({ podcastId }: Props) {
               onClick={handleRefresh}
               disabled={refreshing}
             >
-              <RefreshCw size={12} className={refreshing ? 'animate-spin' : ''} />
+              <RefreshCw
+                size={12}
+                className={refreshing ? 'animate-spin' : ''}
+              />
               Refresh
             </button>
             <select
               className={styles.typeSelect}
               value={podcast.typeOverride ?? ''}
-              onChange={e => handleTypeOverride(e.target.value)}
+              onChange={(e) => handleTypeOverride(e.target.value)}
               title="Episode order"
             >
               <option value="">Auto ({podcast.type})</option>
@@ -140,14 +167,24 @@ export function PodcastView({ podcastId }: Props) {
               <option value="serial">Serial (oldest first)</option>
             </select>
             {!confirmDelete ? (
-              <button className="btn-danger text-xs" onClick={() => setConfirmDelete(true)}>
+              <button
+                className="btn-danger text-xs"
+                onClick={() => setConfirmDelete(true)}
+              >
                 <Trash2 size={12} /> Unsubscribe
               </button>
             ) : (
               <div className="flex gap-1 items-center">
                 <span className="text-xs text-red-600">Are you sure?</span>
-                <button className="btn-danger text-xs" onClick={handleDelete}>Yes, delete</button>
-                <button className="btn-ghost text-xs" onClick={() => setConfirmDelete(false)}>Cancel</button>
+                <button className="btn-danger text-xs" onClick={handleDelete}>
+                  Yes, delete
+                </button>
+                <button
+                  className="btn-ghost text-xs"
+                  onClick={() => setConfirmDelete(false)}
+                >
+                  Cancel
+                </button>
               </div>
             )}
           </div>
@@ -157,7 +194,8 @@ export function PodcastView({ podcastId }: Props) {
       <div className={styles.toolbar}>
         <span className={styles.toolbarTitle}>
           {episodes.length} episode{episodes.length !== 1 ? 's' : ''}
-          {' · '}{effectiveType === 'serial' ? 'oldest first' : 'newest first'}
+          {' · '}
+          {effectiveType === 'serial' ? 'oldest first' : 'newest first'}
         </span>
       </div>
 
@@ -171,7 +209,10 @@ export function PodcastView({ podcastId }: Props) {
         />
       )}
 
-      <EpisodeDetail episode={detailEpisode} onClose={() => setDetailEpisode(null)} />
+      <EpisodeDetail
+        episode={detailEpisode}
+        onClose={() => setDetailEpisode(null)}
+      />
     </div>
   );
 }

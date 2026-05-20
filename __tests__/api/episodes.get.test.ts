@@ -5,7 +5,8 @@ import { db } from '@/lib/db';
 
 function get(params: Record<string, string | number> = {}) {
   const url = new URL('http://localhost/api/episodes');
-  for (const [k, v] of Object.entries(params)) url.searchParams.set(k, String(v));
+  for (const [k, v] of Object.entries(params))
+    url.searchParams.set(k, String(v));
   return GET(new Request(url.toString()));
 }
 
@@ -20,8 +21,18 @@ describe('GET /api/episodes', () => {
 
   beforeEach(async () => {
     const [podA, podB] = await Promise.all([
-      db.podcast.create({ data: { title: 'Podcast A', feedUrl: 'https://feeds.example.com/a.rss' } }),
-      db.podcast.create({ data: { title: 'Podcast B', feedUrl: 'https://feeds.example.com/b.rss' } }),
+      db.podcast.create({
+        data: {
+          title: 'Podcast A',
+          feedUrl: 'https://feeds.example.com/a.rss',
+        },
+      }),
+      db.podcast.create({
+        data: {
+          title: 'Podcast B',
+          feedUrl: 'https://feeds.example.com/b.rss',
+        },
+      }),
     ]);
     podAId = podA.id;
     podBId = podB.id;
@@ -29,23 +40,37 @@ describe('GET /api/episodes', () => {
     const [ep1, ep2, ep3] = await Promise.all([
       db.episode.create({
         data: {
-          podcastId: podAId, guid: 'ep-1', title: 'A Old',
-          audioUrl: 'u', pubDate: new Date('2024-01-01'),
-          played: true, favorited: false,
+          podcastId: podAId,
+          guid: 'ep-1',
+          title: 'A Old',
+          audioUrl: 'u',
+          pubDate: new Date('2024-01-01'),
+          played: true,
+          favorited: false,
         },
       }),
       db.episode.create({
         data: {
-          podcastId: podAId, guid: 'ep-2', title: 'A New',
-          audioUrl: 'u', pubDate: new Date('2024-03-01'),
-          played: false, favorited: true, favoritedAt: new Date(),
+          podcastId: podAId,
+          guid: 'ep-2',
+          title: 'A New',
+          audioUrl: 'u',
+          pubDate: new Date('2024-03-01'),
+          played: false,
+          favorited: true,
+          favoritedAt: new Date(),
         },
       }),
       db.episode.create({
         data: {
-          podcastId: podBId, guid: 'ep-3', title: 'B New',
-          audioUrl: 'u', pubDate: new Date('2024-02-01'),
-          played: false, favorited: true, favoritedAt: new Date(),
+          podcastId: podBId,
+          guid: 'ep-3',
+          title: 'B New',
+          audioUrl: 'u',
+          pubDate: new Date('2024-02-01'),
+          played: false,
+          favorited: true,
+          favoritedAt: new Date(),
         },
       }),
     ]);
@@ -94,7 +119,7 @@ describe('GET /api/episodes', () => {
     expect(ids).not.toContain(ep3Id);
   });
 
-  it('returns only that podcast\'s episodes when another podcast exists', async () => {
+  it("returns only that podcast's episodes when another podcast exists", async () => {
     const res = await get({ podcastId: podBId });
     const body = await res.json();
     expect(body).toHaveLength(1);
@@ -154,7 +179,11 @@ describe('GET /api/episodes', () => {
   });
 
   it('combines all three filters', async () => {
-    const res = await get({ podcastId: podAId, favorited: 'true', unplayed: 'true' });
+    const res = await get({
+      podcastId: podAId,
+      favorited: 'true',
+      unplayed: 'true',
+    });
     const body = await res.json();
     expect(body).toHaveLength(1);
     expect(body[0].id).toBe(ep2Id);

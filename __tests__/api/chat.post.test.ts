@@ -7,11 +7,13 @@ import { broadcast } from '@/lib/sse';
 const mockBroadcast = broadcast as jest.MockedFunction<typeof broadcast>;
 
 function post(body: unknown) {
-  return POST(new Request('http://localhost/api/chat', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  }));
+  return POST(
+    new Request('http://localhost/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }),
+  );
 }
 
 beforeEach(() => {
@@ -71,10 +73,13 @@ describe('POST /api/chat', () => {
 
   it('broadcasts a chat event', async () => {
     await post({ author: 'Alice', message: 'Hello!' });
-    expect(mockBroadcast).toHaveBeenCalledWith('chat', expect.objectContaining({
-      author: 'Alice',
-      message: 'Hello!',
-    }));
+    expect(mockBroadcast).toHaveBeenCalledWith(
+      'chat',
+      expect.objectContaining({
+        author: 'Alice',
+        message: 'Hello!',
+      }),
+    );
   });
 
   it('trims whitespace from author and message', async () => {
@@ -88,7 +93,9 @@ describe('POST /api/chat', () => {
 
   it('prunes messages beyond 50 after inserting', async () => {
     for (let i = 0; i < 50; i++) {
-      await db.chatMessage.create({ data: { author: 'Alice', message: `old ${i}` } });
+      await db.chatMessage.create({
+        data: { author: 'Alice', message: `old ${i}` },
+      });
     }
     await post({ author: 'Bob', message: 'New one' });
     expect(await db.chatMessage.count()).toBe(50);
@@ -96,7 +103,9 @@ describe('POST /api/chat', () => {
 
   it('keeps the most recent messages when pruning', async () => {
     for (let i = 0; i < 50; i++) {
-      await db.chatMessage.create({ data: { author: 'Alice', message: `old ${i}` } });
+      await db.chatMessage.create({
+        data: { author: 'Alice', message: `old ${i}` },
+      });
     }
     await post({ author: 'Bob', message: 'New one' });
     const newest = await db.chatMessage.findFirst({ orderBy: { id: 'desc' } });

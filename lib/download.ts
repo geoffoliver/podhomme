@@ -8,7 +8,11 @@ const log = logger.child({ module: 'download' });
 
 const inProgress = new Set<number>();
 
-export async function downloadEpisode(episodeId: number, audioUrl: string, downloadLocation: string) {
+export async function downloadEpisode(
+  episodeId: number,
+  audioUrl: string,
+  downloadLocation: string,
+) {
   if (inProgress.has(episodeId)) return;
   inProgress.add(episodeId);
 
@@ -16,9 +20,14 @@ export async function downloadEpisode(episodeId: number, audioUrl: string, downl
   try {
     await mkdir(downloadLocation, { recursive: true });
 
-    const res = await fetch(audioUrl, { headers: { 'User-Agent': USER_AGENT } });
+    const res = await fetch(audioUrl, {
+      headers: { 'User-Agent': USER_AGENT },
+    });
     if (!res.ok) {
-      log.warn({ episodeId, status: res.status }, 'Failed to fetch audio for download');
+      log.warn(
+        { episodeId, status: res.status },
+        'Failed to fetch audio for download',
+      );
       return;
     }
 
@@ -26,7 +35,10 @@ export async function downloadEpisode(episodeId: number, audioUrl: string, downl
     const filename = `${episodeId}.${ext}`;
     // turbopackIgnore tells the Turbopack file tracer not to follow this
     // dynamic path, which would otherwise cause it to trace the whole project.
-    const filepath = path.join(/* turbopackIgnore: true */ downloadLocation, filename);
+    const filepath = path.join(
+      /* turbopackIgnore: true */ downloadLocation,
+      filename,
+    );
 
     const buffer = await res.arrayBuffer();
     await writeFile(filepath, Buffer.from(buffer));
@@ -35,9 +47,14 @@ export async function downloadEpisode(episodeId: number, audioUrl: string, downl
       where: { id: episodeId },
       data: { downloadPath: filepath, fileSize: buffer.byteLength },
     });
-    log.info({
- episodeId, filepath, bytes: buffer.byteLength,
-}, 'Episode audio downloaded');
+    log.info(
+      {
+        episodeId,
+        filepath,
+        bytes: buffer.byteLength,
+      },
+      'Episode audio downloaded',
+    );
   } catch (err) {
     log.error({ episodeId, err }, 'Failed to download episode audio');
   } finally {

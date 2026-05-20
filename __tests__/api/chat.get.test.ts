@@ -9,7 +9,9 @@ describe('GET /api/chat', () => {
   });
 
   it('returns messages in chronological order (oldest first)', async () => {
-    await db.chatMessage.create({ data: { author: 'Alice', message: 'First' } });
+    await db.chatMessage.create({
+      data: { author: 'Alice', message: 'First' },
+    });
     await db.chatMessage.create({ data: { author: 'Bob', message: 'Second' } });
 
     const messages = await (await GET()).json();
@@ -19,7 +21,9 @@ describe('GET /api/chat', () => {
 
   it('returns at most 50 messages', async () => {
     for (let i = 0; i < 60; i++) {
-      await db.chatMessage.create({ data: { author: 'Alice', message: `msg ${i}` } });
+      await db.chatMessage.create({
+        data: { author: 'Alice', message: `msg ${i}` },
+      });
     }
     const messages = await (await GET()).json();
     expect(messages.length).toBe(50);
@@ -27,7 +31,9 @@ describe('GET /api/chat', () => {
 
   it('returns the 50 most recent messages when there are more than 50', async () => {
     for (let i = 0; i < 60; i++) {
-      await db.chatMessage.create({ data: { author: 'Alice', message: `msg ${i}` } });
+      await db.chatMessage.create({
+        data: { author: 'Alice', message: `msg ${i}` },
+      });
     }
     const messages = await (await GET()).json();
     expect(messages[0].message).toBe('msg 10');
@@ -35,7 +41,9 @@ describe('GET /api/chat', () => {
   });
 
   it('includes id, author, message, and sentAt fields', async () => {
-    await db.chatMessage.create({ data: { author: 'Alice', message: 'Hello' } });
+    await db.chatMessage.create({
+      data: { author: 'Alice', message: 'Hello' },
+    });
     const [msg] = await (await GET()).json();
     expect(msg).toHaveProperty('id');
     expect(msg).toHaveProperty('author', 'Alice');

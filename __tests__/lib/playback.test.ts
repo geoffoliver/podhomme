@@ -4,7 +4,9 @@ import { getNextEpisode, getPrevEpisode } from '@/lib/playback';
 let podcastSeq = 0;
 
 // Shared episode creation helper
-async function seedPodcastAndEpisodes(overrides: { type?: string; typeOverride?: string } = {}) {
+async function seedPodcastAndEpisodes(
+  overrides: { type?: string; typeOverride?: string } = {},
+) {
   const n = ++podcastSeq;
   const podcast = await db.podcast.create({
     data: {
@@ -99,7 +101,9 @@ describe('getNextEpisode', () => {
     let ep1Id: number, ep2Id: number, ep3Id: number;
 
     beforeEach(async () => {
-      const { podcast, ep1, ep2, ep3 } = await seedPodcastAndEpisodes({ type: 'episodic' });
+      const { podcast, ep1, ep2, ep3 } = await seedPodcastAndEpisodes({
+        type: 'episodic',
+      });
       podcastId = podcast.id;
       ep1Id = ep1.id;
       ep2Id = ep2.id;
@@ -123,7 +127,9 @@ describe('getNextEpisode', () => {
     let ep1Id: number, ep2Id: number, ep3Id: number;
 
     beforeEach(async () => {
-      const { podcast, ep1, ep2, ep3 } = await seedPodcastAndEpisodes({ type: 'serial' });
+      const { podcast, ep1, ep2, ep3 } = await seedPodcastAndEpisodes({
+        type: 'serial',
+      });
       podcastId = podcast.id;
       ep1Id = ep1.id;
       ep2Id = ep2.id;
@@ -191,15 +197,24 @@ describe('getNextEpisode', () => {
       // Favorite all three with distinct timestamps; ep3 most recently favorited
       await db.episode.update({
         where: { id: ep1Id },
-        data: { favorited: true, favoritedAt: new Date('2024-01-01T00:00:00Z') },
+        data: {
+          favorited: true,
+          favoritedAt: new Date('2024-01-01T00:00:00Z'),
+        },
       });
       await db.episode.update({
         where: { id: ep2Id },
-        data: { favorited: true, favoritedAt: new Date('2024-02-01T00:00:00Z') },
+        data: {
+          favorited: true,
+          favoritedAt: new Date('2024-02-01T00:00:00Z'),
+        },
       });
       await db.episode.update({
         where: { id: ep3Id },
-        data: { favorited: true, favoritedAt: new Date('2024-03-01T00:00:00Z') },
+        data: {
+          favorited: true,
+          favoritedAt: new Date('2024-03-01T00:00:00Z'),
+        },
       });
     });
 
@@ -224,7 +239,9 @@ describe('getNextEpisode', () => {
           pubDate: new Date(),
         },
       });
-      expect(await getNextEpisode(unfavorited.id, 'favorites', null)).toBeNull();
+      expect(
+        await getNextEpisode(unfavorited.id, 'favorites', null),
+      ).toBeNull();
     });
   });
 
@@ -284,7 +301,9 @@ describe('getPrevEpisode', () => {
     let ep1Id: number, ep2Id: number, ep3Id: number;
 
     beforeEach(async () => {
-      const { podcast, ep1, ep2, ep3 } = await seedPodcastAndEpisodes({ type: 'episodic' });
+      const { podcast, ep1, ep2, ep3 } = await seedPodcastAndEpisodes({
+        type: 'episodic',
+      });
       podcastId = podcast.id;
       ep1Id = ep1.id;
       ep2Id = ep2.id;
@@ -308,7 +327,9 @@ describe('getPrevEpisode', () => {
     let ep1Id: number, ep2Id: number, ep3Id: number;
 
     beforeEach(async () => {
-      const { podcast, ep1, ep2, ep3 } = await seedPodcastAndEpisodes({ type: 'serial' });
+      const { podcast, ep1, ep2, ep3 } = await seedPodcastAndEpisodes({
+        type: 'serial',
+      });
       podcastId = podcast.id;
       ep1Id = ep1.id;
       ep2Id = ep2.id;
@@ -375,15 +396,24 @@ describe('getPrevEpisode', () => {
 
       await db.episode.update({
         where: { id: ep1Id },
-        data: { favorited: true, favoritedAt: new Date('2024-01-01T00:00:00Z') },
+        data: {
+          favorited: true,
+          favoritedAt: new Date('2024-01-01T00:00:00Z'),
+        },
       });
       await db.episode.update({
         where: { id: ep2Id },
-        data: { favorited: true, favoritedAt: new Date('2024-02-01T00:00:00Z') },
+        data: {
+          favorited: true,
+          favoritedAt: new Date('2024-02-01T00:00:00Z'),
+        },
       });
       await db.episode.update({
         where: { id: ep3Id },
-        data: { favorited: true, favoritedAt: new Date('2024-03-01T00:00:00Z') },
+        data: {
+          favorited: true,
+          favoritedAt: new Date('2024-03-01T00:00:00Z'),
+        },
       });
     });
 
@@ -409,7 +439,9 @@ describe('getPrevEpisode', () => {
           pubDate: new Date(),
         },
       });
-      expect(await getPrevEpisode(unfavorited.id, 'favorites', null)).toBeNull();
+      expect(
+        await getPrevEpisode(unfavorited.id, 'favorites', null),
+      ).toBeNull();
     });
   });
 

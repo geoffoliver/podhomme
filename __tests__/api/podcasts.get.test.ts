@@ -33,7 +33,11 @@ describe('GET /api/podcasts', () => {
     });
 
     const body = await (await GET()).json();
-    expect(body.map((p: any) => p.title)).toEqual(['Alpha Pod', 'Middle Show', 'Zebra Cast']);
+    expect(body.map((p: any) => p.title)).toEqual([
+      'Alpha Pod',
+      'Middle Show',
+      'Zebra Cast',
+    ]);
   });
 
   it('includes unplayed episode count on each podcast', async () => {
@@ -42,9 +46,30 @@ describe('GET /api/podcasts', () => {
     });
     await db.episode.createMany({
       data: [
-        { podcastId: podcast.id, guid: 'ep-1', title: 'E1', audioUrl: 'u', pubDate: new Date(), played: false },
-        { podcastId: podcast.id, guid: 'ep-2', title: 'E2', audioUrl: 'u', pubDate: new Date(), played: false },
-        { podcastId: podcast.id, guid: 'ep-3', title: 'E3', audioUrl: 'u', pubDate: new Date(), played: true },
+        {
+          podcastId: podcast.id,
+          guid: 'ep-1',
+          title: 'E1',
+          audioUrl: 'u',
+          pubDate: new Date(),
+          played: false,
+        },
+        {
+          podcastId: podcast.id,
+          guid: 'ep-2',
+          title: 'E2',
+          audioUrl: 'u',
+          pubDate: new Date(),
+          played: false,
+        },
+        {
+          podcastId: podcast.id,
+          guid: 'ep-3',
+          title: 'E3',
+          audioUrl: 'u',
+          pubDate: new Date(),
+          played: true,
+        },
       ],
     });
 

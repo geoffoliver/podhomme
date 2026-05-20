@@ -26,63 +26,84 @@ test.describe('Playback', () => {
     db.createQueueItem(ep2.id, 0);
   });
 
-  test('loads an episode into the player when Play episode is clicked', async ({ page }) => {
+  test('loads an episode into the player when Play episode is clicked', async ({
+    page,
+  }) => {
     await page.goto('/');
 
-    await page.getByRole('listbox', { name: 'Podcast library' })
+    await page
+      .getByRole('listbox', { name: 'Podcast library' })
       .getByRole('option', { name: /Test Podcast/ })
       .click();
 
     await page.getByRole('button', { name: 'Play episode' }).first().click();
 
-    await expect(page.locator('[data-podhomme="episode-title"]'))
-      .not.toContainText('Nothing playing', { timeout: 5000 });
+    await expect(
+      page.locator('[data-podhomme="episode-title"]'),
+    ).not.toContainText('Nothing playing', { timeout: 5000 });
   });
 
   test('shows Pause button after loading an episode', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByRole('listbox', { name: 'Podcast library' })
+    await page
+      .getByRole('listbox', { name: 'Podcast library' })
       .getByRole('option', { name: /Test Podcast/ })
       .click();
 
     await page.getByRole('button', { name: 'Play episode' }).first().click();
 
-    await expect(page.getByRole('button', { name: 'Pause' })).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('button', { name: 'Pause' })).toBeVisible({
+      timeout: 5000,
+    });
   });
 
   test('pauses when the Pause button is clicked', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByRole('listbox', { name: 'Podcast library' })
+    await page
+      .getByRole('listbox', { name: 'Podcast library' })
       .getByRole('option', { name: /Test Podcast/ })
       .click();
 
     await page.getByRole('button', { name: 'Play episode' }).first().click();
-    await expect(page.getByRole('button', { name: 'Pause', exact: true })).toBeVisible({ timeout: 5000 });
+    await expect(
+      page.getByRole('button', { name: 'Pause', exact: true }),
+    ).toBeVisible({ timeout: 5000 });
 
     await page.getByRole('button', { name: 'Pause', exact: true }).click();
-    await expect(page.getByRole('button', { name: 'Play', exact: true })).toBeVisible({ timeout: 5000 });
+    await expect(
+      page.getByRole('button', { name: 'Play', exact: true }),
+    ).toBeVisible({ timeout: 5000 });
   });
 
   test('resumes when Play is clicked after pausing', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByRole('listbox', { name: 'Podcast library' })
+    await page
+      .getByRole('listbox', { name: 'Podcast library' })
       .getByRole('option', { name: /Test Podcast/ })
       .click();
 
     await page.getByRole('button', { name: 'Play episode' }).first().click();
-    await expect(page.getByRole('button', { name: 'Pause', exact: true })).toBeVisible({ timeout: 5000 });
+    await expect(
+      page.getByRole('button', { name: 'Pause', exact: true }),
+    ).toBeVisible({ timeout: 5000 });
 
     await page.getByRole('button', { name: 'Pause', exact: true }).click();
-    await expect(page.getByRole('button', { name: 'Play', exact: true })).toBeVisible({ timeout: 5000 });
+    await expect(
+      page.getByRole('button', { name: 'Play', exact: true }),
+    ).toBeVisible({ timeout: 5000 });
 
     await page.getByRole('button', { name: 'Play', exact: true }).click();
-    await expect(page.getByRole('button', { name: 'Pause', exact: true })).toBeVisible({ timeout: 5000 });
+    await expect(
+      page.getByRole('button', { name: 'Pause', exact: true }),
+    ).toBeVisible({ timeout: 5000 });
   });
 
-  test('All Podcasts view shows unplayed episode in queue', async ({ page }) => {
+  test('All Podcasts view shows unplayed episode in queue', async ({
+    page,
+  }) => {
     await page.goto('/');
 
     await expect(page.getByText('Episode Two')).toBeVisible();

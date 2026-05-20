@@ -52,7 +52,10 @@ describe('POST /api/playback', () => {
   beforeEach(async () => {
     mockBroadcast.mockClear();
     const podcast = await db.podcast.create({
-      data: { title: 'Test Podcast', feedUrl: 'https://feeds.example.com/test.rss' },
+      data: {
+        title: 'Test Podcast',
+        feedUrl: 'https://feeds.example.com/test.rss',
+      },
     });
     podcastId = podcast.id;
   });
@@ -63,7 +66,11 @@ describe('POST /api/playback', () => {
     it('sets episodeId and starts playing', async () => {
       const episode = await seedEpisode();
 
-      const res = await post({ action: 'load', episodeId: episode.id, context: 'all' });
+      const res = await post({
+        action: 'load',
+        episodeId: episode.id,
+        context: 'all',
+      });
       const body = await res.json();
 
       expect(body.episodeId).toBe(episode.id);
@@ -73,7 +80,11 @@ describe('POST /api/playback', () => {
     it('starts at the episode resumeAt position', async () => {
       const episode = await seedEpisode({ resumeAt: 120 });
 
-      const res = await post({ action: 'load', episodeId: episode.id, context: 'all' });
+      const res = await post({
+        action: 'load',
+        episodeId: episode.id,
+        context: 'all',
+      });
       const body = await res.json();
 
       expect(body.position).toBe(120);
@@ -82,7 +93,11 @@ describe('POST /api/playback', () => {
     it('defaults position to 0 when resumeAt is 0', async () => {
       const episode = await seedEpisode({ resumeAt: 0 });
 
-      const res = await post({ action: 'load', episodeId: episode.id, context: 'all' });
+      const res = await post({
+        action: 'load',
+        episodeId: episode.id,
+        context: 'all',
+      });
       const body = await res.json();
 
       expect(body.position).toBe(0);
@@ -269,7 +284,9 @@ describe('POST /api/playback', () => {
 
       await post({ action: 'next' });
 
-      const ep1InQueue = await db.queueItem.findUnique({ where: { episodeId: ep1.id } });
+      const ep1InQueue = await db.queueItem.findUnique({
+        where: { episodeId: ep1.id },
+      });
       expect(ep1InQueue).toBeNull();
     });
 
@@ -294,7 +311,9 @@ describe('POST /api/playback', () => {
 
     it('stops playback when there is no next episode', async () => {
       const episode = await seedEpisode();
-      await db.queueItem.create({ data: { episodeId: episode.id, position: 0 } });
+      await db.queueItem.create({
+        data: { episodeId: episode.id, position: 0 },
+      });
       await setPlaybackState({ episodeId: episode.id, context: 'all' });
 
       const res = await post({ action: 'next' });
@@ -343,7 +362,11 @@ describe('POST /api/playback', () => {
           { episodeId: ep2.id, position: 1 },
         ],
       });
-      await setPlaybackState({ episodeId: ep2.id, position: 65, context: 'all' });
+      await setPlaybackState({
+        episodeId: ep2.id,
+        position: 65,
+        context: 'all',
+      });
 
       await post({ action: 'prev' });
 
@@ -389,7 +412,9 @@ describe('POST /api/playback', () => {
 
     it('stops playback when there is no previous episode', async () => {
       const episode = await seedEpisode();
-      await db.queueItem.create({ data: { episodeId: episode.id, position: 0 } });
+      await db.queueItem.create({
+        data: { episodeId: episode.id, position: 0 },
+      });
       await setPlaybackState({ episodeId: episode.id, context: 'all' });
 
       const res = await post({ action: 'prev' });

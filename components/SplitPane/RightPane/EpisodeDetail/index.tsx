@@ -9,7 +9,9 @@ import styles from './index.module.css';
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString(undefined, {
-    year: 'numeric', month: 'long', day: 'numeric',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
   });
 }
 
@@ -22,9 +24,9 @@ function formatDuration(seconds: number | null) {
 }
 
 type Props = {
-  episode: Episode | null
-  onClose: () => void
-}
+  episode: Episode | null;
+  onClose: () => void;
+};
 
 export function EpisodeDetail({ episode, onClose }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -52,12 +54,25 @@ export function EpisodeDetail({ episode, onClose }: Props) {
   const artUrl = episode.imageUrl ?? episode.podcast?.imageUrl ?? null;
 
   return (
-    <dialog ref={dialogRef} className={styles.dialog} onClose={onClose} onClick={handleClick}>
+    <dialog
+      ref={dialogRef}
+      className={styles.dialog}
+      onClose={onClose}
+      onClick={handleClick}
+    >
       <div className={styles.header}>
         {artUrl ? (
-          <Image src={artUrl} alt="" width={80} height={80} className={styles.artwork} />
+          <Image
+            src={artUrl}
+            alt=""
+            width={80}
+            height={80}
+            className={styles.artwork}
+          />
         ) : (
-          <div className={styles.artworkPlaceholder}><Podcast size={32} /></div>
+          <div className={styles.artworkPlaceholder}>
+            <Podcast size={32} />
+          </div>
         )}
         <div className={styles.headerInfo}>
           <h2 className={styles.title}>{episode.title}</h2>
@@ -66,7 +81,9 @@ export function EpisodeDetail({ episode, onClose }: Props) {
           )}
           <div className={styles.meta}>
             <span>{formatDate(episode.pubDate)}</span>
-            {episode.duration && <span>{formatDuration(episode.duration)}</span>}
+            {episode.duration && (
+              <span>{formatDuration(episode.duration)}</span>
+            )}
           </div>
         </div>
       </div>
@@ -80,7 +97,9 @@ export function EpisodeDetail({ episode, onClose }: Props) {
       )}
 
       <div className={styles.footer}>
-        <button className="btn-ghost" onClick={onClose}>Close</button>
+        <button className="btn-ghost" onClick={onClose}>
+          Close
+        </button>
       </div>
     </dialog>
   );

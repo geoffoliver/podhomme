@@ -10,7 +10,9 @@ const DB_PATH = path.resolve(__dirname, '../prisma/e2e.db');
 // in Playwright's test runner.
 
 export type Db = {
-  createPodcast(data: { title: string; feedUrl: string; type?: string }): { id: number };
+  createPodcast(data: { title: string; feedUrl: string; type?: string }): {
+    id: number;
+  };
   createEpisode(data: {
     podcastId: number;
     guid: string;
@@ -41,13 +43,27 @@ function makeDb(sqlite: Database.Database): Db {
       return { id: result.lastInsertRowid as number };
     },
 
-    createEpisode({ podcastId, guid, title, audioUrl, pubDate, duration = null, played = false, favorited = false, favoritedAt = null, downloadPath = null }) {
+    createEpisode({
+      podcastId,
+      guid,
+      title,
+      audioUrl,
+      pubDate,
+      duration = null,
+      played = false,
+      favorited = false,
+      favoritedAt = null,
+      downloadPath = null,
+    }) {
       const stmt = sqlite.prepare(
         `INSERT INTO Episode (podcastId, guid, title, audioUrl, pubDate, duration, played, favorited, favoritedAt, downloadPath, createdAt)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
       );
       const result = stmt.run(
-        podcastId, guid, title, audioUrl,
+        podcastId,
+        guid,
+        title,
+        audioUrl,
         pubDate.toISOString(),
         duration,
         played ? 1 : 0,
@@ -59,9 +75,9 @@ function makeDb(sqlite: Database.Database): Db {
     },
 
     createQueueItem(episodeId, position) {
-      sqlite.prepare(
-        `INSERT INTO QueueItem (episodeId, position) VALUES (?, ?)`,
-      ).run(episodeId, position);
+      sqlite
+        .prepare(`INSERT INTO QueueItem (episodeId, position) VALUES (?, ?)`)
+        .run(episodeId, position);
     },
   };
 }

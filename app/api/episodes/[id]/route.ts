@@ -2,7 +2,10 @@ import type { NextRequest } from 'next/server';
 import { broadcast } from '@/lib/sse';
 import { db } from '@/lib/db';
 
-export async function PATCH(request: NextRequest, ctx: RouteContext<'/api/episodes/[id]'>) {
+export async function PATCH(
+  request: NextRequest,
+  ctx: RouteContext<'/api/episodes/[id]'>,
+) {
   const { id } = await ctx.params;
   const body = await request.json();
   const episodeId = Number(id);
@@ -21,7 +24,9 @@ export async function PATCH(request: NextRequest, ctx: RouteContext<'/api/episod
       // Re-add to queue at end when marked unplayed
       const existing = await db.queueItem.findUnique({ where: { episodeId } });
       if (!existing) {
-        const maxPos = await db.queueItem.aggregate({ _max: { position: true } });
+        const maxPos = await db.queueItem.aggregate({
+          _max: { position: true },
+        });
         await db.queueItem.create({
           data: { episodeId, position: (maxPos._max.position ?? -1) + 1 },
         });

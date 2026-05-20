@@ -14,7 +14,9 @@ export function RightPane() {
     <main className={styles.pane}>
       {selectedView === 'all' && <AllPodcastsView />}
       {selectedView === 'favorites' && <FavoritesView />}
-      {typeof selectedView === 'number' && <PodcastView podcastId={selectedView} />}
+      {typeof selectedView === 'number' && (
+        <PodcastView podcastId={selectedView} />
+      )}
     </main>
   );
 }

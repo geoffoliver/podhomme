@@ -12,7 +12,7 @@ import { usePlayback } from '@/context/PlaybackContext';
 
 import styles from './index.module.css';
 
-export type MobileTab = 'queue' | 'library' | 'favorites' | 'chat'
+export type MobileTab = 'queue' | 'library' | 'favorites' | 'chat';
 
 export function MobileShell() {
   const [tab, setTab] = useState<MobileTab>('queue');
@@ -48,19 +48,20 @@ export function MobileShell() {
   return (
     <div className={styles.shell}>
       <div className={styles.content}>
-        {tab === 'queue'     && <QueueView />}
-        {tab === 'library'   && <LibraryView />}
+        {tab === 'queue' && <QueueView />}
+        {tab === 'library' && <LibraryView />}
         {tab === 'favorites' && <FavoritesView />}
-        {tab === 'chat'      && <ChatView />}
+        {tab === 'chat' && <ChatView />}
       </div>
 
-      {state.episodeId && (
-        <MiniPlayer onTap={() => setNowPlayingOpen(true)} />
-      )}
+      {state.episodeId && <MiniPlayer onTap={() => setNowPlayingOpen(true)} />}
 
       <BottomTabs tab={tab} onTab={switchTab} unreadChat={unreadChat} />
 
-      <NowPlaying open={nowPlayingOpen} onClose={() => setNowPlayingOpen(false)} />
+      <NowPlaying
+        open={nowPlayingOpen}
+        onClose={() => setNowPlayingOpen(false)}
+      />
     </div>
   );
 }
