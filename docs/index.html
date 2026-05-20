@@ -336,31 +336,12 @@
     .desktop-text .btn { margin-top: 0.5rem; }
 
     .desktop-mockup {
-      border: 1px solid var(--border);
       border-radius: var(--radius);
       overflow: hidden;
-      box-shadow: 0 8px 48px rgba(0,0,0,0.10);
-    }
-
-    .desktop-mockup-bar {
-      background: var(--border);
-      padding: 0.5rem 0.75rem;
-      display: flex;
-      gap: 0.375rem;
-      align-items: center;
-    }
-
-    .desktop-mockup-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--muted);
-      opacity: 0.4;
     }
 
     .desktop-mockup-body {
       aspect-ratio: 16/10;
-      background: var(--bg);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -523,20 +504,15 @@
 <section class="desktop-section">
   <div class="container">
     <div class="desktop-text">
-      <h2>Now available as a desktop app.</h2>
+      <h2>Available as a Desktop App.</h2>
       <p>The Podhomme desktop app for macOS, Windows, and Linux bundles everything — no server setup, no Docker, no PM2. Just download, install, and go.</p>
       <p>It checks for updates automatically and prompts you to restart when a new version is ready.</p>
       <a class="btn btn-primary" href="https://github.com/geoffoliver/podhomme/releases/latest" target="_blank" rel="noopener">Download the latest release</a>
     </div>
     <div class="desktop-mockup">
-      <div class="desktop-mockup-bar">
-        <div class="desktop-mockup-dot"></div>
-        <div class="desktop-mockup-dot"></div>
-        <div class="desktop-mockup-dot"></div>
-      </div>
       <div class="desktop-mockup-body">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-        <img src="screenshots/desktop.png" alt="Podhomme desktop app" style="display:none;width:100%;height:auto;" onload="this.previousElementSibling.style.display='none'; this.style.display='block';" />
+        <img src="screenshots/desktop-app.png" alt="Podhomme desktop app" style="display:none;width:100%;height:auto;" onload="this.previousElementSibling.style.display='none'; this.style.display='block';" />
       </div>
     </div>
   </div>
