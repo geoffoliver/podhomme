@@ -15,8 +15,6 @@ const isDev = !app.isPackaged;
 let server: UtilityProcess | null = null;
 let mainWindow: BrowserWindow | null = null;
 
-// Run Prisma migrations inline using better-sqlite3, avoiding any subprocess
-// spawn (prisma CLI is a devDependency and may not be in the packaged app).
 function runMigrations(dbPath: string, migrationsDir: string) {
   const db = new Database(dbPath);
 
@@ -79,7 +77,7 @@ function waitForServer(url: string, timeoutMs = 120_000): Promise<void> {
             retry();
           }
         })
-        .on('error', () => {
+        .on('error', (err) => {
           if (Date.now() > deadline) {
             reject(new Error(`Server did not start within ${timeoutMs}ms`));
           } else {
@@ -101,27 +99,37 @@ function startServer(): Promise<void> {
     const dbDir = app.getPath('userData');
     const dbPath = path.join(dbDir, 'podhomme.db');
 
-    // Run migrations synchronously — fast, no subprocess needed.
-    runMigrations(dbPath, path.join(appRoot, 'prisma/migrations'));
+    const migrationsDir = app.isPackaged
+      ? path.join(process.resourcesPath, 'app.asar.unpacked', 'prisma', 'migrations')
+      : path.join(appRoot, 'prisma', 'migrations');
 
-    const nextCli = path.join(appRoot, 'node_modules/next/dist/bin/next');
+    try {
+      runMigrations(dbPath, migrationsDir);
+    } catch (err) {
+      return reject(err);
+    }
 
-    server = utilityProcess.fork(nextCli, ['start'], {
-      cwd: appRoot,
+    const standaloneDir = app.isPackaged
+      ? path.join(process.resourcesPath, 'standalone')
+      : path.join(appRoot, '.next', 'standalone');
+
+    const serverScript = path.join(standaloneDir, 'server.js');
+
+    server = utilityProcess.fork(serverScript, [], {
+      cwd: standaloneDir,
       env: {
         ...process.env,
         DATABASE_URL: `file:${dbPath}`,
         PORT: String(PORT),
         NODE_ENV: 'production',
       },
-      stdio: 'inherit',
+      stdio: 'pipe',
     });
 
-    // Resolve as soon as the process has spawned so waitForServer can begin.
-    server.once('spawn', resolve);
-    server.once('exit', (code) =>
-      reject(new Error(`Next.js server exited early with code ${code}`)),
-    );
+    server.once('spawn', () => resolve());
+    server.once('exit', (code) => {
+      reject(new Error(`Next.js server exited early with code ${code}`));
+    });
   });
 }
 

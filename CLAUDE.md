@@ -71,7 +71,7 @@ Use test driven development. Write/update tests first, run them, check the cover
 - DB: SQLite/Prisma
 - Icons: Lucide
 - Runtime: Node.js 22
-- Host OS: MacOS (Intel)
+- Host OS: MacOS (Apple Silicon / M1 Mac Studio)
 - Package manager: yarn
 - Styling: Tailwind
 - Process Management: PM2
