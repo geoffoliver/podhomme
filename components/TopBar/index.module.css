@@ -14,6 +14,20 @@
     z-10
     dark:border-neutral-800
     dark:bg-neutral-950;
+  -webkit-app-region: drag;
+}
+
+/* Shift content right to clear the traffic light buttons on macOS */
+:global([data-electron]) .topbar {
+  @apply
+    pl-20;
+}
+
+/* All interactive children must opt out of the drag region */
+.topbar button,
+.topbar a,
+.topbar [role='slider'] {
+  -webkit-app-region: no-drag;
 }
 
 .artwork {

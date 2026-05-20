@@ -129,12 +129,18 @@ function setupMenu() {
 }
 
 function createWindow() {
+  const mac = process.platform === 'darwin';
+
   mainWindow = new BrowserWindow({
     width: 1400,
     height: 900,
     minWidth: 900,
     minHeight: 600,
     title: 'Podhomme',
+    // Hide the native title bar on macOS; keep traffic lights inset into the
+    // top bar. trafficLightPosition centers the buttons in the 64px top bar.
+    titleBarStyle: mac ? 'hiddenInset' : 'default',
+    trafficLightPosition: mac ? { x: 16, y: 24 } : undefined,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
