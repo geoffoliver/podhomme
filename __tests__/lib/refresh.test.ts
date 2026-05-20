@@ -55,6 +55,14 @@ function makeFeed(episodes: ReturnType<typeof makeFeedEpisode>[]) {
   };
 }
 
+function makeFullFeedResult(
+  feed: ReturnType<typeof makeFeed>,
+  etag: string | null = null,
+  lastModified: string | null = null,
+) {
+  return { notModified: false as const, feed, etag, lastModified };
+}
+
 const YESTERDAY = new Date(Date.now() - 24 * 60 * 60 * 1000);
 const TWO_DAYS_AGO = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
 const SIXTY_ONE_DAYS_AGO = new Date(Date.now() - 61 * 24 * 60 * 60 * 1000);
@@ -66,6 +74,7 @@ describe('refreshPodcast', () => {
 
   beforeEach(async () => {
     mockParseFeed.mockReset();
+    mockBroadcast.mockClear();
     const podcast = await db.podcast.create({
       data: {
         title: 'Test Podcast',
@@ -73,7 +82,9 @@ describe('refreshPodcast', () => {
       },
     });
     podcastId = podcast.id;
-    mockParseFeed.mockResolvedValue(makeFeed([makeFeedEpisode()]));
+    mockParseFeed.mockResolvedValue(
+      makeFullFeedResult(makeFeed([makeFeedEpisode()])),
+    );
   });
 
   // ── existing coverage (kept for regression) ────────────────────────────────
@@ -117,15 +128,56 @@ describe('refreshPodcast', () => {
     expect(await db.episode.count({ where: { podcastId } })).toBe(1);
   });
 
+  // ── conditional HTTP caching ───────────────────────────────────────────────
+
+  describe('conditional HTTP caching', () => {
+    it('passes cached etag and lastModified to parseFeed', async () => {
+      await db.podcast.update({
+        where: { id: podcastId },
+        data: { lastEtag: '"abc123"', lastModified: 'Wed, 01 Jan 2025 00:00:00 GMT' },
+      });
+      await refreshPodcast(podcastId);
+      expect(mockParseFeed).toHaveBeenCalledWith(
+        expect.any(String),
+        { etag: '"abc123"', lastModified: 'Wed, 01 Jan 2025 00:00:00 GMT' },
+      );
+    });
+
+    it('stores etag and lastModified returned by parseFeed', async () => {
+      mockParseFeed.mockResolvedValue(
+        makeFullFeedResult(makeFeed([]), '"new-etag"', 'Thu, 02 Jan 2025 00:00:00 GMT'),
+      );
+      await refreshPodcast(podcastId);
+      const podcast = await db.podcast.findUnique({ where: { id: podcastId } });
+      expect(podcast?.lastEtag).toBe('"new-etag"');
+      expect(podcast?.lastModified).toBe('Thu, 02 Jan 2025 00:00:00 GMT');
+    });
+
+    it('skips all processing and does not broadcast when parseFeed returns notModified', async () => {
+      mockParseFeed.mockResolvedValue({ notModified: true });
+      await refreshPodcast(podcastId);
+      expect(mockBroadcast).not.toHaveBeenCalled();
+      // lastRefreshedAt should not be updated
+      const podcast = await db.podcast.findUnique({ where: { id: podcastId } });
+      expect(podcast?.lastRefreshedAt).toBeNull();
+    });
+
+    it('does not create episodes when parseFeed returns notModified', async () => {
+      mockParseFeed.mockResolvedValue({ notModified: true });
+      await refreshPodcast(podcastId);
+      expect(await db.episode.count({ where: { podcastId } })).toBe(0);
+    });
+  });
+
   // ── multiple new episodes ──────────────────────────────────────────────────
 
   describe('when the feed contains multiple new episodes', () => {
     beforeEach(() => {
       mockParseFeed.mockResolvedValue(
-        makeFeed([
+        makeFullFeedResult(makeFeed([
           makeFeedEpisode({ guid: 'ep-new', pubDate: YESTERDAY }), // newer
           makeFeedEpisode({ guid: 'ep-old', pubDate: TWO_DAYS_AGO }), // older
-        ]),
+        ])),
       );
     });
 
@@ -150,7 +202,7 @@ describe('refreshPodcast', () => {
   describe('60-day rule', () => {
     beforeEach(() => {
       mockParseFeed.mockResolvedValue(
-        makeFeed([makeFeedEpisode({ pubDate: SIXTY_ONE_DAYS_AGO })]),
+        makeFullFeedResult(makeFeed([makeFeedEpisode({ pubDate: SIXTY_ONE_DAYS_AGO })])),
       );
     });
 
@@ -171,7 +223,6 @@ describe('refreshPodcast', () => {
 
   describe('reappearing pruned episode', () => {
     it('creates the episode as played when its pubDate is older than the most recent stored episode', async () => {
-      // Existing episode is more recent than the feed episode about to arrive
       await db.episode.create({
         data: {
           podcastId,
@@ -183,9 +234,9 @@ describe('refreshPodcast', () => {
       });
 
       mockParseFeed.mockResolvedValue(
-        makeFeed([
+        makeFullFeedResult(makeFeed([
           makeFeedEpisode({ guid: 'ep-pruned', pubDate: TWO_DAYS_AGO }),
-        ]),
+        ])),
       );
 
       await refreshPodcast(podcastId);
@@ -208,9 +259,9 @@ describe('refreshPodcast', () => {
       });
 
       mockParseFeed.mockResolvedValue(
-        makeFeed([
+        makeFullFeedResult(makeFeed([
           makeFeedEpisode({ guid: 'ep-pruned', pubDate: TWO_DAYS_AGO }),
-        ]),
+        ])),
       );
 
       await refreshPodcast(podcastId);
@@ -227,7 +278,7 @@ describe('refreshPodcast', () => {
       mockRm.mockReset();
       mockRm.mockResolvedValue(undefined);
       // No new episodes so pruning logic runs against pre-existing data only
-      mockParseFeed.mockResolvedValue(makeFeed([]));
+      mockParseFeed.mockResolvedValue(makeFullFeedResult(makeFeed([])));
     });
 
     it('skips pruning when defaultPlayback is stream (default)', async () => {
@@ -270,7 +321,7 @@ describe('refreshPodcast', () => {
         data: { defaultPlayback: 'download', episodesToKeep: 'all' },
       });
       mockParseFeed.mockResolvedValue(
-        makeFeed([makeFeedEpisode({ guid: 'ep-new' })]),
+        makeFullFeedResult(makeFeed([makeFeedEpisode({ guid: 'ep-new' })])),
       );
 
       await refreshPodcast(podcastId);
@@ -431,7 +482,7 @@ describe('refreshAll', () => {
         { title: 'Podcast B', feedUrl: 'https://feeds.example.com/b.rss' },
       ],
     });
-    mockParseFeed.mockResolvedValue(makeFeed([]));
+    mockParseFeed.mockResolvedValue(makeFullFeedResult(makeFeed([])));
 
     await refreshAll();
 
@@ -439,7 +490,7 @@ describe('refreshAll', () => {
   });
 
   it('continues refreshing remaining podcasts when one fails', async () => {
-    const [podA, podB] = await Promise.all([
+    const [, podB] = await Promise.all([
       db.podcast.create({
         data: {
           title: 'Podcast A',
@@ -456,7 +507,9 @@ describe('refreshAll', () => {
 
     mockParseFeed
       .mockRejectedValueOnce(new Error('Feed fetch failed'))
-      .mockResolvedValueOnce(makeFeed([makeFeedEpisode({ guid: 'ep-b' })]));
+      .mockResolvedValueOnce(
+        makeFullFeedResult(makeFeed([makeFeedEpisode({ guid: 'ep-b' })])),
+      );
 
     await refreshAll();
 
@@ -471,7 +524,7 @@ describe('refreshAll', () => {
     await db.podcast.create({
       data: { title: 'Podcast A', feedUrl: 'https://feeds.example.com/a.rss' },
     });
-    mockParseFeed.mockResolvedValue(makeFeed([]));
+    mockParseFeed.mockResolvedValue(makeFullFeedResult(makeFeed([])));
 
     await refreshAll();
 
@@ -485,7 +538,7 @@ describe('refreshAll', () => {
         { title: 'Podcast B', feedUrl: 'https://feeds.example.com/b.rss' },
       ],
     });
-    mockParseFeed.mockResolvedValue(makeFeed([]));
+    mockParseFeed.mockResolvedValue(makeFullFeedResult(makeFeed([])));
 
     await refreshAll();
 
@@ -515,7 +568,7 @@ describe('refreshAll', () => {
         { title: 'Podcast B', feedUrl: 'https://feeds.example.com/b.rss' },
       ],
     });
-    mockParseFeed.mockResolvedValue(makeFeed([]));
+    mockParseFeed.mockResolvedValue(makeFullFeedResult(makeFeed([])));
 
     const onProgress = jest.fn();
     await refreshAll(onProgress);
@@ -529,7 +582,7 @@ describe('refreshAll', () => {
     await db.podcast.create({
       data: { title: 'Podcast A', feedUrl: 'https://feeds.example.com/a.rss' },
     });
-    mockParseFeed.mockResolvedValue(makeFeed([]));
+    mockParseFeed.mockResolvedValue(makeFullFeedResult(makeFeed([])));
 
     // Both calls start in the same tick; p1 sets isRefreshing=true synchronously
     // before any await, so p2 sees it and returns immediately
@@ -554,7 +607,7 @@ describe('startRefresh', () => {
     await db.podcast.create({
       data: { title: 'P', feedUrl: 'https://feeds.example.com/p.rss' },
     });
-    mockParseFeed.mockResolvedValue(makeFeed([]));
+    mockParseFeed.mockResolvedValue(makeFullFeedResult(makeFeed([])));
 
     const result = await startRefresh();
     expect(result).toEqual({ started: true });
@@ -571,8 +624,8 @@ describe('startRefresh', () => {
     let resolveRefresh!: () => void;
     mockParseFeed.mockImplementation(
       () =>
-        new Promise<ReturnType<typeof makeFeed>>((resolve) => {
-          resolveRefresh = () => resolve(makeFeed([]));
+        new Promise<ReturnType<typeof makeFullFeedResult>>((resolve) => {
+          resolveRefresh = () => resolve(makeFullFeedResult(makeFeed([])));
         }),
     );
 
@@ -588,7 +641,7 @@ describe('startRefresh', () => {
   });
 
   it('returns too_soon when called within the refresh frequency window', async () => {
-    mockParseFeed.mockResolvedValue(makeFeed([]));
+    mockParseFeed.mockResolvedValue(makeFullFeedResult(makeFeed([])));
 
     // First call succeeds and records lastRefreshedAt
     await startRefresh();
@@ -606,7 +659,7 @@ describe('startRefresh', () => {
     await db.podcast.create({
       data: { title: 'P', feedUrl: 'https://feeds.example.com/p.rss' },
     });
-    mockParseFeed.mockResolvedValue(makeFeed([]));
+    mockParseFeed.mockResolvedValue(makeFullFeedResult(makeFeed([])));
 
     await startRefresh();
     await new Promise((resolve) => setTimeout(resolve, 20));

@@ -46,7 +46,18 @@ export async function refreshPodcast(podcastId: number) {
   });
   log.info({ podcastId, title: podcast.title }, 'Refreshing podcast');
 
-  const feed = await parseFeed(podcast.feedUrl);
+  const result = await parseFeed(podcast.feedUrl, {
+    etag: podcast.lastEtag,
+    lastModified: podcast.lastModified,
+  });
+
+  if (result.notModified) {
+    log.info({ podcastId, title: podcast.title }, 'Feed not modified (304)');
+    return;
+  }
+
+  const { feed, etag, lastModified } = result;
+
   log.debug(
     {
       podcastId,
@@ -66,6 +77,8 @@ export async function refreshPodcast(podcastId: number) {
       author: feed.author,
       type: feed.type,
       lastRefreshedAt: new Date(),
+      lastEtag: etag,
+      lastModified: lastModified,
     },
   });
 

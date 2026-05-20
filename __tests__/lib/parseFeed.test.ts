@@ -1,23 +1,47 @@
 // rss-parser is a class whose instance is created at feed.ts module load time.
-// We mock the constructor so the module-level `parser` gets a jest.fn() for parseURL.
-jest.mock('rss-parser', () => jest.fn(() => ({ parseURL: jest.fn() })));
+// We mock the constructor so the module-level `parser` gets jest.fn()s for parseString.
+jest.mock('rss-parser', () => jest.fn(() => ({ parseString: jest.fn() })));
 
 import { parseFeed } from '@/lib/feed';
 import Parser from 'rss-parser';
 import { USER_AGENT } from '@/lib/user-agent';
 
-// Grab the parseURL mock from the one instance created when feed.ts loaded.
-// mock.results[0].value is the returned object; mock.instances[0] is the raw `this` (no parseURL).
 const MockParser = Parser as jest.MockedClass<any>;
-let mockParseURL: jest.Mock;
+let mockParseString: jest.Mock;
+let mockFetch: jest.Mock;
+
+// Helper to build a fake Response-like object
+function makeResponse(
+  status: number,
+  body = '<rss/>',
+  headers: Record<string, string> = {},
+) {
+  return {
+    status,
+    ok: status >= 200 && status < 300,
+    text: async () => body,
+    headers: { get: (name: string) => headers[name.toLowerCase()] ?? null },
+  };
+}
 
 beforeAll(() => {
-  mockParseURL = MockParser.mock.results[0].value.parseURL;
+  mockParseString = MockParser.mock.results[0].value.parseString;
 });
 
 beforeEach(() => {
-  mockParseURL.mockReset();
+  mockFetch = jest.fn();
+  global.fetch = mockFetch;
+  mockParseString.mockReset();
+  // Default: 200 response with no conditional headers
+  mockFetch.mockResolvedValue(makeResponse(200));
 });
+
+// Convenience: call parseFeed and assert it returned a full result (not 304)
+async function parse(url = FEED_URL, cache?: Parameters<typeof parseFeed>[1]) {
+  const r = await parseFeed(url, cache);
+  if (r.notModified) throw new Error('Unexpected notModified result');
+  return r;
+}
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
@@ -41,16 +65,77 @@ function makeRawItem(overrides: Record<string, unknown> = {}) {
   };
 }
 
-const URL = 'https://feeds.example.com/test.rss';
+const FEED_URL = 'https://feeds.example.com/test.rss';
 
-// ─── User-Agent ───────────────────────────────────────────────────────────────
+// ─── HTTP behaviour ───────────────────────────────────────────────────────────
 
-describe('parseFeed — user agent', () => {
-  it('passes User-Agent to the rss-parser constructor via requestOptions.headers', () => {
-    const ctorArg = MockParser.mock.calls[0]?.[0] as Record<string, unknown>;
-    const headers = (ctorArg?.requestOptions as Record<string, unknown>)
-      ?.headers as Record<string, string>;
-    expect(headers?.['User-Agent']).toBe(USER_AGENT);
+describe('parseFeed — HTTP behaviour', () => {
+  it('sends a User-Agent header', async () => {
+    mockParseString.mockResolvedValue(makeRawFeed());
+    await parse();
+    const [, init] = mockFetch.mock.calls[0];
+    expect((init as RequestInit).headers).toMatchObject({
+      'User-Agent': USER_AGENT,
+    });
+  });
+
+  it('sends If-None-Match when an etag is provided', async () => {
+    mockParseString.mockResolvedValue(makeRawFeed());
+    await parse(FEED_URL, { etag: '"abc123"' });
+    const [, init] = mockFetch.mock.calls[0];
+    expect((init as RequestInit).headers).toMatchObject({
+      'If-None-Match': '"abc123"',
+    });
+  });
+
+  it('sends If-Modified-Since when a lastModified date is provided', async () => {
+    mockParseString.mockResolvedValue(makeRawFeed());
+    await parse(FEED_URL, { lastModified: 'Wed, 21 Oct 2015 07:28:00 GMT' });
+    const [, init] = mockFetch.mock.calls[0];
+    expect((init as RequestInit).headers).toMatchObject({
+      'If-Modified-Since': 'Wed, 21 Oct 2015 07:28:00 GMT',
+    });
+  });
+
+  it('omits conditional headers when cache values are null', async () => {
+    mockParseString.mockResolvedValue(makeRawFeed());
+    await parse(FEED_URL, { etag: null, lastModified: null });
+    const [, init] = mockFetch.mock.calls[0];
+    const headers = (init as RequestInit).headers as Record<string, string>;
+    expect(headers['If-None-Match']).toBeUndefined();
+    expect(headers['If-Modified-Since']).toBeUndefined();
+  });
+
+  it('returns { notModified: true } on a 304 response', async () => {
+    mockFetch.mockResolvedValue(makeResponse(304));
+    const result = await parseFeed(FEED_URL, { etag: '"abc"' });
+    expect(result).toEqual({ notModified: true });
+    expect(mockParseString).not.toHaveBeenCalled();
+  });
+
+  it('returns the etag from the response headers', async () => {
+    mockParseString.mockResolvedValue(makeRawFeed());
+    mockFetch.mockResolvedValue(makeResponse(200, '<rss/>', { etag: '"xyz"' }));
+    const result = await parse();
+    expect(result.etag).toBe('"xyz"');
+  });
+
+  it('returns the last-modified from the response headers', async () => {
+    mockParseString.mockResolvedValue(makeRawFeed());
+    mockFetch.mockResolvedValue(
+      makeResponse(200, '<rss/>', {
+        'last-modified': 'Tue, 01 Jan 2030 00:00:00 GMT',
+      }),
+    );
+    const result = await parse();
+    expect(result.lastModified).toBe('Tue, 01 Jan 2030 00:00:00 GMT');
+  });
+
+  it('returns null etag and lastModified when those headers are absent', async () => {
+    mockParseString.mockResolvedValue(makeRawFeed());
+    const result = await parse();
+    expect(result.etag).toBeNull();
+    expect(result.lastModified).toBeNull();
   });
 });
 
@@ -58,49 +143,47 @@ describe('parseFeed — user agent', () => {
 
 describe('parseFeed — feed metadata', () => {
   it('returns the feed title', async () => {
-    mockParseURL.mockResolvedValue(makeRawFeed({ title: 'Cool Podcast' }));
-    const result = await parseFeed(URL);
-    expect(result.title).toBe('Cool Podcast');
+    mockParseString.mockResolvedValue(makeRawFeed({ title: 'Cool Podcast' }));
+    expect((await parse()).feed.title).toBe('Cool Podcast');
   });
 
   it('falls back to "Untitled Podcast" when title is absent', async () => {
-    mockParseURL.mockResolvedValue(makeRawFeed({ title: undefined }));
-    const result = await parseFeed(URL);
-    expect(result.title).toBe('Untitled Podcast');
+    mockParseString.mockResolvedValue(makeRawFeed({ title: undefined }));
+    expect((await parse()).feed.title).toBe('Untitled Podcast');
   });
 
   it('returns the feed description, null when absent', async () => {
-    mockParseURL.mockResolvedValue(
+    mockParseString.mockResolvedValue(
       makeRawFeed({ description: 'About this show' }),
     );
-    expect((await parseFeed(URL)).description).toBe('About this show');
+    expect((await parse()).feed.description).toBe('About this show');
 
-    mockParseURL.mockResolvedValue(makeRawFeed({ description: undefined }));
-    expect((await parseFeed(URL)).description).toBeNull();
+    mockParseString.mockResolvedValue(makeRawFeed({ description: undefined }));
+    expect((await parse()).feed.description).toBeNull();
   });
 
   it('returns feed.link as siteUrl', async () => {
-    mockParseURL.mockResolvedValue(
+    mockParseString.mockResolvedValue(
       makeRawFeed({ link: 'https://mypodcast.com' }),
     );
-    expect((await parseFeed(URL)).siteUrl).toBe('https://mypodcast.com');
+    expect((await parse()).feed.siteUrl).toBe('https://mypodcast.com');
   });
 
   it('prefers itunes:author over creator for the author field', async () => {
-    mockParseURL.mockResolvedValue(
+    mockParseString.mockResolvedValue(
       makeRawFeed({ 'itunes:author': 'iTunes Author', creator: 'RSS Creator' }),
     );
-    expect((await parseFeed(URL)).author).toBe('iTunes Author');
+    expect((await parse()).feed.author).toBe('iTunes Author');
   });
 
   it('falls back to creator when itunes:author is absent', async () => {
-    mockParseURL.mockResolvedValue(makeRawFeed({ creator: 'RSS Creator' }));
-    expect((await parseFeed(URL)).author).toBe('RSS Creator');
+    mockParseString.mockResolvedValue(makeRawFeed({ creator: 'RSS Creator' }));
+    expect((await parse()).feed.author).toBe('RSS Creator');
   });
 
   it('returns null author when neither itunes:author nor creator is present', async () => {
-    mockParseURL.mockResolvedValue(makeRawFeed());
-    expect((await parseFeed(URL)).author).toBeNull();
+    mockParseString.mockResolvedValue(makeRawFeed());
+    expect((await parse()).feed.author).toBeNull();
   });
 });
 
@@ -108,18 +191,18 @@ describe('parseFeed — feed metadata', () => {
 
 describe('parseFeed — feed type', () => {
   it('returns "serial" when itunes:type is "serial" (case-insensitive)', async () => {
-    mockParseURL.mockResolvedValue(makeRawFeed({ 'itunes:type': 'Serial' }));
-    expect((await parseFeed(URL)).type).toBe('serial');
+    mockParseString.mockResolvedValue(makeRawFeed({ 'itunes:type': 'Serial' }));
+    expect((await parse()).feed.type).toBe('serial');
   });
 
   it('returns "episodic" when itunes:type is absent', async () => {
-    mockParseURL.mockResolvedValue(makeRawFeed());
-    expect((await parseFeed(URL)).type).toBe('episodic');
+    mockParseString.mockResolvedValue(makeRawFeed());
+    expect((await parse()).feed.type).toBe('episodic');
   });
 
   it('returns "episodic" for non-serial values', async () => {
-    mockParseURL.mockResolvedValue(makeRawFeed({ 'itunes:type': 'episodic' }));
-    expect((await parseFeed(URL)).type).toBe('episodic');
+    mockParseString.mockResolvedValue(makeRawFeed({ 'itunes:type': 'episodic' }));
+    expect((await parse()).feed.type).toBe('episodic');
   });
 });
 
@@ -127,48 +210,40 @@ describe('parseFeed — feed type', () => {
 
 describe('parseFeed — image extraction', () => {
   it('returns a plain string image URL', async () => {
-    mockParseURL.mockResolvedValue(
+    mockParseString.mockResolvedValue(
       makeRawFeed({ 'itunes:image': 'https://img.example.com/art.jpg' }),
     );
-    expect((await parseFeed(URL)).imageUrl).toBe(
-      'https://img.example.com/art.jpg',
-    );
+    expect((await parse()).feed.imageUrl).toBe('https://img.example.com/art.jpg');
   });
 
   it('extracts href from an object with href property', async () => {
-    mockParseURL.mockResolvedValue(
+    mockParseString.mockResolvedValue(
       makeRawFeed({
         'itunes:image': { href: 'https://img.example.com/art.jpg' },
       }),
     );
-    expect((await parseFeed(URL)).imageUrl).toBe(
-      'https://img.example.com/art.jpg',
-    );
+    expect((await parse()).feed.imageUrl).toBe('https://img.example.com/art.jpg');
   });
 
   it('extracts href from an xml2js-style attributes object', async () => {
-    mockParseURL.mockResolvedValue(
+    mockParseString.mockResolvedValue(
       makeRawFeed({
         'itunes:image': { $: { href: 'https://img.example.com/art.jpg' } },
       }),
     );
-    expect((await parseFeed(URL)).imageUrl).toBe(
-      'https://img.example.com/art.jpg',
-    );
+    expect((await parse()).feed.imageUrl).toBe('https://img.example.com/art.jpg');
   });
 
   it('falls back to feed.image when itunes:image is absent', async () => {
-    mockParseURL.mockResolvedValue(
+    mockParseString.mockResolvedValue(
       makeRawFeed({ image: { url: 'https://img.example.com/rss.jpg' } }),
     );
-    expect((await parseFeed(URL)).imageUrl).toBe(
-      'https://img.example.com/rss.jpg',
-    );
+    expect((await parse()).feed.imageUrl).toBe('https://img.example.com/rss.jpg');
   });
 
   it('returns null when no image is present', async () => {
-    mockParseURL.mockResolvedValue(makeRawFeed());
-    expect((await parseFeed(URL)).imageUrl).toBeNull();
+    mockParseString.mockResolvedValue(makeRawFeed());
+    expect((await parse()).feed.imageUrl).toBeNull();
   });
 });
 
@@ -176,7 +251,7 @@ describe('parseFeed — image extraction', () => {
 
 describe('parseFeed — episodes', () => {
   it('maps the enclosure URL to audioUrl', async () => {
-    mockParseURL.mockResolvedValue(
+    mockParseString.mockResolvedValue(
       makeRawFeed({
         items: [
           makeRawItem({
@@ -188,12 +263,12 @@ describe('parseFeed — episodes', () => {
         ],
       }),
     );
-    const { episodes } = await parseFeed(URL);
-    expect(episodes[0].audioUrl).toBe('https://cdn.example.com/ep.mp3');
+    const { feed } = await parse();
+    expect(feed.episodes[0].audioUrl).toBe('https://cdn.example.com/ep.mp3');
   });
 
   it('omits items that have no enclosure', async () => {
-    mockParseURL.mockResolvedValue(
+    mockParseString.mockResolvedValue(
       makeRawFeed({
         items: [
           makeRawItem({ enclosure: undefined }),
@@ -201,13 +276,13 @@ describe('parseFeed — episodes', () => {
         ],
       }),
     );
-    const { episodes } = await parseFeed(URL);
-    expect(episodes).toHaveLength(1);
-    expect(episodes[0].guid).toBe('ep-002');
+    const { feed } = await parse();
+    expect(feed.episodes).toHaveLength(1);
+    expect(feed.episodes[0].guid).toBe('ep-002');
   });
 
   it('sets mediaType to "video" for video/* enclosures', async () => {
-    mockParseURL.mockResolvedValue(
+    mockParseString.mockResolvedValue(
       makeRawFeed({
         items: [
           makeRawItem({
@@ -219,12 +294,12 @@ describe('parseFeed — episodes', () => {
         ],
       }),
     );
-    const { episodes } = await parseFeed(URL);
-    expect(episodes[0].mediaType).toBe('video');
+    const { feed } = await parse();
+    expect(feed.episodes[0].mediaType).toBe('video');
   });
 
   it('defaults mediaType to "audio" for non-video enclosures', async () => {
-    mockParseURL.mockResolvedValue(
+    mockParseString.mockResolvedValue(
       makeRawFeed({
         items: [
           makeRawItem({
@@ -236,12 +311,12 @@ describe('parseFeed — episodes', () => {
         ],
       }),
     );
-    const { episodes } = await parseFeed(URL);
-    expect(episodes[0].mediaType).toBe('audio');
+    const { feed } = await parse();
+    expect(feed.episodes[0].mediaType).toBe('audio');
   });
 
   it('returns all episodes from the feed', async () => {
-    mockParseURL.mockResolvedValue(
+    mockParseString.mockResolvedValue(
       makeRawFeed({
         items: [
           makeRawItem({ guid: 'ep-1' }),
@@ -250,38 +325,38 @@ describe('parseFeed — episodes', () => {
         ],
       }),
     );
-    const { episodes } = await parseFeed(URL);
-    expect(episodes).toHaveLength(3);
+    const { feed } = await parse();
+    expect(feed.episodes).toHaveLength(3);
   });
 
   it('uses guid, then link, then title as episode guid fallbacks', async () => {
-    mockParseURL.mockResolvedValue(
+    mockParseString.mockResolvedValue(
       makeRawFeed({ items: [makeRawItem({ guid: 'my-guid' })] }),
     );
-    expect((await parseFeed(URL)).episodes[0].guid).toBe('my-guid');
+    expect((await parse()).feed.episodes[0].guid).toBe('my-guid');
 
-    mockParseURL.mockResolvedValue(
+    mockParseString.mockResolvedValue(
       makeRawFeed({
         items: [makeRawItem({ guid: undefined, link: 'https://ep.link' })],
       }),
     );
-    expect((await parseFeed(URL)).episodes[0].guid).toBe('https://ep.link');
+    expect((await parse()).feed.episodes[0].guid).toBe('https://ep.link');
   });
 
   it('parses pubDate string into a Date', async () => {
-    mockParseURL.mockResolvedValue(
+    mockParseString.mockResolvedValue(
       makeRawFeed({
         items: [makeRawItem({ pubDate: 'Mon, 15 Jan 2024 12:00:00 +0000' })],
       }),
     );
-    const { episodes } = await parseFeed(URL);
-    expect(episodes[0].pubDate).toBeInstanceOf(Date);
-    expect(episodes[0].pubDate.getFullYear()).toBe(2024);
+    const { feed } = await parse();
+    expect(feed.episodes[0].pubDate).toBeInstanceOf(Date);
+    expect(feed.episodes[0].pubDate.getFullYear()).toBe(2024);
   });
 
   describe('description fallbacks', () => {
     it('uses content first', async () => {
-      mockParseURL.mockResolvedValue(
+      mockParseString.mockResolvedValue(
         makeRawFeed({
           items: [
             makeRawItem({
@@ -292,13 +367,11 @@ describe('parseFeed — episodes', () => {
           ],
         }),
       );
-      expect((await parseFeed(URL)).episodes[0].description).toBe(
-        'Full content',
-      );
+      expect((await parse()).feed.episodes[0].description).toBe('Full content');
     });
 
     it('falls back to contentSnippet when content is absent', async () => {
-      mockParseURL.mockResolvedValue(
+      mockParseString.mockResolvedValue(
         makeRawFeed({
           items: [
             makeRawItem({
@@ -308,32 +381,32 @@ describe('parseFeed — episodes', () => {
           ],
         }),
       );
-      expect((await parseFeed(URL)).episodes[0].description).toBe('Snippet');
+      expect((await parse()).feed.episodes[0].description).toBe('Snippet');
     });
 
     it('falls back to itunes:summary when neither content nor snippet is present', async () => {
-      mockParseURL.mockResolvedValue(
+      mockParseString.mockResolvedValue(
         makeRawFeed({
           items: [makeRawItem({ 'itunes:summary': 'Summary' })],
         }),
       );
-      expect((await parseFeed(URL)).episodes[0].description).toBe('Summary');
+      expect((await parse()).feed.episodes[0].description).toBe('Summary');
     });
 
     it('returns null when no description source is present', async () => {
-      mockParseURL.mockResolvedValue(makeRawFeed({ items: [makeRawItem()] }));
-      expect((await parseFeed(URL)).episodes[0].description).toBeNull();
+      mockParseString.mockResolvedValue(makeRawFeed({ items: [makeRawItem()] }));
+      expect((await parse()).feed.episodes[0].description).toBeNull();
     });
   });
 
   describe('duration parsing', () => {
     async function duration(raw: unknown) {
-      mockParseURL.mockResolvedValue(
+      mockParseString.mockResolvedValue(
         makeRawFeed({
           items: [makeRawItem({ 'itunes:duration': raw })],
         }),
       );
-      return (await parseFeed(URL)).episodes[0].duration;
+      return (await parse()).feed.episodes[0].duration;
     }
 
     it('parses HH:MM:SS into total seconds', async () => {

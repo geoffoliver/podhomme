@@ -23,6 +23,10 @@ type FeedData = {
   episodes: FeedEpisode[];
 };
 
+export type ParseFeedResult =
+  | { notModified: true }
+  | { notModified: false; feed: FeedData; etag: string | null; lastModified: string | null };
+
 const parser = new Parser({
   customFields: {
     feed: ['itunes:author', 'itunes:image', 'itunes:type'] as string[],
@@ -69,8 +73,23 @@ function extractEnclosureUrl(
   return { url: enc.url, mediaType };
 }
 
-export async function parseFeed(url: string): Promise<FeedData> {
-  const feed = await parser.parseURL(url);
+export async function parseFeed(
+  url: string,
+  cache?: { etag?: string | null; lastModified?: string | null },
+): Promise<ParseFeedResult> {
+  const headers: Record<string, string> = { 'User-Agent': USER_AGENT };
+  if (cache?.etag) headers['If-None-Match'] = cache.etag;
+  if (cache?.lastModified) headers['If-Modified-Since'] = cache.lastModified;
+
+  const res = await fetch(url, { headers });
+
+  if (res.status === 304) return { notModified: true };
+
+  const xml = await res.text();
+  const feed = await parser.parseString(xml);
+
+  const etag = res.headers.get('etag');
+  const lastModified = res.headers.get('last-modified');
 
   const f = feed as any;
   const imageUrl =
@@ -104,13 +123,18 @@ export async function parseFeed(url: string): Promise<FeedData> {
     .filter((e): e is FeedEpisode => e !== null);
 
   return {
-    title: feed.title || 'Untitled Podcast',
-    description: feed.description || null,
-    imageUrl,
-    siteUrl: feed.link || null,
-    author: f['itunes:author'] || feed.creator || null,
-    type,
-    episodes,
+    notModified: false,
+    feed: {
+      title: feed.title || 'Untitled Podcast',
+      description: feed.description || null,
+      imageUrl,
+      siteUrl: feed.link || null,
+      author: f['itunes:author'] || feed.creator || null,
+      type,
+      episodes,
+    },
+    etag,
+    lastModified,
   };
 }
 
