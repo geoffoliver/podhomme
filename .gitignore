@@ -57,3 +57,7 @@ dev.db
 deploy.sh
 
 downloads/*
+
+# Electron
+/dist
+/electron/main.js

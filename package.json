@@ -2,6 +2,7 @@
   "name": "podhomme",
   "version": "0.1.0",
   "private": true,
+  "main": "electron/main.js",
   "scripts": {
     "dev": "PORT=3030 next dev",
     "build": "next build",
@@ -13,7 +14,12 @@
     "test:coverage": "jest --coverage",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "electron:compile": "tsc --project tsconfig.electron.json",
+    "electron:dev": "yarn electron:compile && electron .",
+    "electron:rebuild": "electron-rebuild",
+    "electron:build": "yarn build && yarn electron:compile && electron-builder",
+    "electron:pack": "yarn build && yarn electron:compile && electron-builder --dir"
   },
   "ts-node": {
     "project": "tsconfig.jest.json"
@@ -35,6 +41,7 @@
     "tailwindcss": "^4"
   },
   "devDependencies": {
+    "@electron/rebuild": "^4.0.4",
     "@playwright/test": "^1.60.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.1",
@@ -45,6 +52,8 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "electron": "^42.2.0",
+    "electron-builder": "^26.8.1",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "jest": "^30.4.2",
@@ -56,5 +65,29 @@
     "ts-node": "^10.9.2",
     "tsx": "^4.22.0",
     "typescript": "^5"
+  },
+  "build": {
+    "appId": "me.geoffoliver.podhomme",
+    "productName": "Podhomme",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      ".next/**/*",
+      "public/**/*",
+      "node_modules/**/*",
+      "package.json",
+      "next.config.ts",
+      "prisma/**/*",
+      "prisma.config.ts",
+      "app/generated/**/*",
+      "envConfig.ts",
+      "electron/main.js"
+    ],
+    "mac": {
+      "category": "public.app-category.music",
+      "icon": "public/android-chrome-512x512.png",
+      "target": [{ "target": "dmg", "arch": ["x64"] }]
+    }
   }
 }
