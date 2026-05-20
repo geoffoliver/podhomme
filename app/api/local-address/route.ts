@@ -8,7 +8,10 @@ export async function GET(request: Request) {
     .flat()
     .filter(
       (iface): iface is os.NetworkInterfaceInfo =>
-        !!iface && iface.family === 'IPv4' && !iface.internal,
+        !!iface &&
+        iface.family === 'IPv4' &&
+        !iface.internal &&
+        !iface.address.startsWith('169.254.'),
     )
     .map((iface) => `http://${iface.address}:${port}`);
 

@@ -55,6 +55,7 @@
 
 .localAddress {
   @apply
+    block
     text-sm
     font-mono
     text-blue-600
