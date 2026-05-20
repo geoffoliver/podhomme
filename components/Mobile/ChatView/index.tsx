@@ -155,6 +155,7 @@ export function ChatView() {
           onChange={(e) => setInput(e.target.value)}
           maxLength={500}
           disabled={!name || editingName}
+          autoComplete="off"
         />
         <button
           type="submit"

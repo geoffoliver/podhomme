@@ -187,6 +187,7 @@ export function ChatDrawer({ open, onClose, onMessage }: Props) {
             onChange={(e) => setInput(e.target.value)}
             maxLength={500}
             disabled={!name || editingName}
+            autoComplete="off"
           />
           <button
             type="submit"
