@@ -1,0 +1,45 @@
+name: Release Electron App
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            platform: mac
+          - os: windows-latest
+            platform: win
+          - os: ubuntu-latest
+            platform: linux
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Rebuild native modules for Electron
+        run: yarn electron:rebuild
+
+      - name: Build Next.js
+        run: yarn build
+
+      - name: Compile Electron main process
+        run: yarn electron:compile
+
+      - name: Build and publish Electron app
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: yarn electron-builder --${{ matrix.platform }} --publish always

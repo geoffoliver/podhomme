@@ -87,7 +87,17 @@
     "mac": {
       "category": "public.app-category.music",
       "icon": "public/android-chrome-512x512.png",
-      "target": [{ "target": "dmg", "arch": ["x64"] }]
-    }
+      "target": [{ "target": "dmg", "arch": ["x64", "arm64"] }]
+    },
+    "win": {
+      "icon": "public/android-chrome-512x512.png",
+      "target": [{ "target": "nsis", "arch": ["x64"] }]
+    },
+    "linux": {
+      "category": "Audio",
+      "icon": "public/android-chrome-512x512.png",
+      "target": [{ "target": "AppImage", "arch": ["x64"] }]
+    },
+    "publish": { "provider": "github" }
   }
 }

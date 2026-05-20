@@ -43,14 +43,21 @@ function startServer() {
   const dbDir = app.getPath('userData');
   const dbPath = path.join(dbDir, 'podhomme.db');
 
+  // Use Electron binary as Node.js runtime for cross-platform compatibility.
+  // Shell wrapper scripts in node_modules/.bin/ don't work on Windows.
+  const nodeEnv = { ELECTRON_RUN_AS_NODE: '1' };
+  const prismaCli = path.join(appRoot, 'node_modules/prisma/build/index.js');
+  const nextCli = path.join(appRoot, 'node_modules/next/dist/bin/next');
+
   // Run migrations before starting the server
   const migrate = spawn(
     process.execPath,
-    [path.join(appRoot, 'node_modules/.bin/prisma'), 'migrate', 'deploy'],
+    [prismaCli, 'migrate', 'deploy'],
     {
       cwd: appRoot,
       env: {
         ...process.env,
+        ...nodeEnv,
         DATABASE_URL: `file:${dbPath}`,
         NODE_ENV: 'production',
       },
@@ -67,11 +74,12 @@ function startServer() {
 
     server = spawn(
       process.execPath,
-      [path.join(appRoot, 'node_modules/.bin/next'), 'start'],
+      [nextCli, 'start'],
       {
         cwd: appRoot,
         env: {
           ...process.env,
+          ...nodeEnv,
           DATABASE_URL: `file:${dbPath}`,
           PORT: String(PORT),
           NODE_ENV: 'production',
