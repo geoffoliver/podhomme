@@ -1,7 +1,9 @@
 import { app, BrowserWindow, shell, Menu, utilityProcess, dialog } from 'electron';
 import type { UtilityProcess } from 'electron';
 import { autoUpdater } from 'electron-updater';
+import Database from 'better-sqlite3';
 import path from 'path';
+import fs from 'fs';
 import http from 'http';
 
 app.name = 'Podhomme';
@@ -13,7 +15,59 @@ const isDev = !app.isPackaged;
 let server: UtilityProcess | null = null;
 let mainWindow: BrowserWindow | null = null;
 
-function waitForServer(url: string, timeoutMs = 30_000): Promise<void> {
+// Run Prisma migrations inline using better-sqlite3, avoiding any subprocess
+// spawn (prisma CLI is a devDependency and may not be in the packaged app).
+function runMigrations(dbPath: string, migrationsDir: string) {
+  const db = new Database(dbPath);
+
+  db.exec(`CREATE TABLE IF NOT EXISTS _prisma_migrations (
+    id                  TEXT PRIMARY KEY,
+    checksum            TEXT NOT NULL DEFAULT '',
+    finished_at         TEXT,
+    migration_name      TEXT NOT NULL,
+    logs                TEXT,
+    rolled_back_at      TEXT,
+    started_at          TEXT NOT NULL DEFAULT (datetime('now')),
+    applied_steps_count INTEGER NOT NULL DEFAULT 0
+  )`);
+
+  const applied = new Set<string>(
+    (
+      db
+        .prepare(
+          'SELECT migration_name FROM _prisma_migrations WHERE finished_at IS NOT NULL',
+        )
+        .all() as { migration_name: string }[]
+    ).map((r) => r.migration_name),
+  );
+
+  if (!fs.existsSync(migrationsDir)) {
+    db.close();
+    return;
+  }
+
+  const dirs = fs
+    .readdirSync(migrationsDir)
+    .filter((d) => fs.statSync(path.join(migrationsDir, d)).isDirectory())
+    .sort();
+
+  const insert = db.prepare(
+    `INSERT INTO _prisma_migrations (id, checksum, migration_name, finished_at, applied_steps_count)
+     VALUES (?, '', ?, datetime('now'), 1)`,
+  );
+
+  for (const dir of dirs) {
+    if (applied.has(dir)) continue;
+    const sqlFile = path.join(migrationsDir, dir, 'migration.sql');
+    if (!fs.existsSync(sqlFile)) continue;
+    db.exec(fs.readFileSync(sqlFile, 'utf8'));
+    insert.run(crypto.randomUUID(), dir);
+  }
+
+  db.close();
+}
+
+function waitForServer(url: string, timeoutMs = 120_000): Promise<void> {
   return new Promise((resolve, reject) => {
     const deadline = Date.now() + timeoutMs;
     const attempt = () => {
@@ -38,45 +92,36 @@ function waitForServer(url: string, timeoutMs = 30_000): Promise<void> {
   });
 }
 
-function startServer() {
-  const appRoot = app.isPackaged
-    ? path.join(process.resourcesPath, 'app')
-    : path.join(__dirname, '..');
+function startServer(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const appRoot = app.isPackaged
+      ? path.join(process.resourcesPath, 'app')
+      : path.join(__dirname, '..');
 
-  const dbDir = app.getPath('userData');
-  const dbPath = path.join(dbDir, 'podhomme.db');
+    const dbDir = app.getPath('userData');
+    const dbPath = path.join(dbDir, 'podhomme.db');
 
-  const prismaCli = path.join(appRoot, 'node_modules/prisma/build/index.js');
-  const nextCli = path.join(appRoot, 'node_modules/next/dist/bin/next');
+    // Run migrations synchronously — fast, no subprocess needed.
+    runMigrations(dbPath, path.join(appRoot, 'prisma/migrations'));
 
-  const baseEnv = {
-    ...process.env,
-    DATABASE_URL: `file:${dbPath}`,
-    NODE_ENV: 'production',
-  };
-
-  // utilityProcess.fork() uses Electron's built-in Node.js runtime — no
-  // ELECTRON_RUN_AS_NODE workaround needed, and works in signed/notarized apps.
-  const migrate = utilityProcess.fork(prismaCli, ['migrate', 'deploy'], {
-    cwd: appRoot,
-    env: baseEnv,
-    stdio: 'inherit',
-  });
-
-  migrate.once('exit', (code) => {
-    if (code !== 0) {
-      console.error(`Migrations failed with code ${code}`);
-      app.quit();
-      return;
-    }
+    const nextCli = path.join(appRoot, 'node_modules/next/dist/bin/next');
 
     server = utilityProcess.fork(nextCli, ['start'], {
       cwd: appRoot,
-      env: { ...baseEnv, PORT: String(PORT) },
+      env: {
+        ...process.env,
+        DATABASE_URL: `file:${dbPath}`,
+        PORT: String(PORT),
+        NODE_ENV: 'production',
+      },
       stdio: 'inherit',
     });
 
-    server.on('exit', (code) => console.error('Next.js server exited:', code));
+    // Resolve as soon as the process has spawned so waitForServer can begin.
+    server.once('spawn', resolve);
+    server.once('exit', (code) =>
+      reject(new Error(`Next.js server exited early with code ${code}`)),
+    );
   });
 }
 
@@ -90,7 +135,8 @@ function setupAutoUpdater() {
         type: 'info',
         title: 'Update ready',
         message: 'A new version of Podhomme has been downloaded.',
-        detail: 'Restart now to install the update, or it will be installed automatically when you quit.',
+        detail:
+          'Restart now to install the update, or it will be installed automatically when you quit.',
         buttons: ['Restart Now', 'Later'],
         defaultId: 0,
       })
@@ -149,8 +195,6 @@ function createWindow() {
     minWidth: 900,
     minHeight: 600,
     title: 'Podhomme',
-    // Hide the native title bar on macOS; keep traffic lights inset into the
-    // top bar. trafficLightPosition centers the buttons in the 64px top bar.
     titleBarStyle: mac ? 'hiddenInset' : 'default',
     trafficLightPosition: mac ? { x: 16, y: 24 } : undefined,
     webPreferences: {
@@ -161,7 +205,6 @@ function createWindow() {
 
   mainWindow.loadURL(SERVER_URL);
 
-  // Open external links in the system browser
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
     return { action: 'deny' };
@@ -176,13 +219,20 @@ app.whenReady().then(async () => {
   setupMenu();
 
   if (isDev) {
-    // In dev, assume `next dev` or `next start` is already running
     createWindow();
   } else {
-    startServer();
-    await waitForServer(SERVER_URL);
-    createWindow();
-    setupAutoUpdater();
+    try {
+      await startServer();
+      await waitForServer(SERVER_URL);
+      createWindow();
+      setupAutoUpdater();
+    } catch (err) {
+      dialog.showErrorBox(
+        'Failed to start Podhomme',
+        err instanceof Error ? err.message : String(err),
+      );
+      app.quit();
+    }
   }
 
   app.on('activate', () => {
