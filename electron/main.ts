@@ -1,5 +1,5 @@
-import { app, BrowserWindow, shell, Menu } from 'electron';
-import { spawn, ChildProcess } from 'child_process';
+import { app, BrowserWindow, shell, Menu, utilityProcess } from 'electron';
+import type { UtilityProcess } from 'electron';
 import path from 'path';
 import http from 'http';
 
@@ -9,7 +9,7 @@ const PORT = 3030;
 const SERVER_URL = `http://localhost:${PORT}`;
 const isDev = !app.isPackaged;
 
-let server: ChildProcess | null = null;
+let server: UtilityProcess | null = null;
 let mainWindow: BrowserWindow | null = null;
 
 function waitForServer(url: string, timeoutMs = 30_000): Promise<void> {
@@ -45,52 +45,37 @@ function startServer() {
   const dbDir = app.getPath('userData');
   const dbPath = path.join(dbDir, 'podhomme.db');
 
-  // Use Electron binary as Node.js runtime for cross-platform compatibility.
-  // Shell wrapper scripts in node_modules/.bin/ don't work on Windows.
-  const nodeEnv = { ELECTRON_RUN_AS_NODE: '1' };
   const prismaCli = path.join(appRoot, 'node_modules/prisma/build/index.js');
   const nextCli = path.join(appRoot, 'node_modules/next/dist/bin/next');
 
-  // Run migrations before starting the server
-  const migrate = spawn(
-    process.execPath,
-    [prismaCli, 'migrate', 'deploy'],
-    {
-      cwd: appRoot,
-      env: {
-        ...process.env,
-        ...nodeEnv,
-        DATABASE_URL: `file:${dbPath}`,
-        NODE_ENV: 'production',
-      },
-      stdio: 'inherit',
-    },
-  );
+  const baseEnv = {
+    ...process.env,
+    DATABASE_URL: `file:${dbPath}`,
+    NODE_ENV: 'production',
+  };
 
-  migrate.on('close', (code) => {
+  // utilityProcess.fork() uses Electron's built-in Node.js runtime — no
+  // ELECTRON_RUN_AS_NODE workaround needed, and works in signed/notarized apps.
+  const migrate = utilityProcess.fork(prismaCli, ['migrate', 'deploy'], {
+    cwd: appRoot,
+    env: baseEnv,
+    stdio: 'inherit',
+  });
+
+  migrate.once('exit', (code) => {
     if (code !== 0) {
       console.error(`Migrations failed with code ${code}`);
       app.quit();
       return;
     }
 
-    server = spawn(
-      process.execPath,
-      [nextCli, 'start'],
-      {
-        cwd: appRoot,
-        env: {
-          ...process.env,
-          ...nodeEnv,
-          DATABASE_URL: `file:${dbPath}`,
-          PORT: String(PORT),
-          NODE_ENV: 'production',
-        },
-        stdio: 'inherit',
-      },
-    );
+    server = utilityProcess.fork(nextCli, ['start'], {
+      cwd: appRoot,
+      env: { ...baseEnv, PORT: String(PORT) },
+      stdio: 'inherit',
+    });
 
-    server.on('error', (err) => console.error('Server error:', err));
+    server.on('exit', (code) => console.error('Next.js server exited:', code));
   });
 }
 
