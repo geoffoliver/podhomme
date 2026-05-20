@@ -16,7 +16,7 @@ ENV NODE_ENV=production
 ENV PORT=3030
 ENV DATABASE_URL=file:/workspace/data/podhomme.db
 
-# Full node_modules from builder (includes tsx for the worker)
+# Full node_modules from builder
 COPY --from=builder /app/node_modules ./node_modules
 
 # Next.js app
@@ -29,11 +29,6 @@ COPY --from=builder /app/next.config.ts ./next.config.ts
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 COPY --from=builder /app/app/generated ./app/generated
-
-# Worker (runs as TypeScript via tsx — needs tsconfig for @/* aliases)
-COPY --from=builder /app/worker ./worker
-COPY --from=builder /app/tsconfig.json ./tsconfig.json
-COPY --from=builder /app/envConfig.ts ./envConfig.ts
 
 # Startup script
 COPY scripts/docker-start.sh ./scripts/docker-start.sh
