@@ -26,7 +26,7 @@ export default defineConfig({
     // blow past action timeouts on cold runners. Pre-building means instant
     // page loads once next start is up.
     command: process.env.CI
-      ? 'next build && PORT=3031 next start'
+      ? 'next build && yarn prisma migrate deploy && PORT=3031 next start'
       : 'PORT=3031 next dev',
     url: 'http://localhost:3031',
     reuseExistingServer: !process.env.CI,
