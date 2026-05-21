@@ -35,11 +35,18 @@ export function PodcastView({ podcastId }: Props) {
       .then((data: PodcastType & { episodes: Episode[] }) => {
         setPodcast(data);
         const effectiveType = data.typeOverride || data.type;
-        const sorted = [...(data.episodes ?? [])].sort((a, b) =>
-          effectiveType === 'serial'
-            ? new Date(a.pubDate).getTime() - new Date(b.pubDate).getTime()
-            : new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime(),
-        );
+        const podcastStub = {
+          title: data.title,
+          imageUrl: data.imageUrl,
+          author: data.author,
+        };
+        const sorted = [...(data.episodes ?? [])]
+          .map((ep) => ({ ...ep, podcast: podcastStub }))
+          .sort((a, b) =>
+            effectiveType === 'serial'
+              ? new Date(a.pubDate).getTime() - new Date(b.pubDate).getTime()
+              : new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime(),
+          );
         setEpisodes(sorted);
       });
   }, [podcastId]);
