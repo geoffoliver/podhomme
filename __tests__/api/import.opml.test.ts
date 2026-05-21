@@ -54,6 +54,15 @@ const baseFeed = {
   episodes: [] as any[],
 };
 
+function feedResult(overrides: Partial<typeof baseFeed> = {}) {
+  return {
+    notModified: false as const,
+    feed: { ...baseFeed, ...overrides },
+    etag: null,
+    lastModified: null,
+  };
+}
+
 const FEED_A = 'https://feeds.example.com/a.rss';
 const FEED_B = 'https://feeds.example.com/b.rss';
 
@@ -63,7 +72,7 @@ describe('POST /api/import/opml', () => {
   beforeEach(() => {
     mockParseFeed.mockReset();
     mockBroadcast.mockClear();
-    mockParseFeed.mockResolvedValue({ ...baseFeed, title: 'Imported Podcast' });
+    mockParseFeed.mockResolvedValue(feedResult({ title: 'Imported Podcast' }));
   });
 
   // ── validation ─────────────────────────────────────────────────────────────
@@ -141,7 +150,7 @@ describe('POST /api/import/opml', () => {
   it('continues importing remaining feeds when one fails', async () => {
     mockParseFeed
       .mockRejectedValueOnce(new Error('Network error'))
-      .mockResolvedValueOnce({ ...baseFeed, title: 'Podcast B' });
+      .mockResolvedValueOnce(feedResult({ title: 'Podcast B' }));
 
     await post(
       makeOpml(
@@ -157,7 +166,7 @@ describe('POST /api/import/opml', () => {
   it('returns status "error" for a feed that fails to parse', async () => {
     mockParseFeed
       .mockRejectedValueOnce(new Error('Network error'))
-      .mockResolvedValueOnce({ ...baseFeed, title: 'Podcast B' });
+      .mockResolvedValueOnce(feedResult({ title: 'Podcast B' }));
 
     const res = await post(
       makeOpml(
@@ -179,8 +188,8 @@ describe('POST /api/import/opml', () => {
 
   it('processes all feeds and returns a result for each', async () => {
     mockParseFeed
-      .mockResolvedValueOnce({ ...baseFeed, title: 'Podcast A' })
-      .mockResolvedValueOnce({ ...baseFeed, title: 'Podcast B' });
+      .mockResolvedValueOnce(feedResult({ title: 'Podcast A' }))
+      .mockResolvedValueOnce(feedResult({ title: 'Podcast B' }));
 
     const res = await post(
       makeOpml(
@@ -197,31 +206,32 @@ describe('POST /api/import/opml', () => {
   // ── episode seeding ────────────────────────────────────────────────────────
 
   it('seeds episodes from the feed', async () => {
-    mockParseFeed.mockResolvedValue({
-      ...baseFeed,
-      episodes: [
-        {
-          guid: 'ep-1',
-          title: 'Ep 1',
-          description: null,
-          audioUrl: 'u',
-          mediaType: 'audio',
-          imageUrl: null,
-          duration: null,
-          pubDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
-        },
-        {
-          guid: 'ep-2',
-          title: 'Ep 2',
-          description: null,
-          audioUrl: 'u',
-          mediaType: 'audio',
-          imageUrl: null,
-          duration: null,
-          pubDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-        },
-      ],
-    });
+    mockParseFeed.mockResolvedValue(
+      feedResult({
+        episodes: [
+          {
+            guid: 'ep-1',
+            title: 'Ep 1',
+            description: null,
+            audioUrl: 'u',
+            mediaType: 'audio',
+            imageUrl: null,
+            duration: null,
+            pubDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
+          },
+          {
+            guid: 'ep-2',
+            title: 'Ep 2',
+            description: null,
+            audioUrl: 'u',
+            mediaType: 'audio',
+            imageUrl: null,
+            duration: null,
+            pubDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+          },
+        ],
+      }),
+    );
 
     await post(makeOpml({ title: 'My Podcast', url: FEED_A }));
 
@@ -229,31 +239,32 @@ describe('POST /api/import/opml', () => {
   });
 
   it('queues only the newest episode', async () => {
-    mockParseFeed.mockResolvedValue({
-      ...baseFeed,
-      episodes: [
-        {
-          guid: 'ep-new',
-          title: 'New',
-          description: null,
-          audioUrl: 'u',
-          mediaType: 'audio',
-          imageUrl: null,
-          duration: null,
-          pubDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
-        },
-        {
-          guid: 'ep-old',
-          title: 'Old',
-          description: null,
-          audioUrl: 'u',
-          mediaType: 'audio',
-          imageUrl: null,
-          duration: null,
-          pubDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-        },
-      ],
-    });
+    mockParseFeed.mockResolvedValue(
+      feedResult({
+        episodes: [
+          {
+            guid: 'ep-new',
+            title: 'New',
+            description: null,
+            audioUrl: 'u',
+            mediaType: 'audio',
+            imageUrl: null,
+            duration: null,
+            pubDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
+          },
+          {
+            guid: 'ep-old',
+            title: 'Old',
+            description: null,
+            audioUrl: 'u',
+            mediaType: 'audio',
+            imageUrl: null,
+            duration: null,
+            pubDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+          },
+        ],
+      }),
+    );
 
     await post(makeOpml({ title: 'My Podcast', url: FEED_A }));
 

@@ -48,13 +48,22 @@ const baseFeed = {
   episodes: [] as ReturnType<typeof makeFeedEpisode>[],
 };
 
+function feedResult(overrides: Partial<typeof baseFeed> = {}) {
+  return {
+    notModified: false as const,
+    feed: { ...baseFeed, ...overrides },
+    etag: null,
+    lastModified: null,
+  };
+}
+
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
 describe('POST /api/podcasts', () => {
   beforeEach(() => {
     mockParseFeed.mockReset();
     mockBroadcast.mockClear();
-    mockParseFeed.mockResolvedValue({ ...baseFeed, episodes: [] });
+    mockParseFeed.mockResolvedValue(feedResult());
   });
 
   // ── validation ─────────────────────────────────────────────────────────────
@@ -130,19 +139,20 @@ describe('POST /api/podcasts', () => {
   });
 
   it('seeds all episodes from the feed', async () => {
-    mockParseFeed.mockResolvedValue({
-      ...baseFeed,
-      episodes: [
-        makeFeedEpisode({
-          guid: 'ep-new',
-          pubDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
-        }),
-        makeFeedEpisode({
-          guid: 'ep-old',
-          pubDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-        }),
-      ],
-    });
+    mockParseFeed.mockResolvedValue(
+      feedResult({
+        episodes: [
+          makeFeedEpisode({
+            guid: 'ep-new',
+            pubDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
+          }),
+          makeFeedEpisode({
+            guid: 'ep-old',
+            pubDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+          }),
+        ],
+      }),
+    );
 
     await post({ feedUrl: FEED_URL });
 
@@ -150,19 +160,20 @@ describe('POST /api/podcasts', () => {
   });
 
   it('marks only the first (newest) episode as unplayed', async () => {
-    mockParseFeed.mockResolvedValue({
-      ...baseFeed,
-      episodes: [
-        makeFeedEpisode({
-          guid: 'ep-new',
-          pubDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
-        }),
-        makeFeedEpisode({
-          guid: 'ep-old',
-          pubDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-        }),
-      ],
-    });
+    mockParseFeed.mockResolvedValue(
+      feedResult({
+        episodes: [
+          makeFeedEpisode({
+            guid: 'ep-new',
+            pubDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
+          }),
+          makeFeedEpisode({
+            guid: 'ep-old',
+            pubDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+          }),
+        ],
+      }),
+    );
 
     await post({ feedUrl: FEED_URL });
 
@@ -174,19 +185,20 @@ describe('POST /api/podcasts', () => {
   });
 
   it('adds only the newest episode to the queue', async () => {
-    mockParseFeed.mockResolvedValue({
-      ...baseFeed,
-      episodes: [
-        makeFeedEpisode({
-          guid: 'ep-new',
-          pubDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
-        }),
-        makeFeedEpisode({
-          guid: 'ep-old',
-          pubDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-        }),
-      ],
-    });
+    mockParseFeed.mockResolvedValue(
+      feedResult({
+        episodes: [
+          makeFeedEpisode({
+            guid: 'ep-new',
+            pubDate: new Date(Date.now() - 24 * 60 * 60 * 1000),
+          }),
+          makeFeedEpisode({
+            guid: 'ep-old',
+            pubDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+          }),
+        ],
+      }),
+    );
 
     await post({ feedUrl: FEED_URL });
 
@@ -196,7 +208,6 @@ describe('POST /api/podcasts', () => {
   });
 
   it('queues the new episode after any existing queue items', async () => {
-    // An existing podcast already has an episode at position 0
     const existingPod = await db.podcast.create({
       data: {
         title: 'Existing',
@@ -216,10 +227,9 @@ describe('POST /api/podcasts', () => {
       data: { episodeId: existingEp.id, position: 0 },
     });
 
-    mockParseFeed.mockResolvedValue({
-      ...baseFeed,
-      episodes: [makeFeedEpisode()],
-    });
+    mockParseFeed.mockResolvedValue(
+      feedResult({ episodes: [makeFeedEpisode()] }),
+    );
 
     await post({ feedUrl: FEED_URL });
 
@@ -232,14 +242,15 @@ describe('POST /api/podcasts', () => {
   // ── 60-day rule ────────────────────────────────────────────────────────────
 
   it('marks all episodes as played when the newest is over 60 days old', async () => {
-    mockParseFeed.mockResolvedValue({
-      ...baseFeed,
-      episodes: [
-        makeFeedEpisode({
-          pubDate: new Date(Date.now() - 61 * 24 * 60 * 60 * 1000),
-        }),
-      ],
-    });
+    mockParseFeed.mockResolvedValue(
+      feedResult({
+        episodes: [
+          makeFeedEpisode({
+            pubDate: new Date(Date.now() - 61 * 24 * 60 * 60 * 1000),
+          }),
+        ],
+      }),
+    );
 
     await post({ feedUrl: FEED_URL });
 
@@ -248,14 +259,15 @@ describe('POST /api/podcasts', () => {
   });
 
   it('adds nothing to the queue when all episodes are over 60 days old', async () => {
-    mockParseFeed.mockResolvedValue({
-      ...baseFeed,
-      episodes: [
-        makeFeedEpisode({
-          pubDate: new Date(Date.now() - 61 * 24 * 60 * 60 * 1000),
-        }),
-      ],
-    });
+    mockParseFeed.mockResolvedValue(
+      feedResult({
+        episodes: [
+          makeFeedEpisode({
+            pubDate: new Date(Date.now() - 61 * 24 * 60 * 60 * 1000),
+          }),
+        ],
+      }),
+    );
 
     await post({ feedUrl: FEED_URL });
 

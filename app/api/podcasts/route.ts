@@ -23,7 +23,11 @@ export async function POST(request: Request) {
 
   let feed;
   try {
-    feed = await parseFeed(feedUrl);
+    const result = await parseFeed(feedUrl);
+    if (result.notModified) {
+      return Response.json({ error: 'Could not parse feed' }, { status: 422 });
+    }
+    feed = result.feed;
   } catch {
     return Response.json({ error: 'Could not parse feed' }, { status: 422 });
   }
