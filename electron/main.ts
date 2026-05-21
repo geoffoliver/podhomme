@@ -171,6 +171,7 @@ function setupAutoUpdater() {
   });
 
   autoUpdater.checkForUpdates();
+  setInterval(() => autoUpdater.checkForUpdates(), 3 * 24 * 60 * 60 * 1000);
 }
 
 function setupMenu() {
@@ -188,6 +189,10 @@ function setupMenu() {
               'window.dispatchEvent(new CustomEvent("electron:open-settings"))',
             );
           },
+        },
+        {
+          label: 'Check for Updates…',
+          click: () => autoUpdater.checkForUpdates(),
         },
         { type: 'separator' },
         { role: 'services' },

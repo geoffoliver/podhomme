@@ -40,7 +40,7 @@ Pre-built installers for macOS, Windows, and Linux are available on the [Release
 > xattr -cr /Applications/Podhomme.app
 > ```
 
-## Setup (self-hosted / web)
+## Self-hosting
 
 ### Prerequisites
 

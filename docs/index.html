@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Podhomme — Shared podcast player for browser &amp; desktop</title>
-  <meta name="description" content="A shared podcast player for the browser and desktop. Everyone on the same URL hears the same thing — play, pause, and seek stay in sync across every connected tab." />
+  <title>Podhomme — Desktop podcast player for macOS, Windows &amp; Linux</title>
+  <meta name="description" content="A desktop podcast player for macOS, Windows, and Linux. Download, install, and go. Or self-host it and share the listening experience across every browser in real time." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -396,11 +396,11 @@
 <!-- ── Hero ────────────────────────────────────────────────────────────── -->
 <div class="hero">
   <div class="container">
-    <span class="hero-eyebrow">Open source · Self-hosted · Desktop app</span>
-    <h1>Listen together,<br>from anywhere.</h1>
-    <p>Podhomme is a shared podcast player for the browser and desktop. Everyone on the same URL hears the same thing — play, pause, and seek stay in sync across every connected tab in real time.</p>
+    <span class="hero-eyebrow">Open source · macOS · Windows · Linux</span>
+    <h1>Your podcasts.<br>Your machine.</h1>
+    <p>Podhomme is a desktop app for macOS, Windows, and Linux. Download, install, and go — no server setup, no Docker, no configuration. Just your podcasts, the way you want them. Also runs as a self-hosted web app for sharing the experience across a network.</p>
     <div class="hero-actions">
-      <a class="btn btn-primary" href="https://github.com/geoffoliver/podhomme/releases/latest" target="_blank" rel="noopener">Download</a>
+      <a class="btn btn-primary" href="https://github.com/geoffoliver/podhomme/releases/latest" target="_blank" rel="noopener">Download for free</a>
       <a class="btn btn-outline" href="https://github.com/geoffoliver/podhomme" target="_blank" rel="noopener">View on GitHub</a>
     </div>
 
@@ -409,7 +409,7 @@
       <!-- Replace with: <img src="screenshots/desktop.png" alt="Podhomme desktop interface" /> -->
       <div class="screenshot-placeholder">
         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-        <img src="screenshots/desktop.png" alt="Podhomme desktop interface" style="display:none;" onload="this.previousElementSibling.style.display='none'; this.style.display='block';" />
+        <img src="screenshots/desktop-app.png" alt="Podhomme desktop app" style="display:none;" onload="this.previousElementSibling.style.display='none'; this.style.display='block';" />
       </div>
     </div>
   </div>
@@ -493,26 +493,27 @@
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
         </div>
         <h3>Desktop app</h3>
-        <p>Native app for macOS, Windows, and Linux. Bundles its own server — nothing to install separately. Auto-updates in the background.</p>
+        <p>Desktop app for macOS, Windows, and Linux. Bundles everything — no server, no Docker, no PM2. Just download and run. Auto-updates silently in the background.</p>
       </div>
 
     </div>
   </div>
 </section>
 
-<!-- ── Desktop ──────────────────────────────────────────────────────────── -->
+<!-- ── Self-host ─────────────────────────────────────────────────────────── -->
 <section class="desktop-section">
   <div class="container">
     <div class="desktop-text">
-      <h2>Available as a Desktop App.</h2>
-      <p>The Podhomme desktop app for macOS, Windows, and Linux bundles everything — no server setup, no Docker, no PM2. Just download, install, and go.</p>
-      <p>It checks for updates automatically and prompts you to restart when a new version is ready.</p>
-      <a class="btn btn-primary" href="https://github.com/geoffoliver/podhomme/releases/latest" target="_blank" rel="noopener">Download the latest release</a>
+      <h2>Rather run it yourself?</h2>
+      <p>Podhomme is also a self-hosted web app. Run it with Docker, PM2, or plain Node.js — anyone who knows the URL can open it in a browser and join in.</p>
+      <p>Playback, queue, and chat all sync in real time via Server-Sent Events, so every connected tab stays in lockstep without polling or refreshing.</p>
+      <p>Optionally gate the whole thing with a single shared password. No accounts, no OAuth, just a URL and a secret.</p>
+      <a class="btn btn-outline" href="https://github.com/geoffoliver/podhomme#self-hosting" target="_blank" rel="noopener">Self-hosting docs on GitHub</a>
     </div>
     <div class="desktop-mockup">
       <div class="desktop-mockup-body">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-        <img src="screenshots/desktop-app.png" alt="Podhomme desktop app" style="display:none;width:100%;height:auto;" onload="this.previousElementSibling.style.display='none'; this.style.display='block';" />
+        <img src="screenshots/desktop.png" alt="Podhomme running in a browser" style="display:none;width:100%;height:auto;" onload="this.previousElementSibling.style.display='none'; this.style.display='block';" />
       </div>
     </div>
   </div>
