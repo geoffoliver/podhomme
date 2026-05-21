@@ -27,7 +27,7 @@ export default defineConfig({
     // page loads once next start is up.
     command: process.env.CI
       ? 'next build && yarn prisma migrate deploy && PORT=3031 next start'
-      : 'PORT=3031 next dev',
+      : 'yarn prisma migrate deploy && PORT=3031 next dev',
     url: 'http://localhost:3031',
     reuseExistingServer: !process.env.CI,
     timeout: 300_000, // allow 5 min for next build in CI
