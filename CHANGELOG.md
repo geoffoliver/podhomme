@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-05-20
+
+### Fixed
+- Episode action menus no longer fall outside the viewport — the menu now opens upward when the button is in the lower half of the screen
+
+### Changed
+- Feed fetches now send `If-None-Match` and `If-Modified-Since` headers and skip all processing when the server returns `304 Not Modified`. The `ETag` and `Last-Modified` values from each response are stored on the podcast and reused on the next refresh, reducing unnecessary bandwidth and CPU usage.
+
 ## [0.1.2] - 2026-05-20
 
 ### Fixed

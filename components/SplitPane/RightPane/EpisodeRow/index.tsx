@@ -54,7 +54,9 @@ export function EpisodeRow({
 }: Props) {
   const { loadEpisode } = usePlayback();
   const menuRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({});
   const [localPlayed, setLocalPlayed] = useState<boolean | null>(null);
   const [localFavorited, setLocalFavorited] = useState<boolean | null>(null);
 
@@ -157,8 +159,22 @@ export function EpisodeRow({
         </button>
         <div style={{ position: 'relative', display: 'inline-block' }}>
           <button
+            ref={menuButtonRef}
             className="btn-icon"
-            onClick={() => setMenuOpen((v) => !v)}
+            onClick={() => {
+              if (!menuOpen && menuButtonRef.current) {
+                const rect = menuButtonRef.current.getBoundingClientRect();
+                const openUpward = rect.bottom > window.innerHeight / 2;
+                setMenuStyle({
+                  position: 'fixed',
+                  right: window.innerWidth - rect.right,
+                  ...(openUpward
+                    ? { bottom: window.innerHeight - rect.top }
+                    : { top: rect.bottom }),
+                });
+              }
+              setMenuOpen((v) => !v);
+            }}
             aria-label="More actions"
             aria-haspopup="true"
             aria-expanded={menuOpen}
@@ -177,12 +193,7 @@ export function EpisodeRow({
               />
               <div
                 className={styles.menuPopover}
-                style={{
-                  position: 'absolute',
-                  right: 0,
-                  top: '100%',
-                  zIndex: 50,
-                }}
+                style={menuStyle}
               >
                 <button
                   className={styles.menuItem}
