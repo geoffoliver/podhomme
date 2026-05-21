@@ -41,6 +41,18 @@ private func postAction(_ action: String) {
     stateCache = nil
 }
 
+private func postSeek(_ position: Double) {
+    guard let url = URL(string: "\(kBaseURL)/api/playback") else { return }
+    var req = URLRequest(url: url)
+    req.httpMethod = "POST"
+    req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+    req.httpBody = try? JSONSerialization.data(withJSONObject: ["action": "seek", "position": position])
+    let sem = DispatchSemaphore(value: 0)
+    URLSession.shared.dataTask(with: req) { _, _, _ in sem.signal() }.resume()
+    _ = sem.wait(timeout: .now() + 3)
+    stateCache = nil
+}
+
 private func tiffData(fromURLString urlString: String) -> NSData? {
     guard let url = URL(string: urlString) else { return nil }
     var raw: Data?
@@ -144,6 +156,26 @@ class NextCommand: NSScriptCommand {
 class PrevCommand: NSScriptCommand {
     override func performDefaultImplementation() -> Any? {
         postAction("prev")
+        return nil
+    }
+}
+
+@objc(PHSeekForwardCommand)
+class SeekForwardCommand: NSScriptCommand {
+    override func performDefaultImplementation() -> Any? {
+        guard let state = fetchPlaybackState() else { return nil }
+        let pos = state["position"] as? Double ?? (state["position"] as? Int).map(Double.init) ?? 0
+        postSeek(pos + 30)
+        return nil
+    }
+}
+
+@objc(PHSeekBackwardCommand)
+class SeekBackwardCommand: NSScriptCommand {
+    override func performDefaultImplementation() -> Any? {
+        guard let state = fetchPlaybackState() else { return nil }
+        let pos = state["position"] as? Double ?? (state["position"] as? Int).map(Double.init) ?? 0
+        postSeek(max(0, pos - 15))
         return nil
     }
 }

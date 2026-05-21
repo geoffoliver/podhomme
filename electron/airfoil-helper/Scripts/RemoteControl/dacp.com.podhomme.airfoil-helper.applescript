@@ -21,20 +21,26 @@ end remote_playpause
 
 on remote_next_item()
 	tell application id "com.podhomme.airfoil-helper"
-		next
+		seek forward
 	end tell
 end remote_next_item
 
 on remote_previous_item()
 	tell application id "com.podhomme.airfoil-helper"
-		previous
+		seek backward
 	end tell
 end remote_previous_item
 
 on remote_begin_seek_forward()
+	tell application id "com.podhomme.airfoil-helper"
+		seek forward
+	end tell
 end remote_begin_seek_forward
 
 on remote_begin_seek_backward()
+	tell application id "com.podhomme.airfoil-helper"
+		seek backward
+	end tell
 end remote_begin_seek_backward
 
 on remote_end_seek()

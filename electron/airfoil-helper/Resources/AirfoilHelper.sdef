@@ -39,5 +39,13 @@
       <cocoa class="PHPrevCommand"/>
     </command>
 
+    <command name="seek forward" code="PohmSkFw" description="Jump forward 30 seconds.">
+      <cocoa class="PHSeekForwardCommand"/>
+    </command>
+
+    <command name="seek backward" code="PohmSkBk" description="Jump backward 15 seconds.">
+      <cocoa class="PHSeekBackwardCommand"/>
+    </command>
+
   </suite>
 </dictionary>
