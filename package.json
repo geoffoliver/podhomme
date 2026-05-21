@@ -25,8 +25,9 @@
     "electron:compile": "tsc --project tsconfig.electron.json",
     "electron:dev": "yarn electron:compile && electron .",
     "electron:rebuild": "electron-rebuild",
-    "electron:build": "yarn build && node scripts/prepare-electron.js && yarn electron:compile && electron-builder",
-    "electron:pack": "yarn build && node scripts/prepare-electron.js && yarn electron:compile && electron-builder --dir",
+    "electron:build-helper": "node scripts/build-airfoil-helper.js",
+    "electron:build": "yarn build && node scripts/prepare-electron.js && yarn electron:build-helper && yarn electron:compile && electron-builder",
+    "electron:pack": "yarn build && node scripts/prepare-electron.js && yarn electron:build-helper && yarn electron:compile && electron-builder --dir",
     "prepare": "husky"
   },
   "ts-node": {

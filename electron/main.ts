@@ -6,6 +6,7 @@ import {
   shell,
   utilityProcess,
 } from 'electron';
+import { execSync, spawn } from 'child_process';
 import Database from 'better-sqlite3';
 import type { UtilityProcess } from 'electron';
 import { autoUpdater } from 'electron-updater';
@@ -21,6 +22,24 @@ const isDev = !app.isPackaged;
 
 let server: UtilityProcess | null = null;
 let mainWindow: BrowserWindow | null = null;
+
+function startAirfoilHelper() {
+  if (process.platform !== 'darwin') return;
+  const helperApp = app.isPackaged
+    ? path.join(process.resourcesPath, '..', 'Helpers', 'AirfoilHelper.app')
+    : path.join(__dirname, '..', 'electron-build', 'AirfoilHelper.app');
+  if (!fs.existsSync(helperApp)) return;
+  spawn('open', ['-na', helperApp], { stdio: 'ignore' });
+}
+
+function stopAirfoilHelper() {
+  if (process.platform !== 'darwin') return;
+  try {
+    execSync('pkill -x AirfoilHelper', { stdio: 'ignore' });
+  } catch {
+    // process wasn't running — that's fine
+  }
+}
 
 function runMigrations(dbPath: string, migrationsDir: string) {
   const db = new Database(dbPath);
@@ -246,11 +265,13 @@ app.whenReady().then(async () => {
 
   if (isDev) {
     createWindow();
+    startAirfoilHelper();
   } else {
     try {
       await startServer();
       await waitForServer(SERVER_URL);
       createWindow();
+      startAirfoilHelper();
       setupAutoUpdater();
     } catch (err) {
       dialog.showErrorBox(
@@ -272,4 +293,5 @@ app.on('window-all-closed', () => {
 
 app.on('before-quit', () => {
   server?.kill();
+  stopAirfoilHelper();
 });

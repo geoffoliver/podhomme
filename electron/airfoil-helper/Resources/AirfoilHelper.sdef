@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dictionary SYSTEM "file://localhost/System/Library/DTDs/sdef.dtd">
+<dictionary title="Podhomme Airfoil Helper Terminology">
+
+  <suite name="Podhomme Airfoil Helper Suite" code="Pohm" description="Podhomme Airfoil integration scripting suite">
+
+    <value-type name="airfoil image" code="aImg" description="Image data in TIFF format">
+      <cocoa class="NSData"/>
+    </value-type>
+
+    <class name="application" code="capp" description="The application's top-level scripting object.">
+      <cocoa class="NSApplication"/>
+
+      <property name="track title" code="aTtl" description="Title of the currently playing episode." type="text" access="r">
+        <cocoa key="trackTitle"/>
+      </property>
+
+      <property name="artist" code="aArt" description="Podcast title (artist) of the currently playing episode." type="text" access="r"/>
+
+      <property name="album" code="aAlb" description="Podcast title (album) of the currently playing episode." type="text" access="r"/>
+
+      <property name="duration" code="aDur" description="Duration of the currently playing episode in seconds." type="integer" access="r"/>
+
+      <property name="logo" code="aLog" description="Artwork for the currently playing episode." access="r">
+        <type type="airfoil image"/>
+      </property>
+
+    </class>
+
+    <command name="playpause" code="PohmPPse" description="Toggle playback between playing and paused.">
+      <cocoa class="PHPlayPauseCommand"/>
+    </command>
+
+    <command name="next" code="Pohmnext" description="Skip to the next episode.">
+      <cocoa class="PHNextCommand"/>
+    </command>
+
+    <command name="previous" code="Pohmprev" description="Go back to the previous episode.">
+      <cocoa class="PHPrevCommand"/>
+    </command>
+
+  </suite>
+</dictionary>

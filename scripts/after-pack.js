@@ -16,6 +16,7 @@ function findFiles(dir, name, results = []) {
 
 module.exports = async function afterPack({ appOutDir, packager }) {
   const appName = packager.appInfo.productFilename;
+  const isMac = packager.platform.name === 'mac';
 
   let resourcesPath;
   switch (packager.platform.name) {
@@ -26,6 +27,18 @@ module.exports = async function afterPack({ appOutDir, packager }) {
     case 'windows':
     default:
       resourcesPath = path.join(appOutDir, 'resources');
+  }
+
+  // Bundle the Airfoil helper app on macOS
+  if (isMac) {
+    const helperSrc = path.join(__dirname, '..', 'electron-build', 'AirfoilHelper.app');
+    const helperDst = path.join(appOutDir, `${appName}.app`, 'Contents', 'Helpers', 'AirfoilHelper.app');
+    if (fs.existsSync(helperSrc)) {
+      console.log(`  • bundling AirfoilHelper.app → Contents/Helpers/`);
+      fs.cpSync(helperSrc, helperDst, { recursive: true });
+    } else {
+      console.warn('  ! AirfoilHelper.app not found — run `yarn electron:build-helper` first');
+    }
   }
 
   const src = path.join(__dirname, '..', '.next', 'standalone');
