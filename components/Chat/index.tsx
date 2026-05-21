@@ -36,12 +36,16 @@ export function ChatDrawer({
 }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
-  const [name, setName] = useState(() =>
-    typeof window !== 'undefined' ? (localStorage.getItem(NAME_KEY) ?? '') : '',
-  );
-  const [editingName, setEditingName] = useState(() =>
-    typeof window !== 'undefined' ? !localStorage.getItem(NAME_KEY) : false,
-  );
+  const [name, setName] = useState('');
+  const [editingName, setEditingName] = useState(false);
+
+  useEffect(() => {
+    const stored = localStorage.getItem(NAME_KEY) ?? '';
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setName(stored);
+     
+    if (!stored) setEditingName(true);
+  }, []);
   const [nameInput, setNameInput] = useState('');
   const [sending, setSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
