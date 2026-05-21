@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-05-20
+
+### Fixed
+- Build error: `parseFeed` now returns a `ParseFeedResult` discriminated union; the subscribe and OPML import routes were not unwrapping it, causing a TypeScript type error in production builds
+
 ## [0.1.3] - 2026-05-20
 
 ### Fixed
