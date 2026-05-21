@@ -34,3 +34,13 @@ function resolveSymlinks(dir) {
 }
 
 resolveSymlinks(path.join(standalone, '.next', 'node_modules'));
+
+// Turbopack's file tracer sometimes pulls in the entire project directory.
+// Strip any build artifact directories that have no business in the bundle.
+for (const dir of ['dist', 'electron-build']) {
+  const p = path.join(standalone, dir);
+  if (fs.existsSync(p)) {
+    fs.rmSync(p, { recursive: true, force: true });
+    console.log(`  • removed stray ${dir}/ from standalone`);
+  }
+}
