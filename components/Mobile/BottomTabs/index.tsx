@@ -1,6 +1,8 @@
 'use client';
 
-import { Inbox, Library, MessageSquare, Star } from 'lucide-react';
+import {
+  Inbox, Library, MessageSquare, Star, 
+} from 'lucide-react';
 import type { MobileTab } from '../Shell';
 import styles from './index.module.css';
 
@@ -33,7 +35,9 @@ const TABS: { id: MobileTab; label: string; icon: React.ReactNode }[] = [
   },
 ];
 
-export function BottomTabs({ tab, onTab, unreadChat }: Props) {
+export function BottomTabs({
+  tab, onTab, unreadChat, 
+}: Props) {
   return (
     <nav className={styles.nav} aria-label="Main navigation">
       {TABS.map((t) => (

@@ -1,5 +1,5 @@
-import { db } from '@/lib/db';
 import { broadcast } from '@/lib/sse';
+import { db } from '@/lib/db';
 
 const MAX_MESSAGES = 50;
 const MAX_AUTHOR_LEN = 50;

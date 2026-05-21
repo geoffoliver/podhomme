@@ -1,7 +1,11 @@
 'use client';
 
-import { Podcast, Search, X } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import {
+  Podcast, Search, X, 
+} from 'lucide-react';
+import {
+  useEffect, useRef, useState, 
+} from 'react';
 import Image from 'next/image';
 
 import type { iTunesResult } from '@/types';

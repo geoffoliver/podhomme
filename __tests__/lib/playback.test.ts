@@ -1,5 +1,5 @@
-import { db } from '@/lib/db';
 import { getNextEpisode, getPrevEpisode } from '@/lib/playback';
+import { db } from '@/lib/db';
 
 let podcastSeq = 0;
 
@@ -46,7 +46,12 @@ async function seedPodcastAndEpisodes(
     },
   });
 
-  return { podcast, ep1, ep2, ep3 };
+  return {
+    podcast,
+    ep1,
+    ep2,
+    ep3,
+  };
 }
 
 // ─── getNextEpisode ───────────────────────────────────────────────────────────
@@ -56,7 +61,9 @@ describe('getNextEpisode', () => {
     let ep1Id: number, ep2Id: number, ep3Id: number, ep4Id: number;
 
     beforeEach(async () => {
-      const { podcast, ep1, ep2, ep3 } = await seedPodcastAndEpisodes();
+      const {
+        podcast, ep1, ep2, ep3, 
+      } = await seedPodcastAndEpisodes();
       ep1Id = ep1.id;
       ep2Id = ep2.id;
       ep3Id = ep3.id;
@@ -101,7 +108,9 @@ describe('getNextEpisode', () => {
     let ep1Id: number, ep2Id: number, ep3Id: number;
 
     beforeEach(async () => {
-      const { podcast, ep1, ep2, ep3 } = await seedPodcastAndEpisodes({
+      const {
+        podcast, ep1, ep2, ep3, 
+      } = await seedPodcastAndEpisodes({
         type: 'episodic',
       });
       podcastId = podcast.id;
@@ -127,7 +136,9 @@ describe('getNextEpisode', () => {
     let ep1Id: number, ep2Id: number, ep3Id: number;
 
     beforeEach(async () => {
-      const { podcast, ep1, ep2, ep3 } = await seedPodcastAndEpisodes({
+      const {
+        podcast, ep1, ep2, ep3, 
+      } = await seedPodcastAndEpisodes({
         type: 'serial',
       });
       podcastId = podcast.id;
@@ -150,7 +161,9 @@ describe('getNextEpisode', () => {
 
   describe('podcast context — typeOverride takes precedence over type', () => {
     it('treats podcast as serial when typeOverride is serial even if type is episodic', async () => {
-      const { podcast, ep1, ep2 } = await seedPodcastAndEpisodes({
+      const {
+        podcast, ep1, ep2, 
+      } = await seedPodcastAndEpisodes({
         type: 'episodic',
         typeOverride: 'serial',
       });
@@ -159,7 +172,9 @@ describe('getNextEpisode', () => {
     });
 
     it('treats podcast as episodic when typeOverride is episodic even if type is serial', async () => {
-      const { podcast, ep2, ep3 } = await seedPodcastAndEpisodes({
+      const {
+        podcast, ep2, ep3, 
+      } = await seedPodcastAndEpisodes({
         type: 'serial',
         typeOverride: 'episodic',
       });
@@ -189,7 +204,9 @@ describe('getNextEpisode', () => {
     let ep1Id: number, ep2Id: number, ep3Id: number;
 
     beforeEach(async () => {
-      const { ep1, ep2, ep3 } = await seedPodcastAndEpisodes();
+      const {
+        ep1, ep2, ep3, 
+      } = await seedPodcastAndEpisodes();
       ep1Id = ep1.id;
       ep2Id = ep2.id;
       ep3Id = ep3.id;
@@ -258,7 +275,9 @@ describe('getPrevEpisode', () => {
     let ep1Id: number, ep2Id: number, ep3Id: number;
 
     beforeEach(async () => {
-      const { ep1, ep2, ep3 } = await seedPodcastAndEpisodes();
+      const {
+        ep1, ep2, ep3, 
+      } = await seedPodcastAndEpisodes();
       ep1Id = ep1.id;
       ep2Id = ep2.id;
       ep3Id = ep3.id;
@@ -301,7 +320,9 @@ describe('getPrevEpisode', () => {
     let ep1Id: number, ep2Id: number, ep3Id: number;
 
     beforeEach(async () => {
-      const { podcast, ep1, ep2, ep3 } = await seedPodcastAndEpisodes({
+      const {
+        podcast, ep1, ep2, ep3, 
+      } = await seedPodcastAndEpisodes({
         type: 'episodic',
       });
       podcastId = podcast.id;
@@ -327,7 +348,9 @@ describe('getPrevEpisode', () => {
     let ep1Id: number, ep2Id: number, ep3Id: number;
 
     beforeEach(async () => {
-      const { podcast, ep1, ep2, ep3 } = await seedPodcastAndEpisodes({
+      const {
+        podcast, ep1, ep2, ep3, 
+      } = await seedPodcastAndEpisodes({
         type: 'serial',
       });
       podcastId = podcast.id;
@@ -350,7 +373,9 @@ describe('getPrevEpisode', () => {
 
   describe('podcast context — typeOverride takes precedence over type', () => {
     it('treats podcast as serial when typeOverride is serial', async () => {
-      const { podcast, ep2, ep3 } = await seedPodcastAndEpisodes({
+      const {
+        podcast, ep2, ep3, 
+      } = await seedPodcastAndEpisodes({
         type: 'episodic',
         typeOverride: 'serial',
       });
@@ -359,7 +384,9 @@ describe('getPrevEpisode', () => {
     });
 
     it('treats podcast as episodic when typeOverride is episodic', async () => {
-      const { podcast, ep1, ep2 } = await seedPodcastAndEpisodes({
+      const {
+        podcast, ep1, ep2, 
+      } = await seedPodcastAndEpisodes({
         type: 'serial',
         typeOverride: 'episodic',
       });
@@ -389,7 +416,9 @@ describe('getPrevEpisode', () => {
     let ep1Id: number, ep2Id: number, ep3Id: number;
 
     beforeEach(async () => {
-      const { ep1, ep2, ep3 } = await seedPodcastAndEpisodes();
+      const {
+        ep1, ep2, ep3, 
+      } = await seedPodcastAndEpisodes();
       ep1Id = ep1.id;
       ep2Id = ep2.id;
       ep3Id = ep3.id;

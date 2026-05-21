@@ -1,6 +1,6 @@
 import Parser from 'rss-parser';
-import { XMLParser } from 'fast-xml-parser';
 import { USER_AGENT } from '@/lib/user-agent';
+import { XMLParser } from 'fast-xml-parser';
 
 type FeedEpisode = {
   guid: string;
@@ -25,7 +25,12 @@ type FeedData = {
 
 export type ParseFeedResult =
   | { notModified: true }
-  | { notModified: false; feed: FeedData; etag: string | null; lastModified: string | null };
+  | {
+    notModified: false;
+    feed: FeedData;
+    etag: string | null;
+    lastModified: string | null;
+  };
 
 const parser = new Parser({
   customFields: {
@@ -166,7 +171,7 @@ export function buildOpml(podcasts: OpmlOutline[]): string {
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<opml version="2.0">',
     '  <head>',
-    `    <title>Podhomme Subscriptions</title>`,
+    '    <title>Podhomme Subscriptions</title>',
     `    <dateCreated>${date}</dateCreated>`,
     '  </head>',
     '  <body>',

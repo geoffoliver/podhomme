@@ -38,7 +38,8 @@ export async function POST(request: Request) {
     try {
       log.info({ feedUrl: outline.feedUrl }, 'Importing feed');
       const result = await parseFeed(outline.feedUrl);
-      if (result.notModified) throw new Error('Unexpected 304 on initial import');
+      if (result.notModified)
+        throw new Error('Unexpected 304 on initial import');
       const { feed } = result;
       const podcast = await db.podcast.create({
         data: {

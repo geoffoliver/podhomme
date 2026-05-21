@@ -1,7 +1,10 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
 import { Pencil, Send } from 'lucide-react';
+import {
+  useEffect, useRef, useState, 
+} from 'react';
+
 import styles from './index.module.css';
 
 type ChatMessage = {
@@ -23,18 +26,16 @@ function formatTime(iso: string) {
 export function ChatView() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
-  const [name, setName] = useState('');
-  const [editingName, setEditingName] = useState(false);
+  const [name, setName] = useState(() =>
+    typeof window !== 'undefined' ? (localStorage.getItem(NAME_KEY) ?? '') : '',
+  );
+  const [editingName, setEditingName] = useState(() =>
+    typeof window !== 'undefined' ? !localStorage.getItem(NAME_KEY) : false,
+  );
   const [nameInput, setNameInput] = useState('');
   const [sending, setSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    const stored = localStorage.getItem(NAME_KEY) ?? '';
-    setName(stored);
-    if (!stored) setEditingName(true);
-  }, []);
 
   useEffect(() => {
     fetch('/api/chat')

@@ -13,7 +13,19 @@ const eslintConfig = defineConfig([
     'out/**',
     'build/**',
     'next-env.d.ts',
+    // Compiled/generated output
+    'dist/**',
+    'electron/main.js',
+    // Example files not part of the app
+    'examples/**',
   ]),
+  // CommonJS scripts and Jest bootstrap files use require() by necessity
+  {
+    files: ['scripts/**/*.js', 'jest.globalSetup.js', 'jest.setup.ts'],
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
+    },
+  },
   {
     plugins: {
       '@stylistic/js': stylisticJs,
@@ -31,6 +43,12 @@ const eslintConfig = defineConfig([
         'ignoreMemberSort': false,
         'memberSyntaxSortOrder': ['none', 'all', 'multiple', 'single'],
         'allowSeparatedGroups': true,
+      }],
+      '@stylistic/js/indent': ['error', 2, {
+        'SwitchCase': 1,
+        'VariableDeclarator': 1,
+        'ArrayExpression': 1,
+        'ObjectExpression': 1,
       }],
       '@stylistic/js/curly-newline': ['error', {
         'multiline': true,

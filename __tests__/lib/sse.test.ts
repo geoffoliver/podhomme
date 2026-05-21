@@ -6,7 +6,11 @@ function makeClient() {
     enqueue: jest.fn((chunk: Uint8Array) => encoded.push(chunk)),
   } as unknown as ReadableStreamDefaultController;
   const encoder = new TextEncoder();
-  return { controller, encoder, encoded };
+  return {
+    controller,
+    encoder,
+    encoded,
+  };
 }
 
 // ─── addSseClient ─────────────────────────────────────────────────────────────

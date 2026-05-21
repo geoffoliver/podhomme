@@ -1,6 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import {
+  useEffect, useRef, useState, 
+} from 'react';
 import { BottomTabs } from '../BottomTabs';
 import { ChatView } from '../ChatView';
 import { FavoritesView } from '../FavoritesView';
@@ -19,7 +21,9 @@ export function MobileShell() {
   const [nowPlayingOpen, setNowPlayingOpen] = useState(false);
   const [unreadChat, setUnreadChat] = useState(false);
   const tabRef = useRef(tab);
-  tabRef.current = tab;
+  useEffect(() => {
+    tabRef.current = tab;
+  }, [tab]);
   const { state } = usePlayback();
 
   useEffect(() => {

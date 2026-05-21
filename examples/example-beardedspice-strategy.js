@@ -37,11 +37,11 @@ BSStrategy = {
   */
   trackInfo: function () {
     return {
-        'track': 'the name of the track',
-        'album': 'the name of the current album',
-        'artist': 'the name of the current artist',
-        'image': 'http://www.example.com/some/album/artwork.png',
-        'favorited': 'true/false if the track has been favorited',
+      'track': 'the name of the track',
+      'album': 'the name of the current album',
+      'artist': 'the name of the current artist',
+      'image': 'http://www.example.com/some/album/artwork.png',
+      'favorited': 'true/false if the track has been favorited',
     };
   },
 };

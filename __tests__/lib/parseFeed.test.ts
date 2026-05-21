@@ -2,9 +2,9 @@
 // We mock the constructor so the module-level `parser` gets jest.fn()s for parseString.
 jest.mock('rss-parser', () => jest.fn(() => ({ parseString: jest.fn() })));
 
-import { parseFeed } from '@/lib/feed';
 import Parser from 'rss-parser';
 import { USER_AGENT } from '@/lib/user-agent';
+import { parseFeed } from '@/lib/feed';
 
 const MockParser = Parser as jest.MockedClass<any>;
 let mockParseString: jest.Mock;
@@ -201,7 +201,9 @@ describe('parseFeed — feed type', () => {
   });
 
   it('returns "episodic" for non-serial values', async () => {
-    mockParseString.mockResolvedValue(makeRawFeed({ 'itunes:type': 'episodic' }));
+    mockParseString.mockResolvedValue(
+      makeRawFeed({ 'itunes:type': 'episodic' }),
+    );
     expect((await parse()).feed.type).toBe('episodic');
   });
 });
@@ -213,7 +215,9 @@ describe('parseFeed — image extraction', () => {
     mockParseString.mockResolvedValue(
       makeRawFeed({ 'itunes:image': 'https://img.example.com/art.jpg' }),
     );
-    expect((await parse()).feed.imageUrl).toBe('https://img.example.com/art.jpg');
+    expect((await parse()).feed.imageUrl).toBe(
+      'https://img.example.com/art.jpg',
+    );
   });
 
   it('extracts href from an object with href property', async () => {
@@ -222,7 +226,9 @@ describe('parseFeed — image extraction', () => {
         'itunes:image': { href: 'https://img.example.com/art.jpg' },
       }),
     );
-    expect((await parse()).feed.imageUrl).toBe('https://img.example.com/art.jpg');
+    expect((await parse()).feed.imageUrl).toBe(
+      'https://img.example.com/art.jpg',
+    );
   });
 
   it('extracts href from an xml2js-style attributes object', async () => {
@@ -231,14 +237,18 @@ describe('parseFeed — image extraction', () => {
         'itunes:image': { $: { href: 'https://img.example.com/art.jpg' } },
       }),
     );
-    expect((await parse()).feed.imageUrl).toBe('https://img.example.com/art.jpg');
+    expect((await parse()).feed.imageUrl).toBe(
+      'https://img.example.com/art.jpg',
+    );
   });
 
   it('falls back to feed.image when itunes:image is absent', async () => {
     mockParseString.mockResolvedValue(
       makeRawFeed({ image: { url: 'https://img.example.com/rss.jpg' } }),
     );
-    expect((await parse()).feed.imageUrl).toBe('https://img.example.com/rss.jpg');
+    expect((await parse()).feed.imageUrl).toBe(
+      'https://img.example.com/rss.jpg',
+    );
   });
 
   it('returns null when no image is present', async () => {
@@ -394,7 +404,9 @@ describe('parseFeed — episodes', () => {
     });
 
     it('returns null when no description source is present', async () => {
-      mockParseString.mockResolvedValue(makeRawFeed({ items: [makeRawItem()] }));
+      mockParseString.mockResolvedValue(
+        makeRawFeed({ items: [makeRawItem()] }),
+      );
       expect((await parse()).feed.episodes[0].description).toBeNull();
     });
   });

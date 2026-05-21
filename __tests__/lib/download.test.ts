@@ -4,7 +4,11 @@ jest.mock('@/lib/db', () => ({
 jest.mock('@/lib/logger', () => ({
   __esModule: true,
   default: {
-    child: () => ({ info: jest.fn(), warn: jest.fn(), error: jest.fn() }),
+    child: () => ({
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+    }),
   },
 }));
 jest.mock('fs/promises', () => ({
@@ -12,8 +16,8 @@ jest.mock('fs/promises', () => ({
   writeFile: jest.fn().mockResolvedValue(undefined),
 }));
 
-import { downloadEpisode } from '@/lib/download';
 import { USER_AGENT } from '@/lib/user-agent';
+import { downloadEpisode } from '@/lib/download';
 
 const mockFetch = jest.fn();
 global.fetch = mockFetch;

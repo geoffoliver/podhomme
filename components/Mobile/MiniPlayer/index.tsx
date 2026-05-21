@@ -1,7 +1,11 @@
 'use client';
 
-import { Headphones, Pause, Play, Podcast, SkipForward } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import {
+  Headphones, Pause, Play, Podcast, SkipForward, 
+} from 'lucide-react';
+import {
+  useEffect, useRef, useState, 
+} from 'react';
 import Image from 'next/image';
 
 import { usePlayback } from '@/context/PlaybackContext';

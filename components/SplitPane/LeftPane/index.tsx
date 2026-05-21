@@ -1,8 +1,10 @@
 'use client';
 
-import { Plus, Podcast, RefreshCw, Search, Star } from 'lucide-react';
-import { useState } from 'react';
+import {
+  Plus, Podcast, RefreshCw, Search, Star, 
+} from 'lucide-react';
 import Image from 'next/image';
+import { useState } from 'react';
 
 import { PodcastSearch } from '@/components/PodcastSearch';
 import type { SelectedView } from '@/types';
@@ -71,7 +73,9 @@ export function LeftPane() {
   return (
     <nav className={styles.pane}>
       <ul className={styles.list} role="listbox" aria-label="Podcast library">
-        {items.map(({ view, label, icon }) => (
+        {items.map(({
+          view, label, icon, 
+        }) => (
           <li key={String(view)}>
             <button
               className={`${styles.item} ${selectedView === view ? styles.itemActive : ''}`}

@@ -3,16 +3,16 @@ jest.mock('@/lib/download', () => ({ downloadEpisode: jest.fn() }));
 jest.mock('@/lib/feed');
 jest.mock('fs/promises', () => ({ rm: jest.fn() }));
 
-import { db } from '@/lib/db';
 import {
-  refreshPodcast,
-  refreshAll,
-  startRefresh,
   __resetRefreshState,
+  refreshAll,
+  refreshPodcast,
+  startRefresh,
 } from '@/lib/refresh';
-import { parseFeed } from '@/lib/feed';
 import { broadcast } from '@/lib/sse';
+import { db } from '@/lib/db';
 import { downloadEpisode } from '@/lib/download';
+import { parseFeed } from '@/lib/feed';
 import { rm } from 'fs/promises';
 
 const mockParseFeed = parseFeed as jest.MockedFunction<typeof parseFeed>;
@@ -60,7 +60,12 @@ function makeFullFeedResult(
   etag: string | null = null,
   lastModified: string | null = null,
 ) {
-  return { notModified: false as const, feed, etag, lastModified };
+  return {
+    notModified: false as const,
+    feed,
+    etag,
+    lastModified,
+  };
 }
 
 const YESTERDAY = new Date(Date.now() - 24 * 60 * 60 * 1000);
@@ -134,18 +139,25 @@ describe('refreshPodcast', () => {
     it('passes cached etag and lastModified to parseFeed', async () => {
       await db.podcast.update({
         where: { id: podcastId },
-        data: { lastEtag: '"abc123"', lastModified: 'Wed, 01 Jan 2025 00:00:00 GMT' },
+        data: {
+          lastEtag: '"abc123"',
+          lastModified: 'Wed, 01 Jan 2025 00:00:00 GMT',
+        },
       });
       await refreshPodcast(podcastId);
-      expect(mockParseFeed).toHaveBeenCalledWith(
-        expect.any(String),
-        { etag: '"abc123"', lastModified: 'Wed, 01 Jan 2025 00:00:00 GMT' },
-      );
+      expect(mockParseFeed).toHaveBeenCalledWith(expect.any(String), {
+        etag: '"abc123"',
+        lastModified: 'Wed, 01 Jan 2025 00:00:00 GMT',
+      });
     });
 
     it('stores etag and lastModified returned by parseFeed', async () => {
       mockParseFeed.mockResolvedValue(
-        makeFullFeedResult(makeFeed([]), '"new-etag"', 'Thu, 02 Jan 2025 00:00:00 GMT'),
+        makeFullFeedResult(
+          makeFeed([]),
+          '"new-etag"',
+          'Thu, 02 Jan 2025 00:00:00 GMT',
+        ),
       );
       await refreshPodcast(podcastId);
       const podcast = await db.podcast.findUnique({ where: { id: podcastId } });
@@ -174,10 +186,12 @@ describe('refreshPodcast', () => {
   describe('when the feed contains multiple new episodes', () => {
     beforeEach(() => {
       mockParseFeed.mockResolvedValue(
-        makeFullFeedResult(makeFeed([
-          makeFeedEpisode({ guid: 'ep-new', pubDate: YESTERDAY }), // newer
-          makeFeedEpisode({ guid: 'ep-old', pubDate: TWO_DAYS_AGO }), // older
-        ])),
+        makeFullFeedResult(
+          makeFeed([
+            makeFeedEpisode({ guid: 'ep-new', pubDate: YESTERDAY }), // newer
+            makeFeedEpisode({ guid: 'ep-old', pubDate: TWO_DAYS_AGO }), // older
+          ]),
+        ),
       );
     });
 
@@ -202,7 +216,9 @@ describe('refreshPodcast', () => {
   describe('60-day rule', () => {
     beforeEach(() => {
       mockParseFeed.mockResolvedValue(
-        makeFullFeedResult(makeFeed([makeFeedEpisode({ pubDate: SIXTY_ONE_DAYS_AGO })])),
+        makeFullFeedResult(
+          makeFeed([makeFeedEpisode({ pubDate: SIXTY_ONE_DAYS_AGO })]),
+        ),
       );
     });
 
@@ -234,9 +250,11 @@ describe('refreshPodcast', () => {
       });
 
       mockParseFeed.mockResolvedValue(
-        makeFullFeedResult(makeFeed([
-          makeFeedEpisode({ guid: 'ep-pruned', pubDate: TWO_DAYS_AGO }),
-        ])),
+        makeFullFeedResult(
+          makeFeed([
+            makeFeedEpisode({ guid: 'ep-pruned', pubDate: TWO_DAYS_AGO }),
+          ]),
+        ),
       );
 
       await refreshPodcast(podcastId);
@@ -259,9 +277,11 @@ describe('refreshPodcast', () => {
       });
 
       mockParseFeed.mockResolvedValue(
-        makeFullFeedResult(makeFeed([
-          makeFeedEpisode({ guid: 'ep-pruned', pubDate: TWO_DAYS_AGO }),
-        ])),
+        makeFullFeedResult(
+          makeFeed([
+            makeFeedEpisode({ guid: 'ep-pruned', pubDate: TWO_DAYS_AGO }),
+          ]),
+        ),
       );
 
       await refreshPodcast(podcastId);

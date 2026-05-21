@@ -1,8 +1,8 @@
 jest.mock('@/lib/sse', () => ({ broadcast: jest.fn() }));
 
 import { POST } from '@/app/api/playback/route';
-import { db } from '@/lib/db';
 import { broadcast } from '@/lib/sse';
+import { db } from '@/lib/db';
 
 const mockBroadcast = broadcast as jest.MockedFunction<typeof broadcast>;
 
@@ -123,7 +123,11 @@ describe('POST /api/playback', () => {
       const incoming = await seedEpisode();
       await setPlaybackState({ episodeId: outgoing.id, position: 77 });
 
-      await post({ action: 'load', episodeId: incoming.id, context: 'all' });
+      await post({
+        action: 'load',
+        episodeId: incoming.id,
+        context: 'all',
+      });
 
       const saved = await db.episode.findUnique({ where: { id: outgoing.id } });
       expect(saved?.resumeAt).toBe(77);
@@ -134,7 +138,11 @@ describe('POST /api/playback', () => {
       const incoming = await seedEpisode();
       await setPlaybackState({ episodeId: outgoing.id, position: 30 });
 
-      await post({ action: 'load', episodeId: incoming.id, context: 'all' });
+      await post({
+        action: 'load',
+        episodeId: incoming.id,
+        context: 'all',
+      });
 
       expect(episodeBroadcasts()).toHaveLength(1);
       expect(playbackBroadcasts()).toHaveLength(1);

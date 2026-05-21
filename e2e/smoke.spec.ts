@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { expect, test } from './fixtures';
 
 test.describe('Smoke', () => {
   test('app loads and shows the main layout', async ({ page, db: _ }) => {

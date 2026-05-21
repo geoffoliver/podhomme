@@ -14,7 +14,9 @@ import {
   SkipForward,
   Star,
 } from 'lucide-react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  useCallback, useEffect, useRef, useState, 
+} from 'react';
 import Image from 'next/image';
 
 import { usePlayback } from '@/context/PlaybackContext';

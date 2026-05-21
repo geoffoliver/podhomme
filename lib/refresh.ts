@@ -56,7 +56,9 @@ export async function refreshPodcast(podcastId: number) {
     return;
   }
 
-  const { feed, etag, lastModified } = result;
+  const {
+    feed, etag, lastModified, 
+  } = result;
 
   log.debug(
     {

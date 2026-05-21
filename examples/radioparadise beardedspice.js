@@ -40,10 +40,10 @@ BSStrategy = {
       : document.querySelector('#now_playing .now_playing_cover').getAttribute('src');
 
     return {
-        'track': track,
-        'album': album,
-        'artist': artist,
-        'image': image,
+      'track': track,
+      'album': album,
+      'artist': artist,
+      'image': image,
     };
   },
 };

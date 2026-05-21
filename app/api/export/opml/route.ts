@@ -1,10 +1,14 @@
-import { db } from '@/lib/db';
 import { buildOpml } from '@/lib/feed';
+import { db } from '@/lib/db';
 
 export async function GET() {
   const podcasts = await db.podcast.findMany({
     orderBy: { title: 'asc' },
-    select: { title: true, feedUrl: true, siteUrl: true },
+    select: {
+      title: true,
+      feedUrl: true,
+      siteUrl: true,
+    },
   });
 
   const xml = buildOpml(podcasts);

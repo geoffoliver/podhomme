@@ -1,13 +1,19 @@
 'use client';
 
-import { ChevronDown, ChevronUp, Maximize2 } from 'lucide-react';
-import { useCallback, useRef, useState } from 'react';
+import {
+  ChevronDown, ChevronUp, Maximize2, 
+} from 'lucide-react';
+import {
+  useCallback, useRef, useState, 
+} from 'react';
 import { usePlayback } from '@/context/PlaybackContext';
 
 import styles from './index.module.css';
 
 export function VideoPanel() {
-  const { state, isVideo, registerVideoElement } = usePlayback();
+  const {
+    state, isVideo, registerVideoElement, 
+  } = usePlayback();
   const [minimized, setMinimized] = useState(false);
   const videoElRef = useRef<HTMLVideoElement | null>(null);
 

@@ -8,7 +8,9 @@ import {
   Star as StarIcon,
   StarOff,
 } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import {
+  useCallback, useEffect, useState, 
+} from 'react';
 import Image from 'next/image';
 
 import type { Episode } from '@/types';

@@ -1,7 +1,12 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { Pencil, Send, X } from 'lucide-react';
+import {
+  Pencil, Send, X, 
+} from 'lucide-react';
+import {
+  useEffect, useRef, useState, 
+} from 'react';
+
 import styles from './index.module.css';
 
 type ChatMessage = {
@@ -26,22 +31,21 @@ function formatTime(iso: string) {
   });
 }
 
-export function ChatDrawer({ open, onClose, onMessage }: Props) {
+export function ChatDrawer({
+  open, onClose, onMessage, 
+}: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
-  const [name, setName] = useState('');
-  const [editingName, setEditingName] = useState(false);
+  const [name, setName] = useState(() =>
+    typeof window !== 'undefined' ? (localStorage.getItem(NAME_KEY) ?? '') : '',
+  );
+  const [editingName, setEditingName] = useState(() =>
+    typeof window !== 'undefined' ? !localStorage.getItem(NAME_KEY) : false,
+  );
   const [nameInput, setNameInput] = useState('');
   const [sending, setSending] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  // Load name from localStorage on mount
-  useEffect(() => {
-    const stored = localStorage.getItem(NAME_KEY) ?? '';
-    setName(stored);
-    if (!stored) setEditingName(true);
-  }, []);
 
   // Fetch message history when drawer opens
   useEffect(() => {
@@ -53,9 +57,13 @@ export function ChatDrawer({ open, onClose, onMessage }: Props) {
 
   // Listen for incoming chat SSE events
   const openRef = useRef(open);
-  openRef.current = open;
   const onMessageRef = useRef(onMessage);
-  onMessageRef.current = onMessage;
+  useEffect(() => {
+    openRef.current = open;
+  }, [open]);
+  useEffect(() => {
+    onMessageRef.current = onMessage;
+  }, [onMessage]);
   useEffect(() => {
     const source = new EventSource('/api/events');
     source.addEventListener('chat', (e) => {

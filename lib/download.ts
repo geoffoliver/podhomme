@@ -1,8 +1,8 @@
 import { mkdir, writeFile } from 'fs/promises';
+import { USER_AGENT } from '@/lib/user-agent';
 import { db } from '@/lib/db';
 import logger from '@/lib/logger';
 import path from 'path';
-import { USER_AGENT } from '@/lib/user-agent';
 
 const log = logger.child({ module: 'download' });
 

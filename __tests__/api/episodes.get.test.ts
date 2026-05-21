@@ -119,7 +119,7 @@ describe('GET /api/episodes', () => {
     expect(ids).not.toContain(ep3Id);
   });
 
-  it("returns only that podcast's episodes when another podcast exists", async () => {
+  it('returns only that podcast\'s episodes when another podcast exists', async () => {
     const res = await get({ podcastId: podBId });
     const body = await res.json();
     expect(body).toHaveLength(1);

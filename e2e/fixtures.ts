@@ -34,7 +34,9 @@ function openDb(): Database.Database {
 
 function makeDb(sqlite: Database.Database): Db {
   return {
-    createPodcast({ title, feedUrl, type = 'episodic' }) {
+    createPodcast({
+      title, feedUrl, type = 'episodic', 
+    }) {
       const stmt = sqlite.prepare(
         `INSERT INTO Podcast (title, feedUrl, type, createdAt, updatedAt)
          VALUES (?, ?, ?, datetime('now'), datetime('now'))`,
@@ -76,7 +78,7 @@ function makeDb(sqlite: Database.Database): Db {
 
     createQueueItem(episodeId, position) {
       sqlite
-        .prepare(`INSERT INTO QueueItem (episodeId, position) VALUES (?, ?)`)
+        .prepare('INSERT INTO QueueItem (episodeId, position) VALUES (?, ?)')
         .run(episodeId, position);
     },
   };
@@ -100,6 +102,7 @@ export const test = base.extend<{ db: Db }>({
   db: async ({}, use) => {
     const sqlite = openDb();
     resetDb(sqlite);
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     await use(makeDb(sqlite));
     sqlite.close();
   },

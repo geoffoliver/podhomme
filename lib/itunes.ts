@@ -1,5 +1,5 @@
-import { iTunesData } from '@/types';
 import { USER_AGENT } from '@/lib/user-agent';
+import { iTunesData } from '@/types';
 
 class iTunes {
   baseUrl = 'https://itunes.apple.com/';

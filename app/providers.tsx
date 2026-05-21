@@ -3,8 +3,8 @@
 import { PlaybackProvider } from '@/context/PlaybackContext';
 import { PodcastsProvider } from '@/context/PodcastsContext';
 import { SseProvider } from '@/context/SseContext';
-import { useRefreshScheduler } from '@/hooks/useRefreshScheduler';
 import { useEffect } from 'react';
+import { useRefreshScheduler } from '@/hooks/useRefreshScheduler';
 
 function RefreshScheduler() {
   useRefreshScheduler();

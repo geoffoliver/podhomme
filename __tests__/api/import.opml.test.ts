@@ -5,9 +5,9 @@ jest.mock('@/lib/feed', () => ({
 }));
 
 import { POST } from '@/app/api/import/opml/route';
+import { broadcast } from '@/lib/sse';
 import { db } from '@/lib/db';
 import { parseFeed } from '@/lib/feed';
-import { broadcast } from '@/lib/sse';
 
 const mockParseFeed = parseFeed as jest.MockedFunction<typeof parseFeed>;
 const mockBroadcast = broadcast as jest.MockedFunction<typeof broadcast>;
@@ -85,7 +85,8 @@ describe('POST /api/import/opml', () => {
   });
 
   it('returns 422 when the OPML contains no feeds', async () => {
-    const emptyOpml = `<?xml version="1.0"?><opml version="2.0"><body></body></opml>`;
+    const emptyOpml =
+      '<?xml version="1.0"?><opml version="2.0"><body></body></opml>';
     const res = await post(emptyOpml);
     expect(res.status).toBe(422);
     const body = await res.json();

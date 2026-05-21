@@ -1,10 +1,17 @@
-import { app, BrowserWindow, shell, Menu, utilityProcess, dialog } from 'electron';
+import {
+  BrowserWindow,
+  Menu,
+  app,
+  dialog,
+  shell,
+  utilityProcess,
+} from 'electron';
+import Database from 'better-sqlite3';
 import type { UtilityProcess } from 'electron';
 import { autoUpdater } from 'electron-updater';
-import Database from 'better-sqlite3';
-import path from 'path';
 import fs from 'fs';
 import http from 'http';
+import path from 'path';
 
 app.name = 'Podhomme';
 
@@ -100,7 +107,12 @@ function startServer(): Promise<void> {
     const dbPath = path.join(dbDir, 'podhomme.db');
 
     const migrationsDir = app.isPackaged
-      ? path.join(process.resourcesPath, 'app.asar.unpacked', 'prisma', 'migrations')
+      ? path.join(
+        process.resourcesPath,
+        'app.asar.unpacked',
+        'prisma',
+        'migrations',
+      )
       : path.join(appRoot, 'prisma', 'migrations');
 
     try {

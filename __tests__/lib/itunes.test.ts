@@ -1,5 +1,5 @@
-import iTunes from '@/lib/itunes';
 import { USER_AGENT } from '@/lib/user-agent';
+import iTunes from '@/lib/itunes';
 
 const mockFetch = jest.fn();
 global.fetch = mockFetch;

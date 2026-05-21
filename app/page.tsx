@@ -1,11 +1,11 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { ChatDrawer } from '@/components/Chat';
 import { SettingsDialog } from '@/components/Settings';
 import { SplitPane } from '@/components/SplitPane';
 import { TopBar } from '@/components/TopBar';
 import { VideoPanel } from '@/components/VideoPanel';
-import { ChatDrawer } from '@/components/Chat';
-import { useState, useEffect } from 'react';
 
 export default function Home() {
   const [settingsOpen, setSettingsOpen] = useState(false);

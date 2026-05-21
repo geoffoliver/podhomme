@@ -1,4 +1,6 @@
-import { test, expect, FEED_URL } from './fixtures';
+import {
+  FEED_URL, expect, test, 
+} from './fixtures';
 
 test.describe('Add podcast', () => {
   test('adds a podcast by RSS URL and shows it in the sidebar', async ({

@@ -2,9 +2,9 @@ jest.mock('@/lib/sse', () => ({ broadcast: jest.fn() }));
 jest.mock('@/lib/feed');
 
 import { POST } from '@/app/api/podcasts/route';
+import { broadcast } from '@/lib/sse';
 import { db } from '@/lib/db';
 import { parseFeed } from '@/lib/feed';
-import { broadcast } from '@/lib/sse';
 
 const mockParseFeed = parseFeed as jest.MockedFunction<typeof parseFeed>;
 const mockBroadcast = broadcast as jest.MockedFunction<typeof broadcast>;

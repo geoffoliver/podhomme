@@ -1,4 +1,4 @@
-import { parseOpml, buildOpml } from '@/lib/feed';
+import { buildOpml, parseOpml } from '@/lib/feed';
 
 describe('parseOpml', () => {
   it('extracts feed URLs from a flat OPML body', () => {

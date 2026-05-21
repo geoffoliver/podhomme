@@ -84,15 +84,15 @@ export async function POST(request: Request) {
     const nextId =
       action === 'next'
         ? await getNextEpisode(
-            current.episodeId,
-            current.context,
-            current.contextPodcastId,
-          )
+          current.episodeId,
+          current.context,
+          current.contextPodcastId,
+        )
         : await getPrevEpisode(
-            current.episodeId,
-            current.context,
-            current.contextPodcastId,
-          );
+          current.episodeId,
+          current.context,
+          current.contextPodcastId,
+        );
 
     if (action === 'next') {
       // Episode finished — mark played and clear resume point

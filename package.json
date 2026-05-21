@@ -3,6 +3,13 @@
   "version": "0.1.4",
   "private": true,
   "main": "electron/main.js",
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "prettier --write",
+      "eslint --fix",
+      "eslint"
+    ]
+  },
   "scripts": {
     "dev": "PORT=3030 next dev",
     "build": "next build",
@@ -19,7 +26,8 @@
     "electron:dev": "yarn electron:compile && electron .",
     "electron:rebuild": "electron-rebuild",
     "electron:build": "yarn build && node scripts/prepare-electron.js && yarn electron:compile && electron-builder",
-    "electron:pack": "yarn build && node scripts/prepare-electron.js && yarn electron:compile && electron-builder --dir"
+    "electron:pack": "yarn build && node scripts/prepare-electron.js && yarn electron:compile && electron-builder --dir",
+    "prepare": "husky"
   },
   "ts-node": {
     "project": "tsconfig.jest.json"
@@ -57,9 +65,11 @@
     "electron-builder": "^26.8.1",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
+    "husky": "^9.1.7",
     "jest": "^30.4.2",
     "jest-environment-jsdom": "^30.4.1",
     "jest-mock-extended": "^4.0.1",
+    "lint-staged": "^16",
     "pino-pretty": "^13.1.3",
     "prettier": "^3.8.3",
     "prisma": "^7.8.0",

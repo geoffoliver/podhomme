@@ -6,8 +6,8 @@ import {
   type DropResult,
   Droppable,
 } from '@hello-pangea/dnd';
-import { useEffect, useState } from 'react';
 import { Inbox } from 'lucide-react';
+import { useState } from 'react';
 
 import type { Episode, QueueItem } from '@/types';
 import { EpisodeDetail } from '../EpisodeDetail';
@@ -23,12 +23,13 @@ export function AllPodcastsView() {
   const [sortMode, setSortMode] = useState<SortMode>('manual');
   const [detailEpisode, setDetailEpisode] = useState<Episode | null>(null);
   const [localItems, setLocalItems] = useState<QueueItem[] | null>(null);
+  const [prevQueue, setPrevQueue] = useState(queue);
 
-  // Once the server queue syncs back, drop the optimistic override
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => {
+  // Reset optimistic override when server queue changes
+  if (prevQueue !== queue) {
+    setPrevQueue(queue);
     setLocalItems(null);
-  }, [queue]);
+  }
 
   const sorted: QueueItem[] = [...queue].sort((a, b) => {
     if (sortMode === 'asc')

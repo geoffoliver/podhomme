@@ -45,11 +45,11 @@ function reducer(state: State, action: Action): State {
         ...state,
         podcasts: exists
           ? state.podcasts.map((p) =>
-              p.id === action.payload.id ? action.payload : p,
-            )
+            p.id === action.payload.id ? action.payload : p,
+          )
           : [...state.podcasts, action.payload].sort((a, b) =>
-              a.title.localeCompare(b.title),
-            ),
+            a.title.localeCompare(b.title),
+          ),
       };
     }
     case 'DELETE_PODCAST':

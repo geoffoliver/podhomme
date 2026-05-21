@@ -1,6 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import {
+  useCallback, useEffect, useState, 
+} from 'react';
 import { Star } from 'lucide-react';
 import { Virtuoso } from 'react-virtuoso';
 

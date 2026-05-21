@@ -147,10 +147,10 @@ export function LibraryView() {
   const effectiveType = podcast?.typeOverride || podcast?.type;
   const episodes = podcast
     ? [...podcast.episodes].sort((a, b) =>
-        effectiveType === 'serial'
-          ? new Date(a.pubDate).getTime() - new Date(b.pubDate).getTime()
-          : new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime(),
-      )
+      effectiveType === 'serial'
+        ? new Date(a.pubDate).getTime() - new Date(b.pubDate).getTime()
+        : new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime(),
+    )
     : [];
 
   return (

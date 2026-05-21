@@ -11,7 +11,7 @@ import {
   Star,
   StarOff,
 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import Image from 'next/image';
 
 import type { Episode } from '@/types';
@@ -59,16 +59,18 @@ export function EpisodeRow({
   const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({});
   const [localPlayed, setLocalPlayed] = useState<boolean | null>(null);
   const [localFavorited, setLocalFavorited] = useState<boolean | null>(null);
+  const [prevPlayed, setPrevPlayed] = useState(episode.played);
+  const [prevFavorited, setPrevFavorited] = useState(episode.favorited);
 
-  // When the SSE-driven prop updates, drop the local override
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => {
+  // When the SSE-driven prop changes, drop the optimistic override
+  if (prevPlayed !== episode.played) {
+    setPrevPlayed(episode.played);
     setLocalPlayed(null);
-  }, [episode.played]);
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => {
+  }
+  if (prevFavorited !== episode.favorited) {
+    setPrevFavorited(episode.favorited);
     setLocalFavorited(null);
-  }, [episode.favorited]);
+  }
 
   const played = localPlayed ?? episode.played;
   const favorited = localFavorited ?? episode.favorited;
@@ -191,10 +193,7 @@ export function EpisodeRow({
                 }}
                 onClick={() => setMenuOpen(false)}
               />
-              <div
-                className={styles.menuPopover}
-                style={menuStyle}
-              >
+              <div className={styles.menuPopover} style={menuStyle}>
                 <button
                   className={styles.menuItem}
                   onClick={() => {

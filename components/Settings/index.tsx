@@ -1,10 +1,13 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
 import { Download, Upload } from 'lucide-react';
+import {
+  useEffect, useRef, useState, 
+} from 'react';
+
 import type { Settings } from '@/types';
-import { usePodcasts } from '@/context/PodcastsContext';
 import styles from './index.module.css';
+import { usePodcasts } from '@/context/PodcastsContext';
 
 type Props = {
   open: boolean;

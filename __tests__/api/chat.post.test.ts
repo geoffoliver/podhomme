@@ -1,8 +1,8 @@
 jest.mock('@/lib/sse', () => ({ broadcast: jest.fn() }));
 
 import { POST } from '@/app/api/chat/route';
-import { db } from '@/lib/db';
 import { broadcast } from '@/lib/sse';
+import { db } from '@/lib/db';
 
 const mockBroadcast = broadcast as jest.MockedFunction<typeof broadcast>;
 

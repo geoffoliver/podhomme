@@ -1,7 +1,11 @@
 'use client';
 
-import { ExternalLink, Podcast, RefreshCw, Rss, Trash2 } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import {
+  ExternalLink, Podcast, RefreshCw, Rss, Trash2, 
+} from 'lucide-react';
+import {
+  useCallback, useEffect, useState, 
+} from 'react';
 import Image from 'next/image';
 import { Virtuoso } from 'react-virtuoso';
 

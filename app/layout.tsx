@@ -1,7 +1,7 @@
 import { Geist, Geist_Mono } from 'next/font/google';
 import type { Metadata, Viewport } from 'next';
-import { headers } from 'next/headers';
 import { Providers } from './providers';
+import { headers } from 'next/headers';
 
 import './globals.css';
 
