@@ -28,8 +28,19 @@ function startAirfoilHelper() {
   const helperApp = app.isPackaged
     ? path.join(process.resourcesPath, '..', 'Helpers', 'AirfoilHelper.app')
     : path.join(__dirname, '..', 'electron-build', 'AirfoilHelper.app');
-  if (!fs.existsSync(helperApp)) return;
-  spawn('open', ['-na', helperApp], { stdio: 'ignore' });
+  console.log(`[AirfoilHelper] looking for helper at: ${helperApp}`);
+  if (!fs.existsSync(helperApp)) {
+    console.log('[AirfoilHelper] not found — skipping');
+    return;
+  }
+  console.log('[AirfoilHelper] launching…');
+  const proc = spawn('open', ['-na', helperApp], { stdio: 'pipe' });
+  proc.stderr?.on('data', (d) =>
+    console.log(`[AirfoilHelper] open stderr: ${d.toString().trim()}`),
+  );
+  proc.on('close', (code) =>
+    console.log(`[AirfoilHelper] open exited with code ${code}`),
+  );
 }
 
 function stopAirfoilHelper() {
