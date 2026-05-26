@@ -2,6 +2,20 @@
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-05-26
+
+### Fixed
+- Episode total time now uses the actual audio file duration instead of the (often inaccurate) `itunes:duration` from the RSS feed
+- Current playback position reads from `audio.currentTime` directly rather than a wall-clock estimate that could run past the end of the episode
+- "X remaining" in episode rows was showing fractional seconds (e.g. "39m 7.677s remaining"); now correctly rounded
+- Missing episode artwork in PodcastView
+- Hydration error in Chat component
+
+### Changed
+- "Tap to hear" renamed to "Tap to listen" in the audio detach prompt
+- Periodic update check added to the desktop app, with a menu item to trigger it manually
+- Next.js dev indicator moved to bottom-right so it no longer overlaps UI buttons during local E2E tests
+
 ## [0.1.4] - 2026-05-20
 
 ### Fixed
