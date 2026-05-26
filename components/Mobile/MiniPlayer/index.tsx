@@ -20,6 +20,7 @@ export function MiniPlayer({ onTap }: Props) {
   const {
     state,
     audioDetached,
+    mediaDuration,
     joinAudio,
     play,
     pause,
@@ -43,7 +44,7 @@ export function MiniPlayer({ onTap }: Props) {
 
   if (!episode) return null;
 
-  const duration = episode.duration ?? 0;
+  const duration = mediaDuration || episode.duration || 0;
   const progress = duration > 0 ? Math.min(displayPos / duration, 1) : 0;
   const artUrl = episode.imageUrl ?? episode.podcast?.imageUrl ?? null;
 

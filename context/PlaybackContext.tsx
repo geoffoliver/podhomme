@@ -34,6 +34,7 @@ type Ctx = {
   state: PlaybackStateData;
   isVideo: boolean;
   audioDetached: boolean;
+  mediaDuration: number;
   joinAudio: () => void;
   registerVideoElement: (el: HTMLVideoElement | null) => void;
   currentPosition: () => number;
@@ -55,6 +56,7 @@ export const PlaybackContext = createContext<Ctx | null>(null);
 export function PlaybackProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, defaultState);
   const [audioDetached, setAudioDetached] = useState(false);
+  const [mediaDuration, setMediaDuration] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const videoElementRef = useRef<HTMLVideoElement | null>(null);
   const isVideoRef = useRef(false);
@@ -225,6 +227,9 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const currentPosition = useCallback(() => {
+    const media = getMediaEl();
+    // Prefer the live media element time — it's accurate and bounded by actual duration
+    if (media && media.readyState >= 1) return media.currentTime;
     if (!state.isPlaying) return state.position;
     return (
       state.position + (Date.now() - new Date(state.updatedAt).getTime()) / 1000
@@ -336,6 +341,7 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
         state,
         isVideo,
         audioDetached,
+        mediaDuration,
         joinAudio,
         registerVideoElement,
         currentPosition,
@@ -349,7 +355,13 @@ export function PlaybackProvider({ children }: { children: React.ReactNode }) {
       }}
     >
       {/* Hidden audio element — always in DOM */}
-      <audio ref={audioRef} onEnded={onEnded} />
+      <audio
+        ref={audioRef}
+        onEnded={onEnded}
+        onLoadedMetadata={() =>
+          setMediaDuration(audioRef.current?.duration ?? 0)
+        }
+      />
       {children}
     </PlaybackContext.Provider>
   );

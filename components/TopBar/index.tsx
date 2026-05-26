@@ -47,6 +47,7 @@ export function TopBar({
   const {
     state,
     audioDetached,
+    mediaDuration,
     joinAudio,
     play,
     pause,
@@ -72,7 +73,8 @@ export function TopBar({
     };
   }, [currentPosition]);
 
-  const duration = episode?.duration ?? 0;
+  // Prefer actual audio duration over RSS feed metadata (feeds are often inaccurate)
+  const duration = mediaDuration || episode?.duration || 0;
   const progress = duration > 0 ? Math.min(displayPos / duration, 1) : 0;
 
   const handleBarClick = useCallback(

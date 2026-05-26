@@ -52,7 +52,9 @@ export function EpisodeRow({
   onDetail,
   dragHandleProps,
 }: Props) {
-  const { loadEpisode } = usePlayback();
+  const {
+    state, mediaDuration, loadEpisode, 
+  } = usePlayback();
   const menuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -135,7 +137,7 @@ export function EpisodeRow({
           {episode.duration && (
             <span>
               {episode.resumeAt > 0
-                ? `${formatDuration(Math.max(0, episode.duration - Math.floor(episode.resumeAt)))} remaining`
+                ? `${formatDuration(Math.max(0, (state.episodeId === episode.id && mediaDuration ? mediaDuration : episode.duration) - Math.floor(episode.resumeAt)))} remaining`
                 : formatDuration(episode.duration)}
             </span>
           )}

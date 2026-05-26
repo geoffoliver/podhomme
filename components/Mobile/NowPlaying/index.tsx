@@ -42,6 +42,7 @@ export function NowPlaying({ open, onClose }: Props) {
   const {
     state,
     isVideo,
+    mediaDuration,
     registerVideoElement,
     audioDetached,
     joinAudio,
@@ -86,7 +87,7 @@ export function NowPlaying({ open, onClose }: Props) {
     if (open && !episode) onClose();
   }, [open, episode, onClose]);
 
-  const duration = episode?.duration ?? 0;
+  const duration = mediaDuration || episode?.duration || 0;
   const artUrl = episode?.imageUrl ?? episode?.podcast?.imageUrl ?? null;
   const sliderValue = seeking ? seekValue : displayPos;
 
