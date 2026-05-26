@@ -220,7 +220,7 @@ export function NowPlaying({ open, onClose }: Props) {
       <div className={styles.footer}>
         {audioDetached && (
           <button className={styles.tapToHear} onClick={joinAudio}>
-            <Headphones size={15} /> Tap to hear
+            <Headphones size={15} /> Tap to listen
           </button>
         )}
         <button

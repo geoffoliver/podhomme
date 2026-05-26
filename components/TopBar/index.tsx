@@ -223,7 +223,7 @@ export function TopBar({
           title="Audio is playing — click to hear it on this device"
         >
           <Headphones size={15} />
-          Tap to hear
+          Tap to listen
         </button>
       )}
 

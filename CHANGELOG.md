@@ -60,7 +60,7 @@
 - Fixed modal dialogs rendering at top-left instead of centered (Tailwind preflight resets `margin: 0` on `<dialog>`)
 - Fixed OPML import crash when a feed's image is declared via `<itunes:image href="..."/>` (xml2js wraps attributes in a nested object)
 - Fixed unsubscribing from a podcast not immediately removing its episodes from the All Podcasts view
-- Added "Tap to hear" button for new visitors when autoplay is blocked by the browser
+- Added "Tap to listen" button for new visitors when autoplay is blocked by the browser
 
 ### Added
 - Episode audio served through `/api/episodes/[id]/audio`: streams the locally-downloaded file when available (with range-request support for seeking), falls back to a redirect to the remote RSS URL otherwise

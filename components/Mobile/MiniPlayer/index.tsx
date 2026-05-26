@@ -79,7 +79,7 @@ export function MiniPlayer({ onTap }: Props) {
           <button
             className={styles.controlBtn}
             onClick={joinAudio}
-            aria-label="Tap to hear"
+            aria-label="Tap to listen"
           >
             <Headphones size={22} />
           </button>
