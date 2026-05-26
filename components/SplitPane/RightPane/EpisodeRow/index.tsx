@@ -136,7 +136,6 @@ export function EpisodeRow({
           {episode.duration && <span>·</span>}
           {episode.duration && (
             <span>
-              <span>FUCK</span>
               {episode.resumeAt > 0
                 ? `${formatDuration(Math.max(0, (state.episodeId === episode.id && mediaDuration ? mediaDuration : episode.duration) - Math.floor(episode.resumeAt)))} remaining`
                 : formatDuration(episode.duration)}
