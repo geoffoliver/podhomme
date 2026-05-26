@@ -64,3 +64,5 @@ downloads/*
 
 # Airfoil helper build output
 electron-build/
+
+/examples/AirfoilIntegrationSample
